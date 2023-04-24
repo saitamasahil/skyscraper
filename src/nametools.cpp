@@ -497,7 +497,7 @@ QString NameTools::getCacheId(const QFileInfo &info)
 
   // Use checksum of filename if file is a script or an "unstable" compressed filetype
   bool cacheIdFromData = true;
-  if(info.suffix() == "uae" || info.suffix() == "cue" ||
+  if(info.suffix() == "uae" || info.suffix() == "cue" || info.suffix() == "conf" ||
      info.suffix() == "sh" || info.suffix() == "svm" ||
      info.suffix() == "scummvm" || info.suffix() == "mds" ||
      info.suffix() == "zip" || info.suffix() == "7z" ||
