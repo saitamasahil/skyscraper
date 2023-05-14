@@ -4,6 +4,7 @@
 		{"name":"3do","scrapers":["screenscraper"],"formats":["*.iso", "*.cue", "*.chd"],"aliases":[]},
 		{"name":"3ds","scrapers":["screenscraper"],"formats":["*.3ds"],"aliases":["nintendo 3ds"]},
 		{"name":"actionmax","scrapers":["thegamesdb", "screenscraper"],"formats":["*.daphne", "*.singe"],"aliases":["Action Max", "singe", "daphne"]},
+		{"name":"ags","scrapers":["screenscraper", "mobygames", "thegamesdb"],"formats":["*.exe", "*.ags"],"aliases":["windows", "linux", "pc"]},
 		{"name":"amiga","scrapers":["openretro", "screenscraper"],"formats":["*.uae", "*.adf", "*.dms", "*.adz", "*.rp9", "*.lha", "*.cue", "*.img", "*.iso", "*.hdf"],"aliases":["amiga (aga)", "amiga cdtv", "amiga cd32", "amiga cd32 (hack)", "amiga cd"]},
 		{"name":"amigacd32","scrapers":["openretro", "screenscraper"],"formats":["*.uae", "*.adf", "*.dms", "*.adz", "*.rp9", "*.lha", "*.cue", "*.img", "*.iso", "*.hdf"],"aliases":["amiga (aga)", "amiga cdtv", "amiga cd32", "amiga cd32 (hack)", "amiga cd"]},
 		{"name":"amstradcpc","scrapers":["screenscraper"],"formats":["*.dsk", "*.cpc"],"aliases":["amstrad cpc", "cpc"]},
