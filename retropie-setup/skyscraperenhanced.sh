@@ -40,6 +40,7 @@ function install_skyscraper-enhanced() {
         'artwork.xml.example3'
         'artwork.xml.example4'
         'platforms.json'
+        'mobygames.json'
         'screenscraper.json'
         'tgdb_developers.json'
         'tgdb_publishers.json'
@@ -220,9 +221,19 @@ function _init_config_skyscraper-enhanced() {
         # Fallback to the known resource files list
         cp -f "$md_inst/artwork.xml.example"* "$scraper_conf_dir"
 
-        # Copy resources and readme
+        # Copy configs and readme
+        local r_files=(
+            hints.txt
+            mameMap.csv
+            mobygames.json
+            platforms.json
+            README.md
+            screenscraper.json
+            tgdb_developers.json
+            tgdb_publishers.json
+        )
         local resource_file
-        for resource_file in README.md mameMap.csv tgdb_developers.json tgdb_publishers.json platforms.json screenscraper.json hints.txt; do
+        for resource_file in "${r_files[@]}"; do
             cp -f "$md_inst/$resource_file" "$scraper_conf_dir"
         done
     fi
@@ -334,7 +345,7 @@ function _scrape_chosen_skyscraper-enhanced() {
     # Confirm with the user that scraping can start
     dialog --clear --colors --yes-label "Proceed" --no-label "Abort" --yesno "This will start the gathering process, which can take a long time if you have a large game collection.\n\nYou can interrupt this process anytime by pressing \ZbCtrl+C\Zn.\nProceed ?" 12 70 2>&1 >/dev/tty
     [[ ! $? -eq 0 ]] && return 1
-    
+
     local choice
 
     for choice in "${choices[@]}"; do
@@ -366,7 +377,7 @@ function _generate_chosen_skyscraper-enhanced() {
     fi
 
     local choices
-    local cmd=(dialog --backtitle "$__backtitle" --ok-label "Start" --cancel-label "Back" --checklist " Select platforms for gamelist(s) generation\n\n" 22 60 16) 
+    local cmd=(dialog --backtitle "$__backtitle" --ok-label "Start" --cancel-label "Back" --checklist " Select platforms for gamelist(s) generation\n\n" 22 60 16)
 
     choices=($("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty))
 
@@ -565,7 +576,7 @@ function gui_skyscraper-enhanced() {
         # Show different options, depending on the previous check action
         if [[ -n "$latest_ver" ]] && compareVersions "$latest_ver" gt "$ver" ; then
             options+=(U "Update to $latest_ver")
-        else 
+        else
             options+=(U "Check for Updates")
         fi
 
@@ -653,7 +664,7 @@ function gui_skyscraper-enhanced() {
                     # Update to lastest release or check for update
                     if [[ -n "$latest_ver" ]] && compareVersions "$latest_ver" gt "$ver" ; then
                         rp_callModule "$md_id"
-                    else 
+                    else
                         latest_ver=$(_latest_ver_skyscraper-enhanced)
                         printMsgs "dialog" "Skyscraper latest released version is $latest_ver"
                     fi

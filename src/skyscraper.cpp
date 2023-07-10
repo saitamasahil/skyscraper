@@ -652,6 +652,7 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser)
 
   // Make sure we have a default config.ini file based on the config.ini.example file
   copyFile("/usr/local/etc/skyscraper/platforms.json", "platforms.json", false); // False means it won't overwrite if it exists
+  copyFile("/usr/local/etc/skyscraper/mobygames.json", "mobygames.json", false);
   copyFile("/usr/local/etc/skyscraper/screenscraper.json", "screenscraper.json", false);
   copyFile("/usr/local/etc/skyscraper/config.ini.example", "config.ini", false);
   copyFile("/usr/local/etc/skyscraper/artwork.xml", "artwork.xml", false);
