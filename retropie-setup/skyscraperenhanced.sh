@@ -36,8 +36,28 @@ function install_skyscraper-enhanced() {
         'docs/'
         'LICENSE'
         'README.md'
+<<<<<<< HEAD
         'Skyscraper'
         'VERSION'
+=======
+        'config.ini.example'
+        'artwork.xml'
+        'artwork.xml.example1'
+        'artwork.xml.example2'
+        'artwork.xml.example3'
+        'artwork.xml.example4'
+        'platforms.json'
+        'mobygames.json'
+        'screenscraper.json'
+        'tgdb_developers.json'
+        'tgdb_publishers.json'
+        'mameMap.csv'
+        'aliasMap.csv'
+        'hints.txt'
+        'import'
+        'resources'
+        'cache/priorities.xml.example'
+>>>>>>> fb_platform_json_mobygames
     )
 }
 
@@ -191,7 +211,8 @@ function _init_config_skyscraper-enhanced() {
     if [[ ! -z "$files" ]]; then
         files="README.md hints.xml artwork.xml artwork.xml.example1 artwork.xml.example2"
         files+=" artwork.xml.example3 artwork.xml.example4 aliasMap.csv mameMap.csv"
-        files+=" docs/ARTWORK.md tgdb_developers.json tgdb_publishers.json platforms.json screenscraper.json"
+        files+=" docs/ARTWORK.md tgdb_developers.json tgdb_publishers.json platforms.json" 
+        files+=" mobygames.json screenscraper.json"
     fi
     local file
     for file in $files; do
