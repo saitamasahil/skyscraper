@@ -24,6 +24,8 @@ unix:resexamples.files=resources/maskexample.png resources/frameexample.png reso
 
 unix:INSTALLS += target examples cacheexamples impexamples resexamples
 
+include(win32/skyscraper.pro)
+
 include(./VERSION)
 DEFINES+=VERSION=\\\"$$VERSION\\\"
 
@@ -126,3 +128,6 @@ SOURCES += src/main.cpp \
            src/fxscanlines.cpp \
            src/nametools.cpp \
            src/queue.cpp
+
+SUBDIRS += \
+    win32/skyscraper.pro

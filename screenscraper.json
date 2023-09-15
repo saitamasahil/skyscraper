@@ -1,6 +1,5 @@
 {
-	"platforms":
-	[
+	"platforms": [
 		{"name":"3do","id":29},
 		{"name":"3ds","id":17},
 		{"name":"actionmax","id":81},
