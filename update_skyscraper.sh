@@ -1,6 +1,6 @@
 #!/bin/bash
 {
-    LATEST=`wget -q -O - "https://api.github.com/repos/detain/skyscraper/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
+    LATEST=$(wget -q -O - "https://api.github.com/repos/Gemba/skyscraper/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`)
 
     if [ ! -f VERSION ]
     then
@@ -16,13 +16,13 @@
 	exit $EXITCODE
     }
 
-    if [ $LATEST != $VERSION ]
+    if [ "$LATEST" != "$VERSION" ]
     then
 	echo "--- Fetching Skyscraper v.$LATEST ---"
-	wget -N https://github.com/detain/skyscraper/archive/${LATEST}.tar.gz || handle_error "fetch"
+	wget -N https://github.com/Gemba/skyscraper/archive/"${LATEST}".tar.gz || handle_error "fetch"
 	echo "--- Unpacking ---"
-	tar xvzf ${LATEST}.tar.gz --strip-components 1 --overwrite || handle_error "unpack"
-	rm ${LATEST}.tar.gz
+	tar xvzf "${LATEST}".tar.gz --strip-components 1 --overwrite || handle_error "unpack"
+	rm "${LATEST}".tar.gz
 	echo "--- Cleaning out old build if one exists ---"
 	make --ignore-errors clean
 	rm --force .qmake.stash

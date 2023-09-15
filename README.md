@@ -1,11 +1,13 @@
-# 🏢Skyscraper
-[![Tests](https://github.com/detain/skyscraper/actions/workflows/ci.yml/badge.svg)](https://github.com/detain/skyscraper/actions/workflows/ci.yml)
+# 🏢Skyscraper Enhanced+Reloaded
+[![Tests](https://github.com/Gemba/skyscraper/actions/workflows/ci.yml/badge.svg)](https://github.com/Gemba/skyscraper/actions/workflows/ci.yml)
 
-Original project by [Lars Muldjord](https://github.com/muldjord/skyscraper)
+Original project by [Lars Muldjord](https://github.com/muldjord/skyscraper), temporarily maintained by [Joe Huss](https://github.com/detain/skyscraper).
+
+Below is the original and slightly adapted README. If you are interested about this reloaded fork read [here](README_Skyscraper_reloaded.md)
 
 A powerful and versatile yet easy to use game scraper written in C++ for use with multiple frontends running on a Linux system (macOS and Windows too, but not officially supported). It scrapes and caches various game resources from various scraping sources, including media such as screenshot, cover and video. It then gives you the option to generate a game list and artwork for the chosen frontend by combining all of the cached resources.
 
-All Skyscraper features are [well-documented](https://github.com/detain/skyscraper/tree/master/docs) and there's also a [F.A.Q](https://github.com/detain/skyscraper/blob/master/docs/FAQ.md).
+All Skyscraper features are [well-documented](https://github.com/Gemba/skyscraper/tree/master/docs) and there's also a [F.A.Q](https://github.com/Gemba/skyscraper/blob/master/docs/FAQ.md).
 
 ## 🎮Platforms Supported (set with '-p'):
 Check the full list of platforms [here](docs/PLATFORMS.md).
@@ -26,7 +28,13 @@ Follow the steps below to install the latest version of Skyscraper. Lines beginn
 
 NOTE! If you are using the RetroPie distribution, you have the option to install Skyscraper directly from the RetroPie-Setup script (*you need to update the script before installing it!*). Read more about all of that [here](https://retropie.org.uk/docs/Scraper/#lars-muldjords-skyscraper). If not, read on.
 
-### Install prerequisites
+### Installation of Skyscraper Enhanced on RetroPie
+
+You can install this "Skyscraper-Enhanced by" adding the [script](retropie-setup/skyscraper-enhanced.sh) in the `/home/pi/RetroPie-Setup/ext/<younameit>/scriptmodules/supplementary` folder of your retropie setup installation. Then run either `sudo RetroPie-Setup/retropie_setup.sh` and folow the dialogs or run `sudo RetroPie-Setup/retropie_packages.sh skyscraper-enhanced`
+
+This way, you can install and run the program through the retropie setup menu like the original Skyscraper. Note that the same config and installation folders of the original Skyscraper will be used instead of having everything duplicated in specific folders.
+
+### Installation Prerequisites on Other Systems or Architectures
 #### Linux
 Skyscraper needs Qt5.3 or later to compile. For a Retropie, Ubuntu or other Debian derived distro, you can install Qt5 using the following commands:
 ```
@@ -50,7 +58,7 @@ If that went well, proceed to the default installation instructions below. It sh
 
 NOTE 1! User 'davidmgrantham' reports that the `--with-default-names` above might be deprecated for some macOS installations. If you remove it, you also need to download the `update_skyscraper.sh` and edit the `tar` commands to be `gtar` before running it.
 
-NOTE 2! User 'trvrplk' reports numerous issues on MacOS 11.2+. Check [here](https://github.com/detain/skyscraper/issues/301) for potential fixes.
+NOTE 2! User 'trvrplk' reports numerous issues on MacOS 11.2+. Check [here](https://github.com/Gemba/skyscraper/issues/301) for potential fixes.
 
 ### Download, compile and install
 When you've installed the prerequisites as described above, you can install Skyscraper by typing in the following commands:
@@ -58,7 +66,7 @@ When you've installed the prerequisites as described above, you can install Skys
 $ cd
 $ mkdir skysource
 $ cd skysource
-$ wget -q -O - https://raw.githubusercontent.com/detain/skyscraper/master/update_skyscraper.sh | bash
+$ wget -q -O - https://raw.githubusercontent.com/Gemba/skyscraper/master/update_skyscraper.sh | bash
 ```
 The last command will download and run the latest update script from Github. During the installation you might be asked for your sudo password. On RetroPie the default password is `raspberry`.
 
@@ -86,7 +94,7 @@ $ rm -Rf .skyscraper
 You might be asked for your sudo password during the processs. On RetroPie the default password is `raspberry`.
 
 ### Windows
-Windows is not officially supported at this time! But I do semi-regularly compile and release an unsupported Windows 64-bit version that works just fine. Be sure to read the included README from the downloaded file before using it! And just to be clear: You are on your own if you use this version - please don't ask me questions about it. Get the Windows version [here](https://github.com/detain/skyscraper/releases/download/3.6.12/Skyscraper_3.6.12_unsupported_win_version.zip).
+Windows is not officially supported at this time! However, you [may roll your own](win32/README.md) Windows 64-bit version that works just fine. And just to be clear: You are on your own if you use this version - please don't ask me questions about it. Use the sources.
 
 ## How to use Skyscraper
 IMPORTANT!!! In order for Skyscraper to work properly, it is necessary to quit your frontend before running it! If you're running EmulationStation, you can quit it by pressing F4.
@@ -133,27 +141,21 @@ One of Skyscraper's most powerful features is the resource cache. It's important
 ### Custom data
 I addition to allowing scraping from locally cached resources, Skyscraper also allows you to import your own data into the resource cache with the `-s import` scraping module. You can also edit existing resources in the cache or add individual `user` resources with the `--cache edit` command. Lastly, you also have the option of importing existing EmulationStation game list data into the Skyscraper resource cache if you need it. You can do this with the `-s esgamelist` scraping module.
 
-To read more about any of the features described above, please check out all of the documentation [here](https://github.com/detain/skyscraper/tree/master/docs).
+To read more about any of the features described above, please check out all of the documentation [here](https://github.com/Gemba/skyscraper/tree/master/docs).
 
 ### Artwork look and effects
 Check the full artwork documentation [here](docs/ARTWORK.md)
 
-## Skyscraper JSON Enhancement by torresflo
+## Skyscraper JSON Enhancement
 
 The main goal of this fork is to allow users to easily configurate and add platforms without having the needs to edit the code source directly.
 
-Currently, the only scraper supported by this feature is Screenscraper. This feature is achieved by adding new config files:
-- [platforms.json](platforms.json) describes now the supported platforms by Skyscraper.
-- [screenscraper.json](screenscraper.json). describes the required information on the Screenscraper website for each compatible platform.
+This feature is achieved by adding new config files:
+- [platforms.json](platforms.json): Describes now the supported platforms by Skyscraper. See details [here](docs/PLATFORMS.md).
+- [screenscraper.json](screenscraper.json): Maps the local platform name to the platform ID of screenscraper.fr webpage/API.
+- [mobygames.json](mobygames.json): Maps the local platform name to the platform ID of mobygames.com webpage/API.
 
-These 2 files are pretty straigthforward to edit if you want to add a new platform (as an example I added myself the platforms OpenBOR and Solarus). These files are copied in the folder `/usr/local/etc/skyscraper/` at the first run of the program if you want to edit them after an installation.  
-
-### Installation
-
-You can easilly install Skyscraper Enhanced by adding the script in the retropie-setup folder ([here](retropie-setup/skyscraperenhanced.sh)) in the scriptmodules folder of your retropie setup installation.
-
-This way, you can install and run the program through the retropie setup menu like the original Skyscraper. Note that the same config and installation folders of the original Skyscraper will be used instead of having everything duplicated in specific folders.
-
+These three are pretty straigthforward to edit if you want to add a new platform (as an example I added myself the platforms OpenBOR and Solarus). These files are copied in the folder `/home/pi/.skyscraper` on RetroPie (or `/usr/local/etc/skyscraper/` in general) at the first run of the program if you want to edit them after an installation.  
 
 ## Release notes
 
@@ -162,7 +164,7 @@ This way, you can install and run the program through the retropie setup menu li
 * Consider making aliasMap the global baseName instead of just the search term base name. This will fix missing brackets in alias names being ignored later on
 * Make all artwork types custom meaning that their type can be whatever the user wants. The sources will create ones with known types such as 'screenshot' and 'cover', but the user can import other types they define themselves, such as 'cabinet' or whatever else. Internally artwork is then handled by a list of artwork instead of 4 hardcoded types in GameEntry
 * Introduce the ability to use <BASENAME> in the 'file="somefolder/<BASENAME>.png"' in artwork.xml which would then look for a file in 'resources' with the game basename.png allowing users to use their own custom artwork data as a workaround to adding new types to import (Thank you to 'jueank' for suggesting this)
-* Add the option of scraping custom platforms by configuring them in the config with an alias to an already existing platform. Example: scrape 'pcenginecd' could be scraped as 'pcengine' in case you have those files in a 'roms/pcenginecd' folder instead of the pcengine folder. Check here: https://github.com/detain/skyscraper/issues/136
+* Add the option of scraping custom platforms by configuring them in the config with an alias to an already existing platform. Example: scrape 'pcenginecd' could be scraped as 'pcengine' in case you have those files in a 'roms/pcenginecd' folder instead of the pcengine folder. Check here: https://github.com/muldjord/skyscraper/issues/136
 * Create a testmode for the artwork compositor that let's you quickly render an example to see if you got everything set up right in the artwork xml
 * Allow 'region' to be a list similar to 'regionPrios'. When using 'region' it should simply keep the default priority list and add those from 'region' to the top. 'regionPrios' should still overwrite it entirely. Naming change probably a good idea, for instance rename 'region' to 'regionsPrefer' or something. 'regionPrios' should probably also be changed to 'regionsOverride'. (Thank you to 'corezon' for suggesting this).
 * Implement a less rigid filename match for the 'import' module to allow for close match filenames

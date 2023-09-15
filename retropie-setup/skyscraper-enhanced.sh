@@ -12,8 +12,8 @@
 rp_module_id="skyscraper-enhanced"
 rp_module_desc="Scraper for EmulationStation by Lars Muldjord & torresflo"
 rp_module_help="Enhanced: Add extra systems to scrape by editing platforms.json and screenscraper.json - no recompile needed."
-rp_module_licence="GPL3 https://raw.githubusercontent.com/detain/skyscraper/master/LICENSE"
-rp_module_repo="git https://github.com/detain/skyscraper master :_latest_ver_skyscraper-enhanced"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/Gemba/skyscraper/master/LICENSE"
+rp_module_repo="git https://github.com/Gemba/skyscraper master :_latest_ver_skyscraper-enhanced"
 rp_module_section="opt"
 
 function depends_skyscraper-enhanced() {
@@ -118,7 +118,7 @@ function _get_ver_skyscraper-enhanced() {
 }
 
 function _latest_ver_skyscraper-enhanced() {
-    wget -qO- https://api.github.com/repos/detain/skyscraper/releases/latest | grep -m 1 tag_name | cut -d\" -f4
+    wget -qO- https://api.github.com/repos/Gemba/skyscraper/releases/latest | grep -m 1 tag_name | cut -d\" -f4
 }
 
 # List any non-empty systems found in the ROM folder
