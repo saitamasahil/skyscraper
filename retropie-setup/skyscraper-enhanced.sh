@@ -9,12 +9,19 @@
 # at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
 #
 
+_skyscraper_enh_repo_path="Gemba/skyscraper"
+
 rp_module_id="skyscraper-enhanced"
-rp_module_desc="Scraper for EmulationStation by Lars Muldjord & torresflo"
+rp_module_desc="Scraper for EmulationStation by Lars Muldjord and others"
 rp_module_help="Enhanced: Add extra systems to scrape by editing platforms.json and screenscraper.json - no recompile needed."
-rp_module_licence="GPL3 https://raw.githubusercontent.com/Gemba/skyscraper/master/LICENSE"
-rp_module_repo="git https://github.com/Gemba/skyscraper master :_latest_ver_skyscraper-enhanced"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/${_skyscraper_enh_repo_path}/master/LICENSE"
+rp_module_repo="git https://github.com/${_skyscraper_enh_repo_path} :_latest_release_skyscraper-enhanced"
 rp_module_section="opt"
+
+
+function _latest_release_skyscraper-enhanced() {
+    download https://api.github.com/repos/${_skyscraper_enh_repo_path}/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
 
 function depends_skyscraper-enhanced() {
     getDepends qt5-default p7zip-full
@@ -22,11 +29,11 @@ function depends_skyscraper-enhanced() {
 
 function sources_skyscraper-enhanced() {
     gitPullOrClone
-    echo VERSION=\"$(_latest_ver_skyscraper-enhanced)\" >VERSION
+    echo VERSION=\"$(_latest_release_skyscraper-enhanced)\" >VERSION
 }
 
 function build_skyscraper-enhanced() {
-    qmake
+    QT_SELECT=5 qmake
     make
     md_ret_require="$md_build/Skyscraper"
 }
@@ -72,9 +79,9 @@ function _clear_platform_skyscraper-enhanced() {
     [[ ! -d "$configdir/all/skyscraper/$cache_folder/$platform" ]] && return
 
     if [[ $mode == "vacuum" ]]; then
-        sudo -u "$user" stdbuf -o0 "$md_inst"/Skyscraper --unattend -p "$platform" --cache vacuum
+        sudo -u $user stdbuf -o0 "$md_inst"/Skyscraper -p "$platform" --cache vacuum
     else
-        sudo -u "$user" stdbuf -o0 "$md_inst"/Skyscraper --unattend -p "$platform" --cache purge:all
+        sudo -u $user stdbuf -o0 "$md_inst"/Skyscraper -p "$platform" --cache purge:all
     fi
     sleep 5
 }
@@ -117,18 +124,9 @@ function _get_ver_skyscraper-enhanced() {
     fi
 }
 
-function _latest_ver_skyscraper-enhanced() {
-    wget -qO- https://api.github.com/repos/Gemba/skyscraper/releases/latest | grep -m 1 tag_name | cut -d\" -f4
-}
-
 # List any non-empty systems found in the ROM folder
 function _list_systems_skyscraper-enhanced() {
     find -L "$romdir/" -mindepth 1 -maxdepth 1 -type d -not -empty | sort -u
-}
-
-function remove_skyscraper-enhanced() {
-    # On removal of the package, purge the cache
-    _purge_skyscraper-enhanced
 }
 
 function configure_skyscraper-enhanced() {
@@ -174,7 +172,7 @@ function configure_skyscraper-enhanced() {
     done
 
     _init_config_skyscraper-enhanced
-    chown -R "$user":"$user" "$configdir/all/skyscraper"
+    chown -R $user:$user "$configdir/all/skyscraper"
 }
 
 function _init_config_skyscraper-enhanced() {
@@ -276,7 +274,7 @@ function _scrape_skyscraper-enhanced() {
 
     # trap ctrl+c and return if pressed (rather than exiting retropie-setup etc)
     trap 'trap 2; return 1' INT
-    sudo -u "$user" stdbuf -o0 "$md_inst/Skyscraper" "${params[@]}"
+    sudo -u $user stdbuf -o0 "$md_inst/Skyscraper" "${params[@]}"
     echo -e "\nCOMMAND LINE USED:\n $md_inst/Skyscraper" "${params[@]}"
     sleep 2
     trap 2
@@ -285,7 +283,7 @@ function _scrape_skyscraper-enhanced() {
 # Scrape a list of systems, chosen by the user
 function _scrape_chosen_skyscraper-enhanced() {
     ver=$(_get_ver_skyscraper-enhanced)
-    if compareVersions "$ver" lt "3.5" ]]; then
+    if compareVersions "$ver" lt "3.5"; then
         printMsgs "dialog" "The version of Skyscraper you currently have installed is incompatible with options used by this script. Please update Skyscraper to the latest version to continue."
         return 1
     fi
@@ -327,7 +325,7 @@ function _scrape_chosen_skyscraper-enhanced() {
 # Generate gamelists for a list of systems, chosen by the user
 function _generate_chosen_skyscraper-enhanced() {
     ver=$(_get_ver_skyscraper-enhanced)
-    if compareVersions "$ver" lt "3.5" ]]; then
+    if compareVersions "$ver" lt "3.5"; then
         printMsgs "dialog" "The version of Skyscraper you currently have installed is incompatible with options used by this script. Please update Skyscraper to the latest version to continue."
         return 1
     fi
@@ -382,10 +380,10 @@ function _open_editor_skyscraper-enhanced() {
     local editor
 
     if [[ -n $(command -v sensible-editor) ]]; then
-        sudo -u "$user" sensible-editor "$1" >/dev/tty </dev/tty
+        sudo -u $user sensible-editor "$1" >/dev/tty </dev/tty
     else
         editor="${EDITOR:-nano}"
-        sudo -u "$user" "$editor" "$1" >/dev/tty </dev/tty
+        sudo -u $user "$editor" "$1" >/dev/tty </dev/tty
     fi
 }
 
@@ -451,7 +449,7 @@ function gui_skyscraper-enhanced() {
 
     iniConfig " = " '"' "$configdir/all/skyscraper.cfg"
     eval $(_load_config_skyscraper-enhanced)
-    chown "$user":"$user" "$configdir/all/skyscraper.cfg"
+    chown $user:$user "$configdir/all/skyscraper.cfg"
 
     local -a s_source
     local -a s_source_names
@@ -637,7 +635,7 @@ function gui_skyscraper-enhanced() {
                 if [[ -n "$latest_ver" ]] && compareVersions "$latest_ver" gt "$ver"; then
                     rp_callModule "$md_id"
                 else
-                    latest_ver=$(_latest_ver_skyscraper-enhanced)
+                    latest_ver=$(_latest_release_skyscraper-enhanced)
                     printMsgs "dialog" "Skyscraper latest released version is $latest_ver"
                 fi
                 ;;
@@ -671,8 +669,8 @@ function _gui_cache_skyscraper-enhanced() {
         [4]="Toggle whether marquees are cached locally when scraping.\n\nSkyscraper option: \Zb--flags nomarquees\Zn"
         [5]="Enable this to only scrape files that do not already have data in the Skyscraper resource cache.\n\nSkyscraper option: \Zb--flags onlymissing\Zn"
         [6]="Force the refresh of resources in the local cache when scraping.\n\nSkyscraper option: \Zb--cache refresh\Zn"
-        [P]="Purge \ZbALL\Zn all cached resources for all platforms."
-        [S]="Purge all cached resources for a chosen platform.\n\nSkyscraper option: \Zb--cache purge:all\Zn"
+        [P]="Purge \ZbALL\Zn all cached resources for all platforms.\n\nThis will flush all of Skyscrapers cached scraped game data down the drain!\n\nIf unsure do not run!"
+        [S]="Purge all cached resources for a chosen platform.\n\nSkyscraper option: \Zb--cache purge:all\Zn\n\nIf unsure do not run!"
         [V]="Removes all non-used cached resources for a chosen platform (vacuum).\n\nSkyscraper option: \Zb--cache vacuum\Zn"
     )
 
@@ -721,9 +719,9 @@ function _gui_cache_skyscraper-enhanced() {
         fi
 
         options+=("-" "PURGE cache commands")
-        options+=(V "Vacuum chosen platform")
-        options+=(S "Purge chosen platform")
-        options+=(P "Purge all platforms(!)")
+        options+=(V "Vacuum chosen platform (=remove unreferenced cache data)")
+        options+=(S "Purge cached data for chosen platform (dangerous!)")
+        options+=(P "Purge all cached data for all platforms (very dangerous!)")
 
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
