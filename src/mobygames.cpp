@@ -286,7 +286,7 @@ void MobyGames::getRating(GameEntry &game)
   if(jsonValue != QJsonValue::Undefined) {
     double rating = jsonValue.toDouble();
     if(rating != 0.0) {
-      game.rating = QString::number(rating / 5.0);
+      game.rating = QString::number(rating / 10.0);
     }
   }
 }
