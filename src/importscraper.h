@@ -27,6 +27,7 @@
 #define IMPORTSCRAPER_H
 
 #include "abstractscraper.h"
+#include <QRegularExpression>
 
 class ImportScraper : public AbstractScraper
 {
@@ -38,6 +39,7 @@ public:
   void getGameData(GameEntry &game) override;
   QString getCompareTitle(QFileInfo info) override;
   void getTitle(GameEntry &game);
+  void getRating(GameEntry &game);
   void getCover(GameEntry &game) override;
   void getScreenshot(GameEntry &game) override;
   void getWheel(GameEntry &game) override;

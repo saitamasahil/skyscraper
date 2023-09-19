@@ -248,6 +248,45 @@ void ImportScraper::getTitle(GameEntry &game)
   game.title = data.left(data.indexOf(titlePost.toUtf8())).simplified();
 }
 
+void ImportScraper::getRating(GameEntry &game)
+{
+  if(ratingPre.isEmpty()) {
+    return;
+  }
+  for(const auto &nom: ratingPre) {
+    if(!checkNom(nom)) {
+      return;
+    }
+  }
+  for(const auto &nom: ratingPre) {
+    nomNom(nom);
+  }
+  game.rating = data.left(data.indexOf(ratingPost.toUtf8()));
+
+  // check for 0, 0.5, 1, 1.5, ... 5
+  QRegularExpression re("^[0-5](\\.5)?$");
+  QRegularExpressionMatch m = re.match(game.rating);
+  if (m.hasMatch()) {
+    double rating = game.rating.toDouble();
+    if (rating <= 5.0) {
+      game.rating = QString::number(rating / 5.0);
+    } else {
+      game.rating = "";
+    }
+    return;
+  }
+
+  // check for 0.0 ... 1.0
+  // known limitation: to catch 0.5 here enter it as '.5'
+  bool toDoubleOk = false;
+  double rating = game.rating.toDouble(&toDoubleOk);
+  if(toDoubleOk && rating >= 0.0 && rating <= 1.0) {
+    game.rating = QString::number(rating);
+  } else {
+    game.rating = "";
+  }
+}
+
 void ImportScraper::loadData()
 {
   if(!textualFile.isEmpty()) {
