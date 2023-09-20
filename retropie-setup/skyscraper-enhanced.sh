@@ -186,7 +186,7 @@ function _init_config_skyscraper-enhanced() {
     iniConfig "=" '' "$md_build/skyscraper.pro"
     iniGet "unix:examples.files"
     local files="$ini_value"
-    if [[ ! -z "$files" ]]; then
+    if [[ -z "$files" ]]; then
         files="README.md hints.xml artwork.xml artwork.xml.example1 artwork.xml.example2"
         files+=" artwork.xml.example3 artwork.xml.example4 aliasMap.csv mameMap.csv"
         files+=" docs/ARTWORK.md tgdb_developers.json tgdb_publishers.json platforms.json"
