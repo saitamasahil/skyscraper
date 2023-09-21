@@ -24,7 +24,7 @@ function _latest_release_skyscraper-enhanced() {
 }
 
 function depends_skyscraper-enhanced() {
-    getDepends qt5-default p7zip-full
+    depends_skyscraper
 }
 
 function sources_skyscraper-enhanced() {
@@ -33,9 +33,7 @@ function sources_skyscraper-enhanced() {
 }
 
 function build_skyscraper-enhanced() {
-    QT_SELECT=5 qmake
-    make
-    md_ret_require="$md_build/Skyscraper"
+    build_skyscraper
 }
 
 function install_skyscraper-enhanced() {
@@ -79,9 +77,9 @@ function _clear_platform_skyscraper-enhanced() {
     [[ ! -d "$configdir/all/skyscraper/$cache_folder/$platform" ]] && return
 
     if [[ $mode == "vacuum" ]]; then
-        sudo -u $user stdbuf -o0 "$md_inst"/Skyscraper -p "$platform" --cache vacuum
+        sudo -u "$user" stdbuf -o0 "$md_inst"/Skyscraper -p "$platform" --cache vacuum
     else
-        sudo -u $user stdbuf -o0 "$md_inst"/Skyscraper -p "$platform" --cache purge:all
+        sudo -u "$user" stdbuf -o0 "$md_inst"/Skyscraper -p "$platform" --cache purge:all
     fi
     sleep 5
 }
@@ -172,7 +170,7 @@ function configure_skyscraper-enhanced() {
     done
 
     _init_config_skyscraper-enhanced
-    chown -R $user:$user "$configdir/all/skyscraper"
+    chown -R "$user":"$user" "$configdir/all/skyscraper"
 }
 
 function _init_config_skyscraper-enhanced() {
@@ -274,7 +272,7 @@ function _scrape_skyscraper-enhanced() {
 
     # trap ctrl+c and return if pressed (rather than exiting retropie-setup etc)
     trap 'trap 2; return 1' INT
-    sudo -u $user stdbuf -o0 "$md_inst/Skyscraper" "${params[@]}"
+    sudo -u "$user" stdbuf -o0 "$md_inst/Skyscraper" "${params[@]}"
     echo -e "\nCOMMAND LINE USED:\n $md_inst/Skyscraper" "${params[@]}"
     sleep 2
     trap 2
@@ -380,10 +378,10 @@ function _open_editor_skyscraper-enhanced() {
     local editor
 
     if [[ -n $(command -v sensible-editor) ]]; then
-        sudo -u $user sensible-editor "$1" >/dev/tty </dev/tty
+        sudo -u "$user" sensible-editor "$1" >/dev/tty </dev/tty
     else
         editor="${EDITOR:-nano}"
-        sudo -u $user "$editor" "$1" >/dev/tty </dev/tty
+        sudo -u "$user" "$editor" "$1" >/dev/tty </dev/tty
     fi
 }
 
@@ -449,7 +447,7 @@ function gui_skyscraper-enhanced() {
 
     iniConfig " = " '"' "$configdir/all/skyscraper.cfg"
     eval $(_load_config_skyscraper-enhanced)
-    chown $user:$user "$configdir/all/skyscraper.cfg"
+    chown "$user":"$user" "$configdir/all/skyscraper.cfg"
 
     local -a s_source
     local -a s_source_names
