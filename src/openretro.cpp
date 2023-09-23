@@ -76,6 +76,10 @@ OpenRetro::OpenRetro(Settings *config,
   releaseDatePre.append("<td style='color: black;'><div>");
   releaseDatePost = "</div></td>";
   tagsPre.append(">tags</td>");
+  ratingPre.append("<div class='game-review'>");
+  ratingPre.append("<span class='score'>");
+  ratingPre.append("<div class='score'>Score: ");
+  ratingPost = "</";
 
   fetchOrder.append(MARQUEE);
   fetchOrder.append(DESCRIPTION);
@@ -86,6 +90,7 @@ OpenRetro::OpenRetro(Settings *config,
   fetchOrder.append(SCREENSHOT);
   fetchOrder.append(TAGS);
   fetchOrder.append(RELEASEDATE);
+  fetchOrder.append(RATING);
 }
 
 void OpenRetro::getSearchResults(QList<GameEntry> &gameEntries,
@@ -93,8 +98,12 @@ void OpenRetro::getSearchResults(QList<GameEntry> &gameEntries,
 {
   netComm->request(searchUrlPre + searchName + (searchName.left(6) == "/game/"?"":searchUrlPost));
   q.exec();
+
+  GameEntry game;
+
   while(!netComm->getRedirUrl().isEmpty()) {
-    netComm->request(netComm->getRedirUrl());
+    game.url = netComm->getRedirUrl();
+    netComm->request(game.url);
     q.exec();
   }
   data = netComm->getData();
@@ -106,7 +115,6 @@ void OpenRetro::getSearchResults(QList<GameEntry> &gameEntries,
      data.contains("Error: 404 Not Found"))
     return;
 
-  GameEntry game;
 
   if(searchName.left(6) == "/game/") {
     QByteArray tempData = data;
@@ -124,26 +132,26 @@ void OpenRetro::getSearchResults(QList<GameEntry> &gameEntries,
   } else {
     while(data.indexOf(searchResultPre.toUtf8()) != -1) {
       nomNom(searchResultPre);
-      
+
       // Digest until url
       for(const auto &nom: urlPre) {
 	nomNom(nom);
       }
       game.url = baseUrl + "/" + data.left(data.indexOf(urlPost.toUtf8())) + "/edit";
-      
+
       // Digest until title
       for(const auto &nom: titlePre) {
 	nomNom(nom);
       }
       // Remove AGA, we already add this automatically in StrTools::addSqrBrackets
       game.title = data.left(data.indexOf(titlePost.toUtf8())).replace("[AGA]", "").simplified();
-      
+
       // Digest until platform
       for(const auto &nom: platformPre) {
 	nomNom(nom);
       }
       game.platform = data.left(data.indexOf(platformPost.toUtf8())).replace("&nbsp;", " ");
-      
+
       if(platformMatch(game.platform, platform)) {
 	gameEntries.append(game);
       }
@@ -259,6 +267,58 @@ void OpenRetro::getTags(GameEntry &game)
   game.tags = tags;
 }
 
+void OpenRetro::getRating(GameEntry &game)
+{
+  game.url.chop(5); // remove trailing '/edit'
+  netComm->request(game.url);
+  q.exec();
+  data = netComm->getData();
+
+  bool ratingDecimal = true;
+
+  if(checkNom(ratingPre.at(0))) {
+    // "0 ... 100%" or "n/d" (from mags/ext. websites)
+    nomNom(ratingPre.at(0));
+    nomNom(ratingPre.at(1));
+    ratingDecimal = false;
+  } else if(checkNom(ratingPre.at(2))) {
+    // 1.0 ... 10.0 (from Openretro)
+    nomNom(ratingPre.at(2));
+  } else {
+    game.rating = "";
+    return;
+  }
+
+  bool toDoubleOk = false;
+  game.rating = data.left(data.indexOf(ratingPost.toUtf8()));
+
+  if(!ratingDecimal) {
+    if(game.rating.endsWith("%")) {
+      game.rating.chop(1); 
+    } else if(game.rating.contains("/")) {
+      QStringList parts = game.rating.split("/");
+      double num = parts.value(0).toDouble(&toDoubleOk);
+      if(toDoubleOk) {
+        double den = parts.value(1).toDouble(&toDoubleOk);
+        if(toDoubleOk && den > 0.0) {
+          game.rating = QString::number(num/den);      
+          return;
+        }
+      }
+      game.rating = "";
+    } else  {
+      game.rating = "";
+    }
+  }
+
+  double rating = game.rating.toDouble(&toDoubleOk);
+  if(toDoubleOk) {
+    game.rating = QString::number(rating / (ratingDecimal ? 10.0 : 1.0));
+  } else {
+    game.rating = "";
+  }
+}
+
 void OpenRetro::getCover(GameEntry &game)
 {
   if(coverPre.isEmpty()) {
@@ -325,7 +385,7 @@ QList<QString> OpenRetro::getSearchNames(const QFileInfo &info)
     if(!config->aliasMap[baseName].isEmpty()) {
       baseName = config->aliasMap[baseName];
     } else if(info.suffix() == "lha") {
-      // Pass 1 is uuid from whdload_db.xml 
+      // Pass 1 is uuid from whdload_db.xml
       if(!config->whdLoadMap[baseName].second.isEmpty()) {
 	searchNames.append("/game/" + config->whdLoadMap[baseName].second);
       }

@@ -42,6 +42,7 @@ private:
   void getGameData(GameEntry &game) override;
   void getDescription(GameEntry &game) override;
   void getTags(GameEntry &game) override;
+  void getRating(GameEntry &game) override;
   void getCover(GameEntry &game) override;
   void getMarquee(GameEntry &game) override;
 };
