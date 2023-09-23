@@ -96,7 +96,14 @@ OpenRetro::OpenRetro(Settings *config,
 void OpenRetro::getSearchResults(QList<GameEntry> &gameEntries,
 				 QString searchName, QString platform)
 {
-  netComm->request(searchUrlPre + searchName + (searchName.left(6) == "/game/"?"":searchUrlPost));
+  bool hasWhdlUuid = searchName.left(6) == "/game/";
+  QString lookupReq = QString(searchUrlPre);
+  if(hasWhdlUuid) {
+    lookupReq = lookupReq + searchName;
+  } else {
+    lookupReq = lookupReq + "/browse?q=" +  searchName + searchUrlPost;
+  }
+  netComm->request(lookupReq);
   q.exec();
 
   GameEntry game;
@@ -116,7 +123,7 @@ void OpenRetro::getSearchResults(QList<GameEntry> &gameEntries,
     return;
 
 
-  if(searchName.left(6) == "/game/") {
+  if(hasWhdlUuid) {
     QByteArray tempData = data;
     nomNom("<td style='width: 180px; color: black;'>game_name</td>");
     nomNom("<td style='color: black;'><div>");
@@ -135,25 +142,25 @@ void OpenRetro::getSearchResults(QList<GameEntry> &gameEntries,
 
       // Digest until url
       for(const auto &nom: urlPre) {
-	nomNom(nom);
+	      nomNom(nom);
       }
       game.url = baseUrl + "/" + data.left(data.indexOf(urlPost.toUtf8())) + "/edit";
 
       // Digest until title
       for(const auto &nom: titlePre) {
-	nomNom(nom);
+      	nomNom(nom);
       }
       // Remove AGA, we already add this automatically in StrTools::addSqrBrackets
       game.title = data.left(data.indexOf(titlePost.toUtf8())).replace("[AGA]", "").simplified();
 
       // Digest until platform
       for(const auto &nom: platformPre) {
-	nomNom(nom);
+	      nomNom(nom);
       }
       game.platform = data.left(data.indexOf(platformPost.toUtf8())).replace("&nbsp;", " ");
 
       if(platformMatch(game.platform, platform)) {
-	gameEntries.append(game);
+	      gameEntries.append(game);
       }
     }
   }
@@ -294,14 +301,14 @@ void OpenRetro::getRating(GameEntry &game)
 
   if(!ratingDecimal) {
     if(game.rating.endsWith("%")) {
-      game.rating.chop(1); 
+      game.rating.chop(1);
     } else if(game.rating.contains("/")) {
       QStringList parts = game.rating.split("/");
       double num = parts.value(0).toDouble(&toDoubleOk);
       if(toDoubleOk) {
         double den = parts.value(1).toDouble(&toDoubleOk);
         if(toDoubleOk && den > 0.0) {
-          game.rating = QString::number(num/den);      
+          game.rating = QString::number(num/den);
           return;
         }
       }
