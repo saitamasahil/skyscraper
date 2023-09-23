@@ -1,8 +1,8 @@
-# Welcome to Skyscraper, the enhanced and reloaded edition
+# Welcome to Skyscraper: The enhanced and reloaded edition
 
 Based on commit 654a31b from 2022-10-26 from [this enhanced skyscraper
 fork](https://github.com/detain/skyscraper) as development and maintenance
-obviously has been stalled there.  
+obviously has been stalled there.
 
 ## Included PRs
 
@@ -19,15 +19,38 @@ These pull requests have been merged into this fork.
 
 ## Changes
 
+### 2023-09-23 (Version 3.8.1.2309)
+
+- Feature: OpenRetro scraper retrieves now also score/rating, if available for a
+  game. Precedence is to use reviews from external websites first (right
+  header), then the Score label (above the game details). See this
+  [example](https://openretro.org/amiga/shadow-of-the-beast)
+- Feature: Additionally to the existing import with rating values of 0, 0.5, 1,
+  1.5 ... 5 ("Star rating") it is possible to use 0.1 ... 1.0 scale for rating
+  in import files (EmulationStation `gamelist.xml` internal rating range). See
+  also [import formats](docs/IMPORT.md#resource-formats)
+- Fix: Wrong score/rating calculation from Mobygames scraper / Mobygames API.
+  See also [this
+  gist](https://gist.github.com/Gemba/13f0accddcecd68a356721ebac020d76) on how
+  to update your existing Skyscraper `db.xml` files.
+- Fix: Use of `--query` free-text search in OpenRetro scraper fixed. This bug
+  did not occur when the switch is ommitted and a Amiga WHDLoad file is provided
+  to Skyscraper.
+- Fix: RetroPie Scriptmodule, removed surplus boolean negation (Thanks
+  @s1eve-mcdichae1)
+- Fix: RetroPie Scriptmodule, fixed use of legacy option `--unattend` (Thanks
+  @windg)
+- Update: RetroPie Scriptmodule, relaxed the remove function of the scriptmodule
+  to not zap the Skyscraper cache. Plus various cleanups.
+
 ### 2023-09-15 (Version 3.8.0.2309)
 
- - updated `mamemap.csv` from MAME 0.240 (Arcade).dat, fbneo.dat,
-   mame2003-plus.xml and cleanup of surplus device information 
- - update script for make `mamemap.csv` does no longer rely on mame binary
- - removed discontinued `*.php` scripts
- - `platforms.json` sorted and formatted
- - updated documentation especially to reflect the supported platforms
- - scriptmodule file for RetroPie aligned to their naming convention
- - Mobygames platform information refactored from hardwired `mobygames.cpp`.to
-   `mobygames.json`
-
+- updated `mamemap.csv` from MAME 0.240 (Arcade).dat, fbneo.dat,
+  mame2003-plus.xml and cleanup of surplus device information
+- update script for make `mamemap.csv` does no longer rely on mame binary
+- removed discontinued `*.php` scripts
+- `platforms.json` sorted and formatted
+- updated documentation especially to reflect the supported platforms
+- scriptmodule file for RetroPie aligned to their naming convention
+- Mobygames platform information refactored from hardwired `mobygames.cpp`.to
+  `mobygames.json`
