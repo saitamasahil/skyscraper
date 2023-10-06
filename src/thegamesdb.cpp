@@ -88,8 +88,8 @@ void TheGamesDb::getSearchResults(QList<GameEntry> &gameEntries,
     // Remove anything at the end with a parentheses. 'thegamesdb' has a habit of adding
     // for instance '(1993)' to the name.
     game.title = game.title.left(game.title.indexOf("(")).simplified();
-    game.platform = platformMap[jsonGame["platform"].toInt()];
-    if(platformMatch(game.platform, platform)) {
+    game.platform = platformMap[jsonGame["platform"].toString()].toString();
+    if(platformMatch(game.platform, platform) /*' || FIXME default p_id per romfolder (from rertropie_map.csv)  */) { // put clause last to let user override with his aliases
       gameEntries.append(game);
     }
     jsonGames.removeFirst();
@@ -183,14 +183,14 @@ void TheGamesDb::getDeveloper(GameEntry &game)
 {
   QJsonArray developers = jsonObj["developers"].toArray();
   if(developers.count() != 0)
-    game.developer = developerMap[developers.first().toInt()];
+    game.developer = developerMap[developers.first().toString()].toString();
 }
 
 void TheGamesDb::getPublisher(GameEntry &game)
 {
   QJsonArray publishers = jsonObj["publishers"].toArray();
   if(publishers.count() != 0)
-    game.publisher = publisherMap[publishers.first().toInt()];
+    game.publisher = publisherMap[publishers.first().toString()].toString();
 }
 
 void TheGamesDb::getDescription(GameEntry &game)
@@ -216,7 +216,7 @@ void TheGamesDb::getTags(GameEntry &game)
   QJsonArray genres = jsonObj["genres"].toArray();
   if(genres.count() != 0) {
     while(!genres.isEmpty()) {
-      game.tags.append(genreMap[genres.first().toInt()] + ", ");
+      game.tags.append(genreMap[genres.first().toString()].toString() + ", ");
       genres.removeFirst();
     }
     game.tags = game.tags.left(game.tags.length() - 2);
@@ -269,154 +269,20 @@ void TheGamesDb::getMarquee(GameEntry &game)
 
 void TheGamesDb::loadMaps()
 {
-  genreMap[1] = "Action";
-  genreMap[2] = "Adventure";
-  genreMap[3] = "Construction and Management Simulation";
-  genreMap[4] = "Role-Playing";
-  genreMap[5] = "Puzzle";
-  genreMap[6] = "Strategy";
-  genreMap[7] = "Racing";
-  genreMap[8] = "Shooter";
-  genreMap[9] = "Life Simulation";
-  genreMap[10] = "Fighting";
-  genreMap[11] = "Sports";
-  genreMap[12] = "Sandbox";
-  genreMap[13] = "Flight Simulator";
-  genreMap[14] = "MMO";
-  genreMap[15] = "Platform";
-  genreMap[16] = "Stealth";
-  genreMap[17] = "Music";
-  genreMap[18] = "Horror";
-  genreMap[19] = "Vehicle Simulation";
+  genreMap = readJson("tgdb_genres.json");
+  developerMap = readJson("tgdb_developers.json");
+  publisherMap = readJson("tgdb_publishers.json");
+  platformMap = readJson("tgdb_platforms.json");
+}
 
-  platformMap[25] = "3DO";
-  platformMap[4944] = "Acorn Archimedes";
-  platformMap[4954] = "Acorn Electron";
-  platformMap[4976] = "Action Max";
-  platformMap[4911] = "Amiga";
-  platformMap[4947] = "Amiga CD32";
-  platformMap[4914] = "Amstrad CPC";
-  platformMap[4916] = "Android";
-  platformMap[4969] = "APF MP-1000";
-  platformMap[4942] = "Apple II";
-  platformMap[23] = "Arcade";
-  platformMap[22] = "Atari 2600";
-  platformMap[26] = "Atari 5200";
-  platformMap[27] = "Atari 7800";
-  platformMap[4943] = "Atari 800";
-  platformMap[28] = "Atari Jaguar";
-  platformMap[29] = "Atari Jaguar CD";
-  platformMap[4924] = "Atari Lynx";
-  platformMap[4937] = "Atari ST";
-  platformMap[30] = "Atari XE";
-  platformMap[4968] = "Bally Astrocade";
-  platformMap[4964] = "Casio PV-1000";
-  platformMap[4970] = "Coleco Telstar Arcade";
-  platformMap[31] = "Colecovision";
-  platformMap[4946] = "Commodore 128";
-  platformMap[40] = "Commodore 64";
-  platformMap[4945] = "Commodore VIC-20";
-  platformMap[4952] = "Dragon 32/64";
-  platformMap[4963] = "Emerson Arcadia 2001";
-  platformMap[4974] = "Entex Adventure Vision";
-  platformMap[4973] = "Entex Select-a-Game";
-  platformMap[4965] = "Epoch Cassette Vision";
-  platformMap[4966] = "Epoch Super Cassette Vision";
-  platformMap[4928] = "Fairchild Channel F";
-  platformMap[4936] = "Famicom Disk System";
-  platformMap[4932] = "FM Towns Marty";
-  platformMap[4978] = "Fujitsu FM-7";
-  platformMap[4962] = "Gakken Compact Vision";
-  platformMap[4950] = "Game & Watch";
-  platformMap[4940] = "Game.com";
-  platformMap[4951] = "Handheld Electronic Games (LCD)";
-  platformMap[32] = "Intellivision";
-  platformMap[4915] = "iOS";
-  platformMap[37] = "Mac OS";
-  platformMap[4961] = "Magnavox Odyssey 1";
-  platformMap[4927] = "Magnavox Odyssey 2";
-  platformMap[4948] = "Mega Duck";
-  platformMap[14] = "Microsoft Xbox";
-  platformMap[15] = "Microsoft Xbox 360";
-  platformMap[4920] = "Microsoft Xbox One";
-  platformMap[4972] = "Milton Bradley Microvision";
-  platformMap[4929] = "MSX";
-  platformMap[4938] = "N-Gage";
-  platformMap[24] = "Neo Geo";
-  platformMap[4956] = "Neo Geo CD";
-  platformMap[4922] = "Neo Geo Pocket";
-  platformMap[4923] = "Neo Geo Pocket Color";
-  platformMap[4912] = "Nintendo 3DS";
-  platformMap[3] = "Nintendo 64";
-  platformMap[8] = "Nintendo DS";
-  platformMap[7] = "Nintendo Entertainment System (NES)";
-  platformMap[4] = "Nintendo Game Boy";
-  platformMap[5] = "Nintendo Game Boy Advance";
-  platformMap[41] = "Nintendo Game Boy Color";
-  platformMap[2] = "Nintendo GameCube";
-  platformMap[4957] = "Nintendo Pok\u00e9mon Mini";
-  platformMap[4971] = "Nintendo Switch";
-  platformMap[4918] = "Nintendo Virtual Boy";
-  platformMap[9] = "Nintendo Wii";
-  platformMap[38] = "Nintendo Wii U";
-  platformMap[4935] = "Nuon";
-  platformMap[4921] = "Ouya";
-  platformMap[1] = "PC";
-  platformMap[4933] = "PC-88";
-  platformMap[4934] = "PC-98";
-  platformMap[4930] = "PC-FX";
-  platformMap[4917] = "Philips CD-i";
-  platformMap[4975] = "Pioneer LaserActive";
-  platformMap[4967] = "RCA Studio II";
-  platformMap[4979] = "SAM Coup\u00e9";
-  platformMap[33] = "Sega 32X";
-  platformMap[21] = "Sega CD";
-  platformMap[16] = "Sega Dreamcast";
-  platformMap[20] = "Sega Game Gear";
-  platformMap[18] = "Sega Genesis";
-  platformMap[35] = "Sega Master System";
-  platformMap[36] = "Sega Mega Drive";
-  platformMap[4958] = "Sega Pico";
-  platformMap[17] = "Sega Saturn";
-  platformMap[4949] = "SEGA SG-1000";
-  platformMap[4977] = "Sharp X1";
-  platformMap[4931] = "Sharp X68000";
-  platformMap[4913] = "Sinclair ZX Spectrum";
-  platformMap[10] = "Sony Playstation";
-  platformMap[11] = "Sony Playstation 2";
-  platformMap[12] = "Sony Playstation 3";
-  platformMap[4919] = "Sony Playstation 4";
-  platformMap[13] = "Sony Playstation Portable";
-  platformMap[39] = "Sony Playstation Vita";
-  platformMap[6] = "Super Nintendo (SNES)";
-  platformMap[4953] = "Texas Instruments TI-99/4A";
-  platformMap[4960] = "Tomy Tutor";
-  platformMap[4941] = "TRS-80 Color Computer";
-  platformMap[34] = "TurboGrafx 16";
-  platformMap[4955] = "TurboGrafx CD";
-  platformMap[4939] = "Vectrex";
-  platformMap[4959] = "Watara Supervision";
-  platformMap[4925] = "WonderSwan";
-  platformMap[4926] = "WonderSwan Color";
-
-  {
-    QFile jsonFile("tgdb_developers.json");
-    if(jsonFile.open(QIODevice::ReadOnly)) {
-      QJsonObject jsonDevs = QJsonDocument::fromJson(jsonFile.readAll()).object()["data"].toObject()["developers"].toObject();
-      for(QJsonObject::iterator it = jsonDevs.begin(); it != jsonDevs.end(); ++it) {
-	developerMap[it.value().toObject()["id"].toInt()] = it.value().toObject()["name"].toString();
-      }
-      jsonFile.close();
-    }
+QVariantMap TheGamesDb::readJson(QString filename) 
+{
+  QVariantMap m;
+  QFile jsonFile(filename);
+  if(jsonFile.open(QIODevice::ReadOnly)) {
+    QJsonObject jsonDevs = QJsonDocument::fromJson(jsonFile.readAll()).object();
+    m = jsonDevs.toVariantMap();
+    jsonFile.close();
   }
-  {
-    QFile jsonFile("tgdb_publishers.json");
-    if(jsonFile.open(QIODevice::ReadOnly)) {
-      QJsonObject jsonPubs = QJsonDocument::fromJson(jsonFile.readAll()).object()["data"].toObject()["publishers"].toObject();
-      for(QJsonObject::iterator it = jsonPubs.begin(); it != jsonPubs.end(); ++it) {
-	publisherMap[it.value().toObject()["id"].toInt()] = it.value().toObject()["name"].toString();
-      }
-      jsonFile.close();
-    }
-  }
+  return m;
 }

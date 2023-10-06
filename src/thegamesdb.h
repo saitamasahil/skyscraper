@@ -59,10 +59,11 @@ private:
   QJsonObject jsonObj;
 
   void loadMaps();
-  QMap<int, QString> platformMap;
-  QMap<int, QString> genreMap;
-  QMap<int, QString> developerMap;
-  QMap<int, QString> publisherMap;
+  QVariantMap readJson(QString filename);
+  QVariantMap platformMap;
+  QVariantMap genreMap;
+  QVariantMap developerMap;
+  QVariantMap publisherMap;
 };
 
 #endif // THEGAMESDB_H
