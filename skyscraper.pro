@@ -11,16 +11,24 @@ unix:target.path=/usr/local/bin
 unix:target.files=Skyscraper Skyscraper.app/Contents/MacOS/Skyscraper
 
 unix:examples.path=/usr/local/etc/skyscraper
-unix:examples.files=config.ini.example README.md hints.xml artwork.xml artwork.xml.example1 artwork.xml.example2 artwork.xml.example3 artwork.xml.example4 aliasMap.csv mameMap.csv docs/ARTWORK.md tgdb_developers.json tgdb_publishers.json platforms.json screenscraper.json
+unix:examples.files=config.ini.example README.md hints.xml artwork.xml \
+  artwork.xml.example1 artwork.xml.example2 artwork.xml.example3 \
+  artwork.xml.example4 aliasMap.csv docs/ARTWORK.md mameMap.csv \
+  platforms_map.csv platforms.json mobygames.json screenscraper.json \
+  tgdb_developers.json tgdb_genres.json tgdb_platforms.json \
+  tgdb_publishers.json
 
 unix:cacheexamples.path=/usr/local/etc/skyscraper/cache
 unix:cacheexamples.files=cache/priorities.xml.example docs/CACHE.md
 
 unix:impexamples.path=/usr/local/etc/skyscraper/import
-unix:impexamples.files=docs/IMPORT.md import/definitions.dat.example1 import/definitions.dat.example2
+unix:impexamples.files=docs/IMPORT.md import/definitions.dat.example1 \
+  import/definitions.dat.example2
 
 unix:resexamples.path=/usr/local/etc/skyscraper/resources
-unix:resexamples.files=resources/maskexample.png resources/frameexample.png resources/boxfront.png resources/boxside.png resources/scanlines1.png resources/scanlines2.png
+unix:resexamples.files=resources/maskexample.png resources/frameexample.png \
+  resources/boxfront.png resources/boxside.png resources/scanlines1.png \
+  resources/scanlines2.png
 
 unix:INSTALLS += target examples cacheexamples impexamples resexamples
 

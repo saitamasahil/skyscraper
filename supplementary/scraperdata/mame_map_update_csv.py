@@ -2,16 +2,18 @@
 
 # Generate a Skyscraper compatible mame ROM filename to ROM full name CSV.
 
+from pathlib import Path
 import csv
 import pandas as pd
 import requests
-import xmltodict
+
 
 URL = (
     "https://raw.githubusercontent.com/"
     "RetroPie/EmulationStation/master/resources/mamenames.xml"
 )
-OUTFILE = "mameMap.csv"
+
+OUTFILE = Path(__file__).parent.resolve() / "../../mameMap.csv"
 
 req = requests.get(URL)
 lines = req.text.split("\n")
@@ -33,4 +35,4 @@ if len(df):
     )
     print(f"[+] Written to {OUTFILE}")
 else:
-    print(f"[!] Ran into an error")
+    print("[!] Ran into an error")

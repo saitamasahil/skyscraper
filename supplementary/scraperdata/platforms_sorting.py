@@ -1,10 +1,13 @@
 #! /usr/bin/env python3
 
-import json
 from operator import itemgetter
+from pathlib import Path
+import json
 
-INFILE = "platforms.json"
-OUTFILE = "platforms_formatted+sorted.json"
+SKYSCRAPER_HOME = Path(__file__).parent.resolve() / "../.."
+
+INFILE = SKYSCRAPER_HOME / "platforms.json"
+OUTFILE = SKYSCRAPER_HOME / "platforms_formatted+sorted.json"
 
 with open(INFILE) as f:
     jd = json.load(f)
