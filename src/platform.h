@@ -29,6 +29,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QMap>
+#include <QVector>
 
 class Platform : public QObject
 {
@@ -36,7 +37,7 @@ class Platform : public QObject
 public:
     static Platform& get();
 
-    void loadConfig(const QString& configPath);
+    bool loadConfig();
     void clearConfigData();
 
     QStringList getPlatforms() const;
@@ -44,12 +45,16 @@ public:
     QString getFormats(QString platform, QString extensions, QString addExtensions) const;
     QString getDefaultScraper() const;
     QStringList getAliases(QString platform) const;
+    int getPlatformIdOnScraper(const QString platform, const QString scraper) const;
 
 private:
+    bool loadPlatforms();
+
     QStringList platforms;
     QMap<QString, QStringList> platformToScrapers;
     QMap<QString, QStringList> platformToFormats;
     QMap<QString, QStringList> platformToAliases;
+    QMap<QString, QVector<int>> platformIdsMap;
 };
 
 #endif // PLATFORM_H

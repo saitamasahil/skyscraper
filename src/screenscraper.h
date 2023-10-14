@@ -67,10 +67,7 @@ private:
 
   QString getJsonText(QJsonArray array, int attr, QList<QString> types = QList<QString>());
 
-  QString getPlatformId(const QString platform) override;
-
-  void loadConfig(const QString& configPath);
-  QMap<QString, int> platformToId;
+  int getPlatformId(const QString platform) override;
 
   QString region;
   QString lang;

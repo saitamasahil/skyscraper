@@ -636,7 +636,11 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser)
   copyFile("/usr/local/etc/skyscraper/artwork.xml.example3", "artwork.xml.example3");
   copyFile("/usr/local/etc/skyscraper/artwork.xml.example4", "artwork.xml.example4");
   copyFile("/usr/local/etc/skyscraper/mameMap.csv", "mameMap.csv");
+  copyFile("/usr/local/etc/skyscraper/mobygames_platforms.json", "mobygames_platforms.json");
+  copyFile("/usr/local/etc/skyscraper/screenscraper_platforms", "screenscraper_platforms.json");
   copyFile("/usr/local/etc/skyscraper/tgdb_developers.json", "tgdb_developers.json");
+  copyFile("/usr/local/etc/skyscraper/tgdb_genres.json", "tgdb_genres.json");
+  copyFile("/usr/local/etc/skyscraper/tgdb_platforms.json", "tgdb_platforms.json");
   copyFile("/usr/local/etc/skyscraper/tgdb_publishers.json", "tgdb_publishers.json");
   copyFile("/usr/local/etc/skyscraper/resources/boxfront.png", "resources/boxfront.png");
   copyFile("/usr/local/etc/skyscraper/resources/boxside.png", "resources/boxside.png");
@@ -651,9 +655,8 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser)
      ----- */
 
   // Make sure we have a default config.ini file based on the config.ini.example file
-  copyFile("/usr/local/etc/skyscraper/platforms.json", "platforms.json", false); // False means it won't overwrite if it exists
-  copyFile("/usr/local/etc/skyscraper/mobygames.json", "mobygames.json", false);
-  copyFile("/usr/local/etc/skyscraper/screenscraper.json", "screenscraper.json", false);
+  copyFile("/usr/local/etc/skyscraper/peas.json", "peas.json", false); // False means it won't overwrite if it exists
+  copyFile("/usr/local/etc/skyscraper/platforms_idmap.csv", "platforms_idmap.csv", false); 
   copyFile("/usr/local/etc/skyscraper/config.ini.example", "config.ini", false);
   copyFile("/usr/local/etc/skyscraper/artwork.xml", "artwork.xml", false);
   copyFile("/usr/local/etc/skyscraper/aliasMap.csv", "aliasMap.csv", false);

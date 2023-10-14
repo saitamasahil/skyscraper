@@ -651,7 +651,7 @@ bool AbstractScraper::platformMatch(QString found, QString platform) {
   return false;
 }
 
-QString AbstractScraper::getPlatformId(const QString)
+int AbstractScraper::getPlatformId(const QString)
 {
-  return "na";
+  return -1;
 }

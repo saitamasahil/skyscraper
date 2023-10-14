@@ -54,6 +54,7 @@ private:
   void getScreenshot(GameEntry &game) override;
   void getWheel(GameEntry &game) override;
   void getMarquee(GameEntry &game) override;
+  int getPlatformId(const QString platform) override;
 
   QJsonDocument jsonDoc;
   QJsonObject jsonObj;

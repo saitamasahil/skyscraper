@@ -14,9 +14,9 @@ unix:examples.path=/usr/local/etc/skyscraper
 unix:examples.files=config.ini.example README.md hints.xml artwork.xml \
   artwork.xml.example1 artwork.xml.example2 artwork.xml.example3 \
   artwork.xml.example4 aliasMap.csv docs/ARTWORK.md mameMap.csv \
-  platforms_map.csv platforms.json mobygames.json screenscraper.json \
-  tgdb_developers.json tgdb_genres.json tgdb_platforms.json \
-  tgdb_publishers.json
+  mobygames_platforms.json peas.json platforms_idmap.csv \
+  screenscraper_platforms.json tgdb_developers.json tgdb_genres.json \
+  tgdb_platforms.json tgdb_publishers.json
 
 unix:cacheexamples.path=/usr/local/etc/skyscraper/cache
 unix:cacheexamples.files=cache/priorities.xml.example docs/CACHE.md
@@ -32,10 +32,12 @@ unix:resexamples.files=resources/maskexample.png resources/frameexample.png \
 
 unix:INSTALLS += target examples cacheexamples impexamples resexamples
 
-include(win32/skyscraper.pro)
-
 include(./VERSION)
 DEFINES+=VERSION=\\\"$$VERSION\\\"
+
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+
+include(win32/skyscraper.pro)
 
 HEADERS += src/skyscraper.h \
            src/netmanager.h \

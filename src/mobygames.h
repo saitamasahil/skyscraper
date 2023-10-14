@@ -54,14 +54,14 @@ private:
   void getRating(GameEntry &game) override;
   void getCover(GameEntry &game) override;
   void getScreenshot(GameEntry &game) override;
-  void loadConfig(const QString& configPath);
 
-  QString getPlatformId(const QString platform) override;
+  int getPlatformId(const QString platform) override;
   QString getRegionShort(const QString &region);
+  void setupRegionMap();
 
-  QMap<QString, int> platformToId;
   QJsonDocument jsonDoc;
   QJsonObject jsonObj;
+  QMap<QString, QString> regionMap;
 
 };
 

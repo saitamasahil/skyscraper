@@ -23,10 +23,13 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 
+#include <QJsonArray>
+#include <QDebug>
+
 #include "mobygames.h"
+#include "platform.h"
 #include "strtools.h"
 
-#include <QJsonArray>
 
 #if QT_VERSION >= 0x050a00
 #include <QRandomGenerator>
@@ -60,12 +63,21 @@ MobyGames::MobyGames(Settings *config,
 void MobyGames::getSearchResults(QList<GameEntry> &gameEntries,
 				QString searchName, QString platform)
 {
-  loadConfig("mobygames.json");
-  QString platformId = getPlatformId(config->platform);
+  int platformId = getPlatformId(config->platform);
 
   printf("Waiting as advised by MobyGames api restrictions...\n");
   limiter.exec();
-  netComm->request(searchUrlPre + "?api_key=" + StrTools::unMagic("175;229;170;189;188;202;211;117;164;165;185;209;164;234;180;155;199;209;224;231;193;190;173;175") + "&title=" + searchName + (platformId == "na"?"":"&platform=" + platformId));
+  bool ok;
+  int queryGameId = searchName.toInt(&ok);
+  QString req;
+  if (ok) {
+    req = QString(searchUrlPre + "?api_key=" + StrTools::unMagic("175;229;170;189;188;202;211;117;164;165;185;209;164;234;180;155;199;209;224;231;193;190;173;175") + "&id=" + QString::number(queryGameId));
+  } else {
+    req = QString(searchUrlPre + "?api_key=" + StrTools::unMagic("175;229;170;189;188;202;211;117;164;165;185;209;164;234;180;155;199;209;224;231;193;190;173;175") + "&title=" + searchName + (platformId == -1 ?"":"&platform=" + QString::number(platformId)));
+    queryGameId = 0;
+  }
+  qDebug() << "Request: " << req << "\n";
+  netComm->request(req);
   q.exec();
   data = netComm->getData();
 
@@ -93,10 +105,12 @@ void MobyGames::getSearchResults(QList<GameEntry> &gameEntries,
     QJsonArray jsonPlatforms = jsonGame["platforms"].toArray();
     while(!jsonPlatforms.isEmpty()) {
       QJsonObject jsonPlatform = jsonPlatforms.first().toObject();
-      game.url = searchUrlPre + "/" + game.id + "/platforms/" + QString::number(jsonPlatform["platform_id"].toInt()) + "?api_key=" + StrTools::unMagic("175;229;170;189;188;202;211;117;164;165;185;209;164;234;180;155;199;209;224;231;193;190;173;175");
+      int gamePlafId = jsonPlatform["platform_id"].toInt();
+      game.url = searchUrlPre + "/" +  game.id + "/platforms/" + QString::number(gamePlafId) + "?api_key=" + StrTools::unMagic("175;229;170;189;188;202;211;117;164;165;185;209;164;234;180;155;199;209;224;231;193;190;173;175");
       game.platform = jsonPlatform["platform_name"].toString();
-      if(platformMatch(game.platform, platform)) {
-	gameEntries.append(game);
+      bool matchPlafId = gamePlafId == platformId;
+      if(platformMatch(game.platform, platform) || matchPlafId) {
+	      gameEntries.append(game);
       }
       jsonPlatforms.removeFirst();
     }
@@ -147,12 +161,12 @@ void MobyGames::getGameData(GameEntry &game)
       break;
     case COVER:
       if(config->cacheCovers) {
-	getCover(game);
+      	getCover(game);
       }
       break;
     case SCREENSHOT:
       if(config->cacheScreenshots) {
-	getScreenshot(game);
+	      getScreenshot(game);
       }
       break;
     default:
@@ -295,7 +309,9 @@ void MobyGames::getCover(GameEntry &game)
 {
   printf("Waiting to get cover data...\n");
   limiter.exec();
-  netComm->request(game.url.left(game.url.indexOf("?api_key=")) + "/covers" + game.url.mid(game.url.indexOf("?api_key="), game.url.length() - game.url.indexOf("?api_key=")));
+  QString req = QString(game.url.left(game.url.indexOf("?api_key=")) + "/covers" + game.url.mid(game.url.indexOf("?api_key="), game.url.length() - game.url.indexOf("?api_key=")));
+  qDebug() << "Covers " << req << "\n";
+  netComm->request(req);
   q.exec();
   data = netComm->getData();
 
@@ -313,28 +329,28 @@ void MobyGames::getCover(GameEntry &game)
       bool foundRegion = false;
       QJsonArray jsonCountries = jsonCoverGroups.first().toObject()["countries"].toArray();
       while(!jsonCountries.isEmpty()) {
-	if(getRegionShort(jsonCountries.first().toString().simplified()) == region) {
-	  foundRegion = true;
-	  break;
-	}
-	jsonCountries.removeFirst();
+	      if(getRegionShort(jsonCountries.first().toString().simplified()) == region) {
+	        foundRegion = true;
+	        break;
+	      }
+	      jsonCountries.removeFirst();
       }
       if(!foundRegion) {
-	jsonCoverGroups.removeFirst();
-	continue;
+	      jsonCoverGroups.removeFirst();
+	      continue;
       }
       QJsonArray jsonCovers = jsonCoverGroups.first().toObject()["covers"].toArray();
       while(!jsonCovers.isEmpty()) {
-	QJsonObject jsonCover = jsonCovers.first().toObject();
-	if(jsonCover["scan_of"].toString().toLower().simplified().contains("front cover")) {
-	  coverUrl = jsonCover["image"].toString();
-	  foundFrontCover= true;
-	  break;
-	}
-	jsonCovers.removeFirst();
+	      QJsonObject jsonCover = jsonCovers.first().toObject();
+	      if(jsonCover["scan_of"].toString().toLower().simplified().contains("front cover")) {
+	        coverUrl = jsonCover["image"].toString();
+	        foundFrontCover= true;
+	        break;
+	      }
+	      jsonCovers.removeFirst();
       }
       if(foundFrontCover) {
-	break;
+	      break;
       }
       jsonCoverGroups.removeFirst();
     }
@@ -392,105 +408,54 @@ void MobyGames::getScreenshot(GameEntry &game)
   }
 }
 
-QString MobyGames::getPlatformId(const QString platform)
+int MobyGames::getPlatformId(const QString platform)
 {
-  auto it = platformToId.find(platform);
-  if(it != platformToId.cend())
-      return QString::number(it.value());
-
-  return "na";
-}
-
-void MobyGames::loadConfig(const QString& configPath)
-{
-  platformToId.clear();
-
-  QFile configFile(configPath);
-  if (!configFile.open(QIODevice::ReadOnly))
-    return;
-
-  QByteArray saveData = configFile.readAll();
-  QJsonDocument json(QJsonDocument::fromJson(saveData));
-
-  if(json.isNull() || json.isEmpty())
-    return;
-
-  QJsonArray platformsArray = json["platforms"].toArray();
-  for (int platformIndex = 0; platformIndex < platformsArray.size(); ++platformIndex) {
-    QJsonObject platformObject = platformsArray[platformIndex].toObject();
-
-    QString platformName = platformObject["platform_name"].toString().toLower();
-    int platformId = platformObject["platform_id"].toInt(-1);
-
-    if(platformId > 0)
-      platformToId[platformName] = platformId;
-  }
+  return Platform::get().getPlatformIdOnScraper(platform, config->scraper);
 }
 
 QString MobyGames::getRegionShort(const QString &region)
 {
-  if(region == "Germany") {
-    return "de";
-  } else if(region == "Australia") {
-    return "au";
-  } else if(region == "Brazil") {
-    return "br";
-  } else if(region == "Bulgaria") {
-    return "bg";
-  } else if(region == "Canada") {
-    return "ca";
-  } else if(region == "Chile") {
-    return "cl";
-  } else if(region == "China") {
-    return "cn";
-  } else if(region == "South Korea") {
-    return "kr";
-  } else if(region == "Denmark") {
-    return "dk";
-  } else if(region == "Spain") {
-    return "sp";
-  } else if(region == "Finland") {
-    return "fi";
-  } else if(region == "France") {
-    return "fr";
-  } else if(region == "Greece") {
-    return "gr";
-  } else if(region == "Hungary") {
-    return "hu";
-  } else if(region == "Israel") {
-    return "il";
-  } else if(region == "Italy") {
-    return "it";
-  } else if(region == "Japan") {
-    return "jp";
-  } else if(region == "Worldwide") {
-    return "wor";
-  } else if(region == "Norway") {
-    return "no";
-  } else if(region == "New Zealand") {
-    return "nz";
-  } else if(region == "Netherlands") {
-    return "nl";
-  } else if(region == "Poland") {
-    return "pl";
-  } else if(region == "Portugal") {
-    return "pt";
-  } else if(region == "Czech Republic") {
-    return "cz";
-  } else if(region == "United Kingdom") {
-    return "uk";
-  } else if(region == "Russia") {
-    return "ru";
-  } else if(region == "Slovakia") {
-    return "sk";
-  } else if(region == "Sweden") {
-    return "se";
-  } else if(region == "Taiwan") {
-    return "tw";
-  } else if(region == "Turkey") {
-    return "tr";
-  } else if(region == "United States") {
-    return "us";
+  if(regionMap.contains(region)) {
+    qDebug() << "Got region" << regionMap[region] << "\n";
+    return regionMap[region];
   }
   return "na";
+}
+
+void MobyGames::setupRegionMap() {
+  regionMap = QMap<QString, QString>( 
+    { 
+      { "Australia", "au" },
+      { "Brazil", "br" },
+      { "Bulgaria", "bg" },
+      { "Canada", "ca" },
+      { "Chile", "cl" },
+      { "China", "cn" },
+      { "Czech Republic", "cz" },
+      { "Denmark", "dk" },
+      { "Finland", "fi" },
+      { "France", "fr" },
+      { "Germany", "de" },
+      { "Greece", "gr" },
+      { "Hungary", "hu" },
+      { "Israel", "il" },
+      { "Italy", "it" },
+      { "Japan", "jp" },
+      { "Netherlands", "nl" },
+      { "New Zealand", "nz" },
+      { "Norway", "no" },
+      { "Poland", "pl" },
+      { "Portugal", "pt" },
+      { "Russia", "ru" },
+      { "Slovakia", "sk" },
+      { "South Korea", "kr" },
+      { "Spain", "sp" },
+      { "Sweden", "se" },
+      { "Taiwan", "tw" },
+      { "Turkey", "tr" },
+      { "United Kingdom", "uk" },
+      { "United States", "us" },
+      { "Worldwide", "wor" }
+    } 
+  );
 }

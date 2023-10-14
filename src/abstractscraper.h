@@ -76,7 +76,7 @@ protected:
   virtual void nomNom(const QString nom, bool including = true);
 
   virtual bool platformMatch(QString found, QString platform);
-  virtual QString getPlatformId(const QString);
+  virtual int getPlatformId(const QString);
 
   bool checkNom(const QString nom);
 

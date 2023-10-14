@@ -34,22 +34,30 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QStringList>
+
+#include <QDebug>
 
 #include "platform.h"
 
-void Platform::loadConfig(const QString& configPath)
+bool Platform::loadConfig()
 {
     clearConfigData();
 
-    QFile configFile(configPath);
-    if (!configFile.open(QIODevice::ReadOnly))
-        return;
+    QString fn = "peas.json";
+    QFile configFile(fn);
+    if (!configFile.open(QIODevice::ReadOnly)) {
+      printf("\033[1;31mFile not found '%s'\n\nNow quitting...\033[0m\n", fn.toUtf8().constData());
+      return false;
+    }
 
     QByteArray saveData = configFile.readAll();
     QJsonDocument json(QJsonDocument::fromJson(saveData));
 
-    if(json.isNull() || json.isEmpty())
-        return;
+    if(json.isNull() || json.isEmpty()) {
+        printf("\033[1;31mFile '%s' empty or no JSON format\n\nNow quitting...\033[0m\n", fn.toUtf8().constData());
+        return false;
+    }
 
     QJsonArray platformsArray = json["platforms"].toArray();
     for (int platformIndex = 0; platformIndex < platformsArray.size(); ++platformIndex) {
@@ -62,7 +70,7 @@ void Platform::loadConfig(const QString& configPath)
         for (int scraperIndex = 0; scraperIndex < scrapersArray.size(); ++scraperIndex) {
             QString scraperName = scrapersArray[scraperIndex].toString();
             platformToScrapers[platformName].push_back(scraperName);
-}
+        }
 
         QJsonArray formatsArray = platformObject["formats"].toArray();
         for (int formatIndex = 0; formatIndex < formatsArray.size(); ++formatIndex) {
@@ -77,6 +85,10 @@ void Platform::loadConfig(const QString& configPath)
         }
     }
     platforms.sort();
+    if (!loadPlatforms()) {
+      return false;
+    }
+    return true;
 }
 
 void Platform::clearConfigData()
@@ -147,6 +159,73 @@ QStringList Platform::getAliases(QString platform) const
   aliases.append(platformToAliases[platform]);
   return aliases;
 }
+
+bool Platform::loadPlatforms()
+{
+    QString fn = "platforms_idmap.csv";
+    QFile configFile(fn);
+    if (!configFile.open(QIODevice::ReadOnly)) {
+      printf("\033[1;31mFile not found '%s'\n\nNow quitting...\033[0m\n", fn.toUtf8().constData());
+      return false;
+    }
+    while (!configFile.atEnd()) {
+        QString line = QString(configFile.readLine()).trimmed();
+        if (line.isEmpty() || line.startsWith("#") || line.startsWith("folder,")) {
+          continue;
+        }
+        QStringList parts = line.split(',');
+        if (parts.length() != 4) {
+          printf("\033[1;31mFile '%s', line '%s' has not four columns, but %d. Please fix.\n\nNow quitting...\033[0m\n", fn.toUtf8().constData(), parts.join(',').toUtf8().constData(), parts.length());
+          configFile.close();
+          return false;
+        }
+        QString pkey = parts[0].trimmed();
+        if (pkey.isEmpty()) {
+          printf("\033[1;31mFile '%s', line '%s' has empty folder/platform. Ignoring this line. Please fix to mute this warning.\033[0m\n", fn.toUtf8().constData(), parts.join(',').toUtf8().constData());
+          configFile.close();
+          return false;
+        }        
+        parts.removeFirst();
+        QVector<int> ids(QVector<int>(3));
+        int i = 0;
+        for (QString id : parts) {
+          id = id.trimmed();
+          ids[i] = -1;
+          if (!id.isEmpty()) {
+            bool ok;
+            int tmp = id.toInt(&ok);
+            if (ok) {
+              ids[i] = (tmp == 0) ? -1:tmp;
+            } else {
+              printf("\033[1;33mFile '%s', line '%s,%s' has unparsable int value (use -1 for unknown platform id). Assumming -1 for now, please fix to mute this warning.\033[0m\n", fn.toUtf8().constData(), pkey.toUtf8().constData(), parts.join(',').toUtf8().constData());
+            }
+          }
+          i++; 
+        }
+        platformIdsMap.insert(pkey, ids);
+    }
+    configFile.close();
+    return true;
+}
+
+int Platform::getPlatformIdOnScraper(const QString platform, const QString scraper) const
+{
+  int id = -1;
+  if (platformIdsMap.contains(platform)) {
+    QVector<int> ids = platformIdsMap[platform];
+    qDebug() << "platform ids" << ids << "\n"; 
+    if (scraper == "screenscraper") {
+      id = ids[0];
+    } else if (scraper == "mobygames") {
+      id = ids[1];
+    } else if (scraper == "thegamesdb") {
+      id = ids[2];
+    }
+  }
+  qDebug() << "Got platform id" << id << "for platform" << platform << "and scraper" << scraper << "\n";
+  return id;
+}
+
 
 // --- Console colors ---
 // Black        0;30     Dark Gray     1;30

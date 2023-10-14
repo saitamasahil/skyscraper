@@ -24,9 +24,12 @@
  */
 
 #include <QJsonArray>
+#include <QDebug>
 
+#include "gameentry.h"
 #include "thegamesdb.h"
 #include "strtools.h"
+#include "platform.h"
 
 TheGamesDb::TheGamesDb(Settings *config,
 		       QSharedPointer<NetManager> manager)
@@ -43,8 +46,8 @@ TheGamesDb::TheGamesDb(Settings *config,
   fetchOrder.append(TAGS);
   fetchOrder.append(PLAYERS);
   fetchOrder.append(AGES);
-  fetchOrder.append(PUBLISHER);
   fetchOrder.append(DEVELOPER);
+  fetchOrder.append(PUBLISHER);
   //fetchOrder.append(RATING);
   fetchOrder.append(COVER);
   fetchOrder.append(SCREENSHOT);
@@ -77,6 +80,7 @@ void TheGamesDb::getSearchResults(QList<GameEntry> &gameEntries,
 
   QJsonArray jsonGames = jsonDoc.object()["data"].toObject()["games"].toArray();
 
+  int platformId = getPlatformId(config->platform);
   while(!jsonGames.isEmpty()) {
     QJsonObject jsonGame = jsonGames.first().toObject();
     
@@ -88,8 +92,11 @@ void TheGamesDb::getSearchResults(QList<GameEntry> &gameEntries,
     // Remove anything at the end with a parentheses. 'thegamesdb' has a habit of adding
     // for instance '(1993)' to the name.
     game.title = game.title.left(game.title.indexOf("(")).simplified();
+    int gamePlafId = jsonGame["platform"].toInt();
     game.platform = platformMap[jsonGame["platform"].toString()].toString();
-    if(platformMatch(game.platform, platform) /*' || FIXME default p_id per romfolder (from rertropie_map.csv)  */) { // put clause last to let user override with his aliases
+    bool matchPlafId = gamePlafId == platformId;
+    if(platformMatch(game.platform, platform) || matchPlafId) {
+      if (matchPlafId) { qDebug() << "platforms_id match " << QString::number(gamePlafId) << "\n" ;}
       gameEntries.append(game);
     }
     jsonGames.removeFirst();
@@ -98,6 +105,7 @@ void TheGamesDb::getSearchResults(QList<GameEntry> &gameEntries,
 
 void TheGamesDb::getGameData(GameEntry &game)
 {
+  qDebug() << "Per game url:" << game.url << "\n";
   netComm->request(game.url);
   q.exec();
   data = netComm->getData();
@@ -280,9 +288,17 @@ QVariantMap TheGamesDb::readJson(QString filename)
   QVariantMap m;
   QFile jsonFile(filename);
   if(jsonFile.open(QIODevice::ReadOnly)) {
-    QJsonObject jsonDevs = QJsonDocument::fromJson(jsonFile.readAll()).object();
-    m = jsonDevs.toVariantMap();
+    QJsonObject jsonObj = QJsonDocument::fromJson(jsonFile.readAll()).object();
+    m = jsonObj.toVariantMap();
     jsonFile.close();
+  } else {
+    printf("\033[1;31mFile '%s' not found. Please fix.\n\nNow quitting...\033[0m\n", filename.toUtf8().constData());
+    exit(1);
   }
   return m;
+}
+
+int TheGamesDb::getPlatformId(const QString platform)
+{
+  return Platform::get().getPlatformIdOnScraper(platform, config->scraper);
 }

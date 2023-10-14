@@ -27,6 +27,7 @@
 #include <QProcess>
 #include <QJsonDocument>
 
+#include "platform.h"
 #include "screenscraper.h"
 #include "strtools.h"
 #include "crc32.h"
@@ -38,8 +39,6 @@ ScreenScraper::ScreenScraper(Settings *config,
 			     QSharedPointer<NetManager> manager)
   : AbstractScraper(config, manager)
 {
-  loadConfig("screenscraper.json");
-  
   connect(&limitTimer, &QTimer::timeout, &limiter, &QEventLoop::quit);
   limitTimer.setInterval(1200); // 1.2 second request limit set a bit above 1.0 as requested by the good folks at ScreenScraper. Don't change!
   limitTimer.setSingleShot(false);
@@ -66,14 +65,14 @@ ScreenScraper::ScreenScraper(Settings *config,
 void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
 				     QString searchName, QString)
 {
-  QString platformId = getPlatformId(config->platform);
-  if(platformId == "na") {
+  int platformId = getPlatformId(config->platform);
+  if(platformId == -1) {
     reqRemaining = 0;
     printf("\033[0;31mPlatform not supported by ScreenScraper or it hasn't yet been included in Skyscraper for this module...\033[0m\n");
     return;
   }
 
-  QString gameUrl = "https://www.screenscraper.fr/api2/jeuInfos.php?devid=muldjord&devpassword=" + StrTools::unMagic("204;198;236;130;203;181;203;126;191;167;200;198;192;228;169;156") + "&softname=skyscraper" VERSION + (config->user.isEmpty()?"":"&ssid=" + config->user) + (config->password.isEmpty()?"":"&sspassword=" + config->password) + (platformId.isEmpty()?"":"&systemeid=" + platformId) + "&output=json&" + searchName;
+  QString gameUrl = "https://www.screenscraper.fr/api2/jeuInfos.php?devid=muldjord&devpassword=" + StrTools::unMagic("204;198;236;130;203;181;203;126;191;167;200;198;192;228;169;156") + "&softname=skyscraper" VERSION + (config->user.isEmpty()?"":"&ssid=" + config->user) + (config->password.isEmpty()?"":"&sspassword=" + config->password) + (platformId == -1?"":"&systemeid=" + QString::number(platformId)) + "&output=json&" + searchName;
 
   for(int retries = 0; retries < RETRIESMAX; ++retries) {
     limiter.exec();
@@ -655,37 +654,7 @@ QString ScreenScraper::getJsonText(QJsonArray jsonArr, int attr, QList<QString> 
   return QString();
 }
 
-QString ScreenScraper::getPlatformId(const QString platform)
+int ScreenScraper::getPlatformId(const QString platform)
 {
-  auto it = platformToId.find(platform);
-  if(it != platformToId.cend())
-      return QString::number(it.value());
-
-  return "na";
-}
-
-void ScreenScraper::loadConfig(const QString& configPath)
-{
-  platformToId.clear();
-
-  QFile configFile(configPath);
-  if (!configFile.open(QIODevice::ReadOnly))
-    return;
-
-  QByteArray saveData = configFile.readAll();
-  QJsonDocument json(QJsonDocument::fromJson(saveData));
-
-  if(json.isNull() || json.isEmpty())
-    return;
-
-  QJsonArray platformsArray = json["platforms"].toArray();
-  for (int platformIndex = 0; platformIndex < platformsArray.size(); ++platformIndex) {
-    QJsonObject platformObject = platformsArray[platformIndex].toObject();
-
-    QString platformName = platformObject["name"].toString();
-    int platformId = platformObject["id"].toInt(-1);
-
-    if(platformId > 0)
-      platformToId[platformName] = platformId;
-  }
+  return Platform::get().getPlatformIdOnScraper(platform, config->scraper);
 }
