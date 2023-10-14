@@ -6,7 +6,7 @@ folder,screenscraper_id,mobygames_id,tgdb_id
 # - thegamesdb platform id
 #
 # If you need more than one match use the alias property in platforms.json.
-# Use supplementary/scraperdata/platforms_map_explain.py to view platform names
+# Use supplementary/scraperdata/peas_and_idmap_verify.py to view platform names
 # of the ids below. 
 
 ### Begin RetroPie OOTB supported systems

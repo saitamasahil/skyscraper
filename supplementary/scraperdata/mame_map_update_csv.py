@@ -1,6 +1,10 @@
 #! /usr/bin/env python3
 
 # Generate a Skyscraper compatible mame ROM filename to ROM full name CSV.
+# You usually don't need to run this script.
+
+# (c) 2023 Gemba @ GitHub
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from pathlib import Path
 import csv

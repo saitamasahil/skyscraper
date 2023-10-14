@@ -180,7 +180,17 @@ int main(int argc, char *argv[])
   // Install the custom debug message handler used by qDebug()
   qInstallMessageHandler(customMessageHandler);
 
-  Platform::get().loadConfig("platforms.json");
+  QStringList legacyJsons = QString("mobygames platforms screenscraper").split(" ");
+  for (auto bn : legacyJsons) {
+    QString fn = bn + ".json";
+    if (QFileInfo::exists(fn)) {
+      printf("\033[1;33mFile '%s' found, which is no longer used in this version of Skyscraper. Please move file to mute this warning. See docs/PLATFORMS.md for additional info.\033[0m\n", fn.toUtf8().constData());
+    }
+  }
+
+  if (!Platform::get().loadConfig()) {
+    exit(1);
+  }
 
   QString platforms;
   for(const auto &platform: Platform::get().getPlatforms()) {
