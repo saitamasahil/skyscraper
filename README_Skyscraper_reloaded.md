@@ -19,6 +19,24 @@ These pull requests have been merged into this fork.
 
 ## Changes
 
+### 2023-10-17 (Version 3.9.0)
+
+- Feature: Mobygames scraper respects game id from mobygames.com website via
+  `--query=<gameid>`. Handy to hint to the right game information when usual
+  search returns false positives.
+- Feature: Scrapers which provide an web API (Screenscraper, Mobygames, The
+  Games DB (tgdb)) have the full platform information shipped with this release
+  (see `<scraper>_platforms.json` files). These files are used as reference.
+- Feature: Less 'aliases' maintenance needed in former `platforms.json`.
+- Update: Streamlined external platform configuration. File `platforms.json` is
+  replaced by `peas.json` (platforms, extensions/formats, aliases and scrapers).
+  Precise platform determination for Screenscraper, Mobygames and TGDB via
+  `platform_idmap.csv` See [platforms documentation](docs/PLATFORMS.md) for
+  details.
+- Fix: Failed media download when TGDB provides PNG files instead of JPG files
+  and vice versa.
+- Update: Scriptmodule for this Skyscraper branch now official part of RetroPie.
+
 ### 2023-09-23 (Version 3.8.1.2309)
 
 - Feature: OpenRetro scraper retrieves now also score/rating, if available for a

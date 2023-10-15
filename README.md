@@ -1,9 +1,11 @@
 # 🏢Skyscraper Enhanced+Reloaded
 [![Tests](https://github.com/Gemba/skyscraper/actions/workflows/ci.yml/badge.svg)](https://github.com/Gemba/skyscraper/actions/workflows/ci.yml)
 
+## History
 Original project by [Lars Muldjord](https://github.com/muldjord/skyscraper), temporarily maintained by [Joe Huss](https://github.com/detain/skyscraper).
+Since autumn 2023 this repo is the official successor of Lars' awesome Skyscraper and the official branch used in RetroPie. Happy scraping!
 
-Below is the original and slightly adapted README. If you are interested about this reloaded fork read [here](README_Skyscraper_reloaded.md)
+----
 
 A powerful and versatile yet easy to use game scraper written in C++ for use with multiple frontends running on a Linux system (macOS and Windows too, but not officially supported). It scrapes and caches various game resources from various scraping sources, including media such as screenshot, cover and video. It then gives you the option to generate a game list and artwork for the chosen frontend by combining all of the cached resources.
 
