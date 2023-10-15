@@ -9,21 +9,14 @@
 
 from pathlib import Path
 
-import pandas as pd
 import json
-
-SKYSCRAPER_HOME = Path(__file__).parent.parent.parent.resolve()
-PLATFORMS_CSV = SKYSCRAPER_HOME/"platforms_idmap.csv"
+import sys
+import pandas as pd
 
 
 def read_platforms_idmap():
-<<<<<<< HEAD
-    df = pd.read_csv(PLATFORMS_CSV)
-    df = df[~df.folder.str.contains('#')]
-=======
     df = pd.read_csv(pid_map_fn)
     df = df[~df.folder.str.contains("#")]
->>>>>>> 9de6abf (minor fn and path corrections)
     df = df.astype({col: int for col in df.columns[1:]})
     return df
 
@@ -72,14 +65,13 @@ if __name__ == "__main__":
     else:
         pid_map_fn = locate_file("platforms_idmap.csv")
 
-    print(f"[+] Using map file {pid_map_fn}")
+    print(f"[*] Using map file {pid_map_fn}")
     cfg_home = pid_map_fn.parent
 
     scrs_json = cfg_home / "screenscraper.json"
     if not scrs_json.exists():
         print(f"[-] File not found: {scrs_json}. Bailing out.")
         sys.exit(0)
-    print(f"[+] Using screenscraper file {scrs_json}")
 
     with open(scrs_json) as fh:
         jd = json.load(fh)

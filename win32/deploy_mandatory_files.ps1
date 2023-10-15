@@ -5,8 +5,8 @@ param([string]$src_dir,[string]$skyscraper_home)
 $user_cfg_files = @(
   'artwork.xml'
   'aliasMap.csv'
-  'platforms.json'
-  'screenscraper.json'
+  'peas.json'
+  'platforms_idmap.csv'
 )
 
 $folders = @(

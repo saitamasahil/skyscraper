@@ -29,7 +29,9 @@
 #include <QObject>
 #include <QStringList>
 #include <QMap>
+#include <QVariantMap>
 #include <QVector>
+
 
 class Platform : public QObject
 {
@@ -48,12 +50,10 @@ public:
     int getPlatformIdOnScraper(const QString platform, const QString scraper) const;
 
 private:
-    bool loadPlatforms();
+    bool loadPlatformsIdMap();
 
     QStringList platforms;
-    QMap<QString, QStringList> platformToScrapers;
-    QMap<QString, QStringList> platformToFormats;
-    QMap<QString, QStringList> platformToAliases;
+    QVariantMap peas;
     QMap<QString, QVector<int>> platformIdsMap;
 };
 

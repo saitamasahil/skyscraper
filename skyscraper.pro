@@ -18,6 +18,12 @@ unix:examples.files=config.ini.example README.md hints.xml artwork.xml \
   screenscraper_platforms.json tgdb_developers.json tgdb_genres.json \
   tgdb_platforms.json tgdb_publishers.json
 
+unix:supplementary.path=/usr/local/bin
+unix:supplementary.files=\
+  supplementary/scraperdata/check_screenscraper_json_to_idmap.py \
+  supplementary/scraperdata/convert_platforms_json.py \
+  supplementary/scraperdata/peas_and_idmap_verify.py
+
 unix:cacheexamples.path=/usr/local/etc/skyscraper/cache
 unix:cacheexamples.files=cache/priorities.xml.example docs/CACHE.md
 
@@ -30,7 +36,8 @@ unix:resexamples.files=resources/maskexample.png resources/frameexample.png \
   resources/boxfront.png resources/boxside.png resources/scanlines1.png \
   resources/scanlines2.png
 
-unix:INSTALLS += target examples cacheexamples impexamples resexamples
+unix:INSTALLS += target examples cacheexamples impexamples resexamples \
+  supplementary
 
 include(./VERSION)
 DEFINES+=VERSION=\\\"$$VERSION\\\"

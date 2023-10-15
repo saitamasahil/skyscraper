@@ -59,33 +59,16 @@ bool Platform::loadConfig()
         return false;
     }
 
-    QJsonArray platformsArray = json["platforms"].toArray();
-    for (int platformIndex = 0; platformIndex < platformsArray.size(); ++platformIndex) {
-        QJsonObject platformObject = platformsArray[platformIndex].toObject();
+    QJsonObject jObj = json.object();
+    peas = jObj.toVariantMap();
 
-        QString platformName = platformObject["name"].toString();
-        platforms.push_back(platformName);
-
-        QJsonArray scrapersArray = platformObject["scrapers"].toArray();
-        for (int scraperIndex = 0; scraperIndex < scrapersArray.size(); ++scraperIndex) {
-            QString scraperName = scrapersArray[scraperIndex].toString();
-            platformToScrapers[platformName].push_back(scraperName);
-        }
-
-        QJsonArray formatsArray = platformObject["formats"].toArray();
-        for (int formatIndex = 0; formatIndex < formatsArray.size(); ++formatIndex) {
-            QString formatName = formatsArray[formatIndex].toString();
-            platformToFormats[platformName].push_back(formatName);
-        }
-
-        QJsonArray aliasesArray = platformObject["aliases"].toArray();
-        for (int aliasIndex = 0; aliasIndex < aliasesArray.size(); ++aliasIndex) {
-            QString aliasName = aliasesArray[aliasIndex].toString();
-            platformToAliases[platformName].push_back(aliasName);
-        }
+    for (auto piter = jObj.constBegin(); piter != jObj.constEnd(); piter++) {
+      platforms.push_back(piter.key());
     }
+
     platforms.sort();
-    if (!loadPlatforms()) {
+
+    if (!loadPlatformsIdMap()) {
       return false;
     }
     return true;
@@ -94,9 +77,7 @@ bool Platform::loadConfig()
 void Platform::clearConfigData()
 {
     platforms.clear();
-    platformToScrapers.clear();
-    platformToFormats.clear();
-    platformToAliases.clear();
+    platformIdsMap.clear();
 }
 
 Platform& Platform::get()
@@ -112,8 +93,7 @@ QStringList Platform::getPlatforms() const
 
 QStringList Platform::getScrapers(QString platform) const
 {
-    QStringList scrapers = platformToScrapers[platform];
-
+  QStringList scrapers = peas[platform].toHash()["scrapers"].toStringList();
   // Always add 'cache' as the last one
   scrapers.append("cache");
 
@@ -133,7 +113,7 @@ QString Platform::getFormats(QString platform, QString extensions, QString addEx
   if(formats.right(1) != " ") {
     formats.append(" ");
   }
-  QStringList myFormats = platformToFormats[platform];
+  QStringList myFormats = peas[platform].toHash()["formats"].toStringList();
   if(!myFormats.isEmpty())
   {
     int count = myFormats.size();
@@ -156,11 +136,12 @@ QStringList Platform::getAliases(QString platform) const
   QStringList aliases;
   // Platform name itself is always appended as the first alias
   aliases.append(platform);
-  aliases.append(platformToAliases[platform]);
+  aliases.append(peas[platform].toHash()["aliases"].toStringList());
+  qDebug() << "getAliases():" << aliases << "\n";
   return aliases;
 }
 
-bool Platform::loadPlatforms()
+bool Platform::loadPlatformsIdMap()
 {
     QString fn = "platforms_idmap.csv";
     QFile configFile(fn);

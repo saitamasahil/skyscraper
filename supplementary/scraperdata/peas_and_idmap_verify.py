@@ -2,29 +2,25 @@
 
 # Use this script to print textual representations of  the IDs in
 # platforms_idmap.csv: Translate the IDs from platforms_map.csv to human
-# readably and check for differences between 
-# 
+# readably and check for differences between
+#
 # peas.json (platform handles and extensions (formats), aliases and scrapers)
-# 
-# and 
-# 
+#
+# and
+#
 # platforms_idmap.csv (platform handle to platform id of scrapers)
 
 # The peas.json file can also be provided as first paramter to the script. This
 # may come in handy if you converted your platforms.json to peas_mine.json, with
-# script convert_platforms.json.py 
+# script convert_platforms.json.py
 
 # (c) 2023 Gemba @ GitHub
-# SPDX-License-Identifier: GPL-3.0-or-later 
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from pathlib import Path
 import json
 import pandas as pd
 import sys
-
-SKYSCRAPER_HOME = Path(__file__).parent.parent.parent.resolve()
-PLATFORMS_CSV = SKYSCRAPER_HOME/"platforms_idmap.csv"
-PLATFORMS_JSON = SKYSCRAPER_HOME/"peas.json"
 
 replacements = {
     "amigacd32": "cd32",
@@ -38,17 +34,12 @@ replacements = {
 
 def print_platform_tree():
 
-<<<<<<< HEAD
-    df = pd.read_csv(PLATFORMS_CSV)
-    df = df[~df.folder.str.contains('#')]
-=======
     df = pd.read_csv(pid_map_fn)
     df = df[~df.folder.str.contains("#")]
->>>>>>> 9de6abf (minor fn and path corrections)
     df = df.astype({col: int for col in df.columns[1:]})
     last_folder = df["folder"].values[-1]
 
-    print(f"[*] {PLATFORMS_CSV.name}:")
+    print(f"[*] {pid_map_fn.name}:")
     [print_data(row, last_folder) for row in df.values]
 
     return df
@@ -108,19 +99,12 @@ def print_coverage(df):
 def annotate_peas(f):
     if f in replacements:
         print(
-<<<<<<< HEAD
-            f"    {f:10s} is replaced with {replacements[f]:10s} in {PLATFORMS_CSV.name} (OK)")
-    else:
-        print(
-            f"    {f:10s} add to {PLATFORMS_CSV.name} if needed, see PLATFORMS.md")
-=======
             f"    {f:10s} is replaced with {replacements[f]:10s} in {pid_map_fn.name} (OK)"
         )
     else:
         print(
             f"    {f:10s} add to {pid_map_fn.name} if needed, see documentation PLATFORMS.md"
         )
->>>>>>> 9de6abf (minor fn and path corrections)
 
 
 def annotate_idmap(f):
@@ -171,7 +155,9 @@ if __name__ == "__main__":
                 f"    Usage: python3 {sys.argv[0]} <path/to/peas.json>"
             )
             sys.exit(1)
-        PLATFORMS_JSON = Path(sys.argv[1])
+        peas_fn = Path(sys.argv[1])
+    else:
+        peas_fn = locate_file("peas.json")
 
     cfg_home = peas_fn.parent
     pid_map_fn = cfg_home / "platforms_idmap.csv"
@@ -180,8 +166,7 @@ if __name__ == "__main__":
     print(
         f"[+] Using platforms, aliases, extensions and scrapers definition file\n    {peas_fn}"
     )
-    print("    and sibling platforms_idmap.csv.")
-    
+
     scrs_plafs_fn = cfg_home / "screenscraper_platforms.json"
     if not scrs_plafs_fn.exists():
         print(f"[!] File not found {scrs_plafs_fn}")

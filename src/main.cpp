@@ -40,6 +40,7 @@
 #include <QDir>
 #include <QtDebug>
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 #include <QDateTime>
 #include <QTimer>
