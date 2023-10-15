@@ -38,8 +38,8 @@ TheGamesDb::TheGamesDb(Settings *config,
   loadMaps();
 
   baseUrl = "https://api.thegamesdb.net/v1";
-
-  searchUrlPre = "https://api.thegamesdb.net/v1/Games/ByGameName?apikey=";
+  searchUrlPre = baseUrl + "/Games/ByGameName?apikey=";
+  gfxUrl = "https://cdn.thegamesdb.net/images/original";
 
   fetchOrder.append(RELEASEDATE);
   fetchOrder.append(DESCRIPTION);
@@ -83,17 +83,17 @@ void TheGamesDb::getSearchResults(QList<GameEntry> &gameEntries,
   int platformId = getPlatformId(config->platform);
   while(!jsonGames.isEmpty()) {
     QJsonObject jsonGame = jsonGames.first().toObject();
-    
+
     GameEntry game;
     // https://api.thegamesdb.net/v1/Games/ByGameID?id=88&apikey=XXX&fields=game_title,players,release_date,developer,publisher,genres,overview,rating,platform
     game.id = QString::number(jsonGame["id"].toInt());
-    game.url = "https://api.thegamesdb.net/v1/Games/ByGameID?id=" + game.id + "&apikey=" + StrTools::unMagic("187;161;217;126;172;149;202;122;163;197;163;219;162;171;203;197;139;151;215;173;122;206;161;162;200;216;217;123;124;215;200;170;171;132;158;155;215;120;149;169;140;164;122;154;178;174;160;172;157;131;210;161;203;137;159;117;205;166;162;139;171;169;210;163") + "&fields=game_title,players,release_date,developers,publishers,genres,overview,rating";
+    game.url = baseUrl + "/Games/ByGameID?id=" + game.id + "&apikey=" + StrTools::unMagic("187;161;217;126;172;149;202;122;163;197;163;219;162;171;203;197;139;151;215;173;122;206;161;162;200;216;217;123;124;215;200;170;171;132;158;155;215;120;149;169;140;164;122;154;178;174;160;172;157;131;210;161;203;137;159;117;205;166;162;139;171;169;210;163") + "&fields=game_title,players,release_date,developers,publishers,genres,overview,rating";
     game.title = jsonGame["game_title"].toString();
     // Remove anything at the end with a parentheses. 'thegamesdb' has a habit of adding
     // for instance '(1993)' to the name.
     game.title = game.title.left(game.title.indexOf("(")).simplified();
     int gamePlafId = jsonGame["platform"].toInt();
-    game.platform = platformMap[jsonGame["platform"].toString()].toString();
+    game.platform = platformMap[QString::number(gamePlafId)].toString();
     bool matchPlafId = gamePlafId == platformId;
     if(platformMatch(game.platform, platform) || matchPlafId) {
       if (matchPlafId) { qDebug() << "platforms_id match " << QString::number(gamePlafId) << "\n" ;}
@@ -191,14 +191,14 @@ void TheGamesDb::getDeveloper(GameEntry &game)
 {
   QJsonArray developers = jsonObj["developers"].toArray();
   if(developers.count() != 0)
-    game.developer = developerMap[developers.first().toString()].toString();
+    game.developer = developerMap[QString::number(developers.first().toInt())].toString();
 }
 
 void TheGamesDb::getPublisher(GameEntry &game)
 {
   QJsonArray publishers = jsonObj["publishers"].toArray();
   if(publishers.count() != 0)
-    game.publisher = publisherMap[publishers.first().toString()].toString();
+    game.publisher = publisherMap[QString::number(publishers.first().toInt())].toString();
 }
 
 void TheGamesDb::getDescription(GameEntry &game)
@@ -224,7 +224,10 @@ void TheGamesDb::getTags(GameEntry &game)
   QJsonArray genres = jsonObj["genres"].toArray();
   if(genres.count() != 0) {
     while(!genres.isEmpty()) {
-      game.tags.append(genreMap[genres.first().toString()].toString() + ", ");
+      QString id = QString::number(genres.first().toInt());
+      QString g = genreMap[id].toString();
+      qDebug() << "getTags():" << id << g << "\n";
+      game.tags.append(g + ", ");
       genres.removeFirst();
     }
     game.tags = game.tags.left(game.tags.length() - 2);
@@ -233,8 +236,13 @@ void TheGamesDb::getTags(GameEntry &game)
 
 void TheGamesDb::getCover(GameEntry &game)
 {
-  netComm->request("https://cdn.thegamesdb.net/images/original/boxart/front/" + game.id + "-1.jpg");
+  QString req = gfxUrl + "/boxart/front/" + game.id + "-1";
+  netComm->request(req + ".jpg");
   q.exec();
+  if (netComm->getError() != QNetworkReply::NoError) {
+    netComm->request(req + ".png");
+    q.exec();
+  }
   QImage image;
   if(netComm->getError() == QNetworkReply::NoError &&
      image.loadFromData(netComm->getData())) {
@@ -244,8 +252,13 @@ void TheGamesDb::getCover(GameEntry &game)
 
 void TheGamesDb::getScreenshot(GameEntry &game)
 {
-  netComm->request("https://cdn.thegamesdb.net/images/original/screenshots/" + game.id + "-1.jpg");
+  QString req = gfxUrl + "/screenshots/" + game.id + "-1";
+  netComm->request(req + ".jpg");
   q.exec();
+  if (netComm->getError() != QNetworkReply::NoError) {
+    netComm->request(req + ".png");
+    q.exec();
+  }
   QImage image;
   if(netComm->getError() == QNetworkReply::NoError &&
      image.loadFromData(netComm->getData())) {
@@ -255,7 +268,8 @@ void TheGamesDb::getScreenshot(GameEntry &game)
 
 void TheGamesDb::getWheel(GameEntry &game)
 {
-  netComm->request("https://cdn.thegamesdb.net/images/original/clearlogo/" + game.id + ".png");
+  QString req = gfxUrl + "/clearlogo/" + game.id;
+  netComm->request(req + ".png");
   q.exec();
   QImage image;
   if(netComm->getError() == QNetworkReply::NoError &&
@@ -266,8 +280,13 @@ void TheGamesDb::getWheel(GameEntry &game)
 
 void TheGamesDb::getMarquee(GameEntry &game)
 {
-  netComm->request("https://cdn.thegamesdb.net/images/original/graphical/" + game.id + "-g.jpg");
+  QString req = gfxUrl + "/graphical/" + game.id + "-g";
+  netComm->request(req + ".jpg");
   q.exec();
+  if (netComm->getError() != QNetworkReply::NoError) {
+    netComm->request(req + ".png");
+    q.exec();
+  }
   QImage image;
   if(netComm->getError() == QNetworkReply::NoError &&
      image.loadFromData(netComm->getData())) {
@@ -283,7 +302,7 @@ void TheGamesDb::loadMaps()
   platformMap = readJson("tgdb_platforms.json");
 }
 
-QVariantMap TheGamesDb::readJson(QString filename) 
+QVariantMap TheGamesDb::readJson(QString filename)
 {
   QVariantMap m;
   QFile jsonFile(filename);
