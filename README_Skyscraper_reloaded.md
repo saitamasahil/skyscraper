@@ -2,7 +2,8 @@
 
 Based on commit 654a31b from 2022-10-26 from [this enhanced skyscraper
 fork](https://github.com/detain/skyscraper) as development and maintenance
-obviously has been stalled there.
+obviously has been stalled there. This branch focuses RetroPie integration but
+Skyscraper can also be used without RetroPie.
 
 ## Included PRs
 
@@ -19,7 +20,7 @@ These pull requests have been merged into this fork.
 
 ## Changes
 
-### 2023-10-17 (Version 3.9.0)
+### TBA (Version 3.9.0)
 
 - Feature: Mobygames scraper respects game id from mobygames.com website via
   `--query=<gameid>`. Handy to hint to the right game information when usual

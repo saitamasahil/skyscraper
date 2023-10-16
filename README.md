@@ -1,9 +1,16 @@
 # 🏢Skyscraper Enhanced+Reloaded
 [![Tests](https://github.com/Gemba/skyscraper/actions/workflows/ci.yml/badge.svg)](https://github.com/Gemba/skyscraper/actions/workflows/ci.yml)
 
-## History
-Original project by [Lars Muldjord](https://github.com/muldjord/skyscraper), temporarily maintained by [Joe Huss](https://github.com/detain/skyscraper).
-Since autumn 2023 this repo is the official successor of Lars' awesome Skyscraper and the official branch used in RetroPie. Happy scraping!
+## Preface
+Since autumn 2023 this repo you have reached is the official successor of Lars'
+awesome Skyscraper and also the official version used in RetroPie. Read all
+about the change since then [here](README_Skyscraper_reloaded.md). Happy
+scraping!
+
+Skyscraper was temporarily maintained by [Joe
+Huss](https://github.com/detain/skyscraper) (2022-2023). The original project is by
+[Lars Muldjord](https://github.com/muldjord/skyscraper) (2017-2022), who did all
+the heavy lifting. 
 
 ----
 
