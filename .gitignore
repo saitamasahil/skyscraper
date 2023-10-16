@@ -57,6 +57,7 @@ moc_*
 *.tmp
 *.bk
 .qmake*
+Skyscraper
 Skyscraper.app/**/*
 packages
 *-packages
