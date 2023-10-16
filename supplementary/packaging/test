@@ -2,8 +2,8 @@
 set -euo pipefail
 set -x
 
-export SKYSCRAPER_HOME="$(cd "$(dirname "$0")/.." && pwd)"
-source "${SKYSCRAPER_HOME}/scripts/core.sh"
+export SKYSCRAPER_HOME="$(cd "$(dirname "$0")/../.." && pwd)"
+source "${SKYSCRAPER_HOME}/supplementary/packaging/core.sh"
 
 _test_android() {
    local -r res="$(file "$TARGET_BIN")"
