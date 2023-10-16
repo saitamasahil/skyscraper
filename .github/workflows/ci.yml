@@ -9,8 +9,8 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@master
       - name: Install deps
-        run: bash ./supplementary/packaging/scripts/deps
+        run: bash ./supplementary/packaging/deps
       - name: Build
-        run: bash ./supplementary/packaging/scripts/install
+        run: bash ./supplementary/packaging/install
       - name: Test
-        run: bash ./supplementary/packaging/scripts/test
+        run: bash ./supplementary/packaging/test
