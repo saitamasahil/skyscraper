@@ -64,7 +64,6 @@ private slots:
 private:
   Settings config;
   void loadConfig(const QCommandLineParser &parser);
-  void copyFile(const QString &distro, const QString &current, bool overwrite = true);
   QString secsToString(const int &seconds);
   void checkForFolder(QDir &folder, bool create = true);
   void showHint();

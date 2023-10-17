@@ -24,7 +24,6 @@
  */
 
 #include <QJsonArray>
-#include <QDebug>
 
 #include "gameentry.h"
 #include "thegamesdb.h"

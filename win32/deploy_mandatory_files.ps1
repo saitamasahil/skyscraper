@@ -1,7 +1,7 @@
 param([string]$src_dir,[string]$skyscraper_home)
 
 # These may be customized by user, thus do not overwrite with the repo files. 
-# The repo will then get .dist extension appended.
+# The (newer) repo file will then get '.dist' extension appended in target dir.
 $user_cfg_files = @(
   'artwork.xml'
   'aliasMap.csv'
@@ -24,11 +24,13 @@ $folders = @(
 )
 
 $dmap = @{
+  'config' = '.'
   'examples' = '.'
   'cacheexamples' = 'cache'
   'impexamples' = 'import'
   'resexamples' = 'resources'
 }
+# ignore: supplementary.files and target.files
 
 $fmap = @{}
 

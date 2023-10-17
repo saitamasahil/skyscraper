@@ -623,56 +623,6 @@ void Skyscraper::checkThreads()
 
 void Skyscraper::loadConfig(const QCommandLineParser &parser)
 {
-  /* -----
-     Files that should ALWAYS be updated from distributed default files
-     ----- */
-
-  copyFile("/usr/local/etc/skyscraper/config.ini.example", "config.ini.example");
-  copyFile("/usr/local/etc/skyscraper/README.md", "README.md");
-  copyFile("/usr/local/etc/skyscraper/hints.xml", "hints.xml");
-  copyFile("/usr/local/etc/skyscraper/ARTWORK.md", "ARTWORK.md");
-  copyFile("/usr/local/etc/skyscraper/artwork.xml.example1", "artwork.xml.example1");
-  copyFile("/usr/local/etc/skyscraper/artwork.xml.example2", "artwork.xml.example2");
-  copyFile("/usr/local/etc/skyscraper/artwork.xml.example3", "artwork.xml.example3");
-  copyFile("/usr/local/etc/skyscraper/artwork.xml.example4", "artwork.xml.example4");
-  copyFile("/usr/local/etc/skyscraper/mameMap.csv", "mameMap.csv");
-  copyFile("/usr/local/etc/skyscraper/mobygames_platforms.json", "mobygames_platforms.json");
-  copyFile("/usr/local/etc/skyscraper/screenscraper_platforms", "screenscraper_platforms.json");
-  copyFile("/usr/local/etc/skyscraper/tgdb_developers.json", "tgdb_developers.json");
-  copyFile("/usr/local/etc/skyscraper/tgdb_genres.json", "tgdb_genres.json");
-  copyFile("/usr/local/etc/skyscraper/tgdb_platforms.json", "tgdb_platforms.json");
-  copyFile("/usr/local/etc/skyscraper/tgdb_publishers.json", "tgdb_publishers.json");
-  copyFile("/usr/local/etc/skyscraper/resources/boxfront.png", "resources/boxfront.png");
-  copyFile("/usr/local/etc/skyscraper/resources/boxside.png", "resources/boxside.png");
-  copyFile("/usr/local/etc/skyscraper/docs/CACHE.md", "cache/README.md");
-  copyFile("/usr/local/etc/skyscraper/cache/priorities.xml.example", "cache/priorities.xml.example");
-  copyFile("/usr/local/etc/skyscraper/import/IMPORT.md", "import/README.md");
-  copyFile("/usr/local/etc/skyscraper/import/definitions.dat.example1", "import/definitions.dat.example1");
-  copyFile("/usr/local/etc/skyscraper/import/definitions.dat.example2", "import/definitions.dat.example2");
-
-  /* -----
-     Files that will only be overwritten if they don't already exist
-     ----- */
-
-  // Make sure we have a default config.ini file based on the config.ini.example file
-  copyFile("/usr/local/etc/skyscraper/peas.json", "peas.json", false); // False means it won't overwrite if it exists
-  copyFile("/usr/local/etc/skyscraper/platforms_idmap.csv", "platforms_idmap.csv", false); 
-  copyFile("/usr/local/etc/skyscraper/config.ini.example", "config.ini", false);
-  copyFile("/usr/local/etc/skyscraper/artwork.xml", "artwork.xml", false);
-  copyFile("/usr/local/etc/skyscraper/aliasMap.csv", "aliasMap.csv", false);
-  copyFile("/usr/local/etc/skyscraper/resources/maskexample.png", "resources/maskexample.png", false);
-  copyFile("/usr/local/etc/skyscraper/resources/frameexample.png", "resources/frameexample.png", false);
-  copyFile("/usr/local/etc/skyscraper/resources/scanlines1.png", "resources/scanlines1.png", false);
-  copyFile("/usr/local/etc/skyscraper/resources/scanlines2.png", "resources/scanlines2.png", false);
-  // Copy one of the example definitions.dat files if none exists
-  copyFile("/usr/local/etc/skyscraper/import/definitions.dat.example2", "import/definitions.dat", false);
-
-  /* -----
-     END updating files from distribution files
-     ----- */
-
-  //migrate(parser.isSet("c")?parser.value("c"):"config.ini");
-
   QSettings settings(parser.isSet("c")?parser.value("c"):"config.ini", QSettings::IniFormat);
 
   // Start by setting frontend, since we need it to set default for game list and so on
@@ -1656,19 +1606,6 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser)
   }
 }
 
-void Skyscraper::copyFile(const QString &distro, const QString &current, bool overwrite)
-{
-  if(QFileInfo::exists(distro)) {
-    if(QFileInfo::exists(current)) {
-      if(overwrite) {
-	QFile::remove(current);
-	QFile::copy(distro, current);
-      }
-    } else {
-      QFile::copy(distro, current);
-    }
-  }
-}
 
 void Skyscraper::showHint()
 {

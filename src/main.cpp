@@ -38,7 +38,6 @@
 
 #include <QCoreApplication>
 #include <QDir>
-#include <QtDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -64,20 +63,20 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext&, const QStri
   switch (type) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
   case QtInfoMsg:
-    txt += QString("INFO: '%1'").arg(msg);
+    txt += QString(" INFO: %1").arg(msg);
     break;
 #endif
   case QtDebugMsg:
-    txt += QString("DEBUG: '%1'").arg(msg);
+    txt += QString("DEBUG: %1").arg(msg);
     break;
   case QtWarningMsg:
-    //txt += QString("Warning: %1").arg(msg);
+    txt += QString(" WARN: %1").arg(msg);
     break;
   case QtCriticalMsg:
-    txt += QString("CRITICAL: '%1'").arg(msg);
+    txt += QString(" CRIT: %1").arg(msg);
     break;
   case QtFatalMsg:
-    txt += QString("FATAL: '%1'").arg(msg);
+    txt += QString("FATAL: %1").arg(msg);
     abort();
   }
   printf("%s", txt.toStdString().c_str());
@@ -127,28 +126,39 @@ BOOL WINAPI ConsoleHandler(DWORD dwType)
 #endif
 }
 
-int main(int argc, char *argv[])
+enum class FileOp
 {
-#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
-  struct sigaction sigIntHandler;
+    KEEP,
+    OVERWRITE,
+    CREATE_DIST
+};
 
-  sigIntHandler.sa_handler = sigHandler;
-  sigemptyset(&sigIntHandler.sa_mask);
-  sigIntHandler.sa_flags = 0;
+void copyFile(const QString &src, const QString &dest, FileOp fileOp = FileOp::OVERWRITE)
+{
+  if(QFileInfo::exists(src)) {
+    if(QFileInfo::exists(dest)) {
+      if(fileOp == FileOp::OVERWRITE) {
+	      QFile::remove(dest);
+	      QFile::copy(src, dest);
+        qDebug() << "Overwritten file" << dest << "\n";
+      } else if (fileOp == FileOp::CREATE_DIST) {
+        QString d = QString(dest + ".dist");
+	      QFile::remove(d);
+	      QFile::copy(src, d);
+        qDebug() << "Created original dist file as" << d << "\n";
+      }
+    } else {
+      QFile::copy(src, dest);
+      qDebug() << "Created file" << dest << "\n";
+    }
+  } else {
+    printf("\033[1;31mSource config file not found '%s'. Please check setup, bailing out...\033[0m\n", src.toStdString().c_str());
+    exit(1);
+  }
+}
 
-  sigaction(SIGINT, &sigIntHandler, NULL);
-#endif
-
-#if defined(Q_OS_WIN)
-  SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE);
-#endif
-
-  QCoreApplication app(argc, argv);
-  app.setApplicationVersion(VERSION);
-
-  // Get current dir. If user has specified file(s) on command line we need this.
-  QString currentDir = QDir::currentPath();
-
+void setupUserConfig()
+{
   // Set the working directory to the applications own path
   QDir skyDir(QDir::homePath() + "/.skyscraper");
   if(!skyDir.exists()) {
@@ -178,17 +188,62 @@ int main(int argc, char *argv[])
   skyDir.mkpath("cache");
   QDir::setCurrent(skyDir.absolutePath());
 
-  // Install the custom debug message handler used by qDebug()
-  qInstallMessageHandler(customMessageHandler);
+  // copy configs
+  QString localEtcPath = QString("/usr/local/etc/skyscraper/");
 
-  QStringList legacyJsons = QString("mobygames platforms screenscraper").split(" ");
-  for (auto bn : legacyJsons) {
-    QString fn = bn + ".json";
-    if (QFileInfo::exists(fn)) {
-      printf("\033[1;33mFile '%s' found, which is no longer used in this version of Skyscraper. Please move file to mute this warning. See docs/PLATFORMS.md for additional info.\033[0m\n", fn.toUtf8().constData());
-    }
+  if (!QFileInfo::exists(localEtcPath)) {
+    // RetroPie installation type
+    return;
   }
 
+  QMap<QString, QPair<QString, FileOp>> configFiles = {
+    {"ARTWORK.md", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"artwork.xml.example1", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"artwork.xml.example2", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"artwork.xml.example3", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"artwork.xml.example4", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"cache/priorities.xml.example", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"config.ini.example", QPair<QString, FileOp>("config.ini.example", FileOp::OVERWRITE)},
+    {"CACHE.md", QPair<QString, FileOp>("cache/README.md", FileOp::OVERWRITE)},
+    {"hints.xml", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"import/definitions.dat.example1", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"import/definitions.dat.example2", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"import/IMPORT.md", QPair<QString, FileOp>("import/README.md", FileOp::OVERWRITE)},
+    {"mameMap.csv", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"mobygames_platforms.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"README.md", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"resources/boxfront.png", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"resources/boxside.png", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"screenscraper_platforms.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"tgdb_developers.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"tgdb_genres.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"tgdb_platforms.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+    {"tgdb_publishers.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
+
+    {"config.ini.example", QPair<QString, FileOp>("config.ini", FileOp::KEEP)},
+    {"import/definitions.dat.example2", QPair<QString, FileOp>("import/definitions.dat", FileOp::KEEP)},
+    {"resources/frameexample.png", QPair<QString, FileOp>("", FileOp::KEEP)},
+    {"resources/maskexample.png", QPair<QString, FileOp>("", FileOp::KEEP)},
+    {"resources/scanlines1.png", QPair<QString, FileOp>("", FileOp::KEEP)},
+    {"resources/scanlines2.png", QPair<QString, FileOp>("", FileOp::KEEP)},
+    // create <fn>.dist if exists
+    {"aliasMap.csv", QPair<QString, FileOp>("", FileOp::CREATE_DIST)},
+    {"artwork.xml", QPair<QString, FileOp>("", FileOp::CREATE_DIST)},
+    {"peas.json", QPair<QString, FileOp>("", FileOp::CREATE_DIST)},
+    {"platforms_idmap.csv", QPair<QString, FileOp>("", FileOp::CREATE_DIST)}
+  };
+
+  for(auto src : configFiles.keys()) {
+    QString dest = configFiles.value(src).first;
+    if (dest.isEmpty()) {
+      dest = src;
+    }
+    copyFile(localEtcPath + src, dest, configFiles.value(src).second);
+  }
+}
+
+QString getSupportedPlatforms()
+{
   if (!Platform::get().loadConfig()) {
     exit(1);
   }
@@ -198,7 +253,47 @@ int main(int argc, char *argv[])
     platforms.append("'" + platform + "', ");
   }
   // Remove the last ', '
-  platforms = platforms.left(platforms.length() - 2);
+  return platforms.left(platforms.length() - 2);
+
+}
+
+
+int main(int argc, char *argv[])
+{
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+  struct sigaction sigIntHandler;
+
+  sigIntHandler.sa_handler = sigHandler;
+  sigemptyset(&sigIntHandler.sa_mask);
+  sigIntHandler.sa_flags = 0;
+
+  sigaction(SIGINT, &sigIntHandler, NULL);
+#endif
+
+#if defined(Q_OS_WIN)
+  SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE);
+#endif
+
+  QCoreApplication app(argc, argv);
+  app.setApplicationVersion(VERSION);
+
+  // Get current dir. If user has specified file(s) on command line we need this.
+  QString currentDir = QDir::currentPath();
+
+  // Install the custom debug message handler used by qDebug()
+  qInstallMessageHandler(customMessageHandler);
+
+  setupUserConfig();
+
+  QStringList legacyJsons = QString("mobygames platforms screenscraper").split(" ");
+  for (auto bn : legacyJsons) {
+    QString fn = bn + ".json";
+    if (QFileInfo::exists(fn)) {
+      printf("\033[1;33mFile '%s' found, which is no longer used in this version of Skyscraper. Please move file to mute this warning. See docs/PLATFORMS.md for additional info.\033[0m\n", fn.toUtf8().constData());
+    }
+  }
+
+  QString platforms = getSupportedPlatforms();
 
   QCommandLineParser parser;
 
@@ -303,3 +398,4 @@ int main(int argc, char *argv[])
   }
   */
 }
+

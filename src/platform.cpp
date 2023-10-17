@@ -28,6 +28,7 @@
 #include <QByteArray>
 #include <QFile>
 #include <QDir>
+#include <QDebug>
 #include <QProcess>
 #include <QString>
 
@@ -35,8 +36,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QStringList>
-
-#include <QDebug>
 
 #include "platform.h"
 

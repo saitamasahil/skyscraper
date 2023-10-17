@@ -17,6 +17,7 @@ win32 {
   QMAKE_POST_LINK += cmd /c del $$shell_quote($$shell_path($${DEST}\\\\*.cpp)) \
     $$shell_quote($$shell_path($${DEST}\\\\*.o)) \
     $$shell_quote($$shell_path($${DEST}\\\\*.h)) $$escape_expand(\\n\\t)
+
   # copy licenses
   QMAKE_POST_LINK += cmd /c copy /y $$shell_quote($$shell_path($${PWD}/../LICENSE)) \
     $$shell_quote($$shell_path($${DEST}/LICENSE.Skyscraper)) $$escape_expand(\\n\\t)
@@ -24,10 +25,12 @@ win32 {
     $$shell_quote($$shell_path($${DEST})) $$escape_expand(\\n\\t)
   QMAKE_POST_LINK += cmd /c copy /y $$shell_quote($$shell_path($${QT_LIC_FOLDER}/LICENSE.GPL3-EXCEPT)) \
     $$shell_quote($$shell_path($${DEST})) $$escape_expand(\\n\\t)
+
   # determine needed libs and copy into $${DEST}
   QMAKE_POST_LINK += cmd /c $$shell_quote($$shell_path($${WINDEPLOYQT_BIN})) \
     --$${BUILD_CFG} $$shell_quote($$shell_path($${DEST}\\Skyscraper.exe)) \
     $$escape_expand(\\n\\t)
+
   # create mandatory folders and deploy mandatory files
   QMAKE_POST_LINK += powershell -Command 'md -Force $$shell_quote($$shell_path($$(USERPROFILE)/RetroPie/roms))' > NUL &
   QMAKE_POST_LINK += powershell -NoProfile -NoLogo -NonInteractive -ExecutionPolicy Bypass \

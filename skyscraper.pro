@@ -10,19 +10,22 @@ QMAKE_CXXFLAGS += -std=c++11
 unix:target.path=/usr/local/bin
 unix:target.files=Skyscraper Skyscraper.app/Contents/MacOS/Skyscraper
 
-unix:examples.path=/usr/local/etc/skyscraper
-unix:examples.files=config.ini.example README.md hints.xml artwork.xml \
-  artwork.xml.example1 artwork.xml.example2 artwork.xml.example3 \
-  artwork.xml.example4 aliasMap.csv docs/ARTWORK.md mameMap.csv \
-  mobygames_platforms.json peas.json platforms_idmap.csv \
-  screenscraper_platforms.json tgdb_developers.json tgdb_genres.json \
-  tgdb_platforms.json tgdb_publishers.json
-
 unix:supplementary.path=/usr/local/bin
 unix:supplementary.files=\
   supplementary/scraperdata/check_screenscraper_json_to_idmap.py \
   supplementary/scraperdata/convert_platforms_json.py \
   supplementary/scraperdata/peas_and_idmap_verify.py
+
+unix:config.path=/usr/local/etc/skyscraper
+unix:config.files=aliasMap.csv hints.xml mameMap.csv \
+  mobygames_platforms.json peas.json platforms_idmap.csv \
+  screenscraper_platforms.json tgdb_developers.json \
+  tgdb_genres.json tgdb_platforms.json tgdb_publishers.json
+
+unix:examples.path=/usr/local/etc/skyscraper
+unix:examples.files=config.ini.example README.md artwork.xml \
+  artwork.xml.example1 artwork.xml.example2 artwork.xml.example3 \
+  artwork.xml.example4 docs/ARTWORK.md docs/CACHE.md
 
 unix:cacheexamples.path=/usr/local/etc/skyscraper/cache
 unix:cacheexamples.files=cache/priorities.xml.example docs/CACHE.md
@@ -36,8 +39,8 @@ unix:resexamples.files=resources/maskexample.png resources/frameexample.png \
   resources/boxfront.png resources/boxside.png resources/scanlines1.png \
   resources/scanlines2.png
 
-unix:INSTALLS += target examples cacheexamples impexamples resexamples \
-  supplementary
+unix:INSTALLS += target config examples cacheexamples impexamples \
+  resexamples supplementary
 
 include(./VERSION)
 DEFINES+=VERSION=\\\"$$VERSION\\\"

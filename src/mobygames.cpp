@@ -24,7 +24,6 @@
  */
 
 #include <QJsonArray>
-#include <QDebug>
 
 #include "mobygames.h"
 #include "platform.h"
