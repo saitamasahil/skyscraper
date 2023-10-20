@@ -20,7 +20,7 @@ These pull requests have been merged into this fork.
 
 ## Changes
 
-### TBA (Version 3.9.0)
+### 2023-10-20 (Version 3.9.0)
 
 - Feature: Mobygames scraper respects game id from mobygames.com website via
   `--query=<gameid>`. Handy to hint to the right game information when usual
