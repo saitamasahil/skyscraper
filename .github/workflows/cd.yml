@@ -47,13 +47,13 @@ jobs:
 #        cache: 'false'
 #        tools: 'tools_ifw tools_qtcreator,qt.tools.qtcreator'
     - name: Install deps
-      run: bash ./supplementary/packaging/deps "${{ matrix.target }}"
+      run: bash ./supplementary/workflows/deps "${{ matrix.target }}"
     - name: Build
-      run: bash ./supplementary/packaging/install "${{ matrix.target }}"
+      run: bash ./supplementary/workflows/install "${{ matrix.target }}"
     - name: Test
-      run: bash ./supplementary/packaging/test "${{ matrix.target }}" 
+      run: bash ./supplementary/workflows/test "${{ matrix.target }}" 
     - name: Zip
-      run: bash ./supplementary/packaging/zip
+      run: bash ./supplementary/workflows/zip
     - name: Version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}

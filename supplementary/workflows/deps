@@ -3,7 +3,7 @@ set -euo pipefail
 set -x
 
 export SKYSCRAPER_HOME="$(cd "$(dirname "$0")/../.." && pwd)"
-source "${SKYSCRAPER_HOME}/supplementary/packaging/core.sh"
+source "${SKYSCRAPER_HOME}/supplementary/workflows/core.sh"
 
 get_platform() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -50,7 +50,7 @@ _setup_termux() {
    
    mkdir -p "./termux-packages/packages/${PKG_NAME}" || true
    rm "./termux-packages/packages/${PKG_NAME}/build.sh" || true
-   cp ./supplementary/packaging/build.sh "./termux-packages/packages/${PKG_NAME}/build.sh"
+   cp ./supplementary/workflows/build.sh "./termux-packages/packages/${PKG_NAME}/build.sh"
    mv ./buildsrc ./termux-packages/packages/
 }
 
