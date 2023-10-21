@@ -265,7 +265,7 @@ void ImportScraper::getRating(GameEntry &game) {
     }
     game.rating = data.left(data.indexOf(ratingPost.toUtf8()));
 
-    // check for 0, 0.5, 1, 1.5, ... 5
+    // check for 0, 0.5, 1, 1.5, ... 5 (star rating)
     QRegularExpression re("^[0-5](\\.5)?$");
     QRegularExpressionMatch m = re.match(game.rating);
     if (m.hasMatch()) {
@@ -278,8 +278,8 @@ void ImportScraper::getRating(GameEntry &game) {
         return;
     }
 
-    // check for 0.0 ... 1.0
-    // known limitation: to catch 0.5 here enter it as '.5'
+    // check for 0.0 ... 1.0 (decimal number)
+    // known limitation: to yield 0.5 this scale enter it as '.5' or '0.50'
     bool toDoubleOk = false;
     double rating = game.rating.toDouble(&toDoubleOk);
     if (toDoubleOk && rating >= 0.0 && rating <= 1.0) {
