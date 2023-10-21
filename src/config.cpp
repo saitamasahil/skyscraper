@@ -64,7 +64,6 @@ void Config::setupUserConfig() {
   }
 
   // Create import paths
-  skyDir.mkpath("import");
   skyDir.mkpath("import/textual");
   skyDir.mkpath("import/screenshots");
   skyDir.mkpath("import/covers");
