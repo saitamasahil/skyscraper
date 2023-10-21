@@ -23,38 +23,38 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 
-#include <iostream>
-
-#include <QByteArray>
-#include <QFile>
-#include <QDir>
-#include <QDebug>
-#include <QProcess>
-#include <QString>
-
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QStringList>
-
 #include "platform.h"
 
-bool Platform::loadConfig()
-{
+#include <QByteArray>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QProcess>
+#include <QString>
+#include <QStringList>
+#include <iostream>
+
+bool Platform::loadConfig() {
     clearConfigData();
 
     QString fn = "peas.json";
     QFile configFile(fn);
     if (!configFile.open(QIODevice::ReadOnly)) {
-      printf("\033[1;31mFile not found '%s'\n\nNow quitting...\033[0m\n", fn.toUtf8().constData());
-      return false;
+        printf("\033[1;31mFile not found '%s'\n\nNow quitting...\033[0m\n",
+               fn.toUtf8().constData());
+        return false;
     }
 
     QByteArray saveData = configFile.readAll();
     QJsonDocument json(QJsonDocument::fromJson(saveData));
 
-    if(json.isNull() || json.isEmpty()) {
-        printf("\033[1;31mFile '%s' empty or no JSON format\n\nNow quitting...\033[0m\n", fn.toUtf8().constData());
+    if (json.isNull() || json.isEmpty()) {
+        printf("\033[1;31mFile '%s' empty or no JSON format\n\nNow "
+               "quitting...\033[0m\n",
+               fn.toUtf8().constData());
         return false;
     }
 
@@ -62,125 +62,128 @@ bool Platform::loadConfig()
     peas = jObj.toVariantMap();
 
     for (auto piter = jObj.constBegin(); piter != jObj.constEnd(); piter++) {
-      platforms.push_back(piter.key());
+        platforms.push_back(piter.key());
     }
 
     platforms.sort();
 
     if (!loadPlatformsIdMap()) {
-      return false;
+        return false;
     }
     return true;
 }
 
-void Platform::clearConfigData()
-{
+void Platform::clearConfigData() {
     platforms.clear();
     platformIdsMap.clear();
 }
 
-Platform& Platform::get()
-{
+Platform &Platform::get() {
     static Platform platform;
     return platform;
 }
 
-QStringList Platform::getPlatforms() const
-{
-  return platforms;
+QStringList Platform::getPlatforms() const { return platforms; }
+
+QStringList Platform::getScrapers(QString platform) const {
+    QStringList scrapers = peas[platform].toHash()["scrapers"].toStringList();
+    // Always add 'cache' as the last one
+    scrapers.append("cache");
+
+    return scrapers;
 }
 
-QStringList Platform::getScrapers(QString platform) const
-{
-  QStringList scrapers = peas[platform].toHash()["scrapers"].toStringList();
-  // Always add 'cache' as the last one
-  scrapers.append("cache");
+QString Platform::getFormats(QString platform, QString extensions,
+                             QString addExtensions) const {
+    if (!extensions.isEmpty() && extensions.contains("*.")) {
+        return extensions;
+    }
 
-  return scrapers;
+    QString formats = "*.zip *.7z *.ml "; // The last ' ' IS IMPORTANT!!!!!
+    if (!addExtensions.isEmpty() && addExtensions.contains("*.")) {
+        formats.append(addExtensions);
+    }
+    if (formats.right(1) != " ") {
+        formats.append(" ");
+    }
+    QStringList myFormats = peas[platform].toHash()["formats"].toStringList();
+    if (!myFormats.isEmpty()) {
+        int count = myFormats.size();
+        for (int i = 0; i < count - 1; ++i)
+            formats.append(myFormats[i] + " ");
+        formats.append(myFormats[count - 1]);
+    }
+    return formats;
 }
 
-QString Platform::getFormats(QString platform, QString extensions, QString addExtensions) const
-{
-  if(!extensions.isEmpty() && extensions.contains("*.")) {
-    return extensions;
-  }
+// If user provides no scraping source with '-s' this sets the default for the
+// platform
+QString Platform::getDefaultScraper() const { return "cache"; }
 
-  QString formats = "*.zip *.7z *.ml "; // The last ' ' IS IMPORTANT!!!!!
-  if(!addExtensions.isEmpty() && addExtensions.contains("*.")) {
-    formats.append(addExtensions);
-  }
-  if(formats.right(1) != " ") {
-    formats.append(" ");
-  }
-  QStringList myFormats = peas[platform].toHash()["formats"].toStringList();
-  if(!myFormats.isEmpty())
-  {
-    int count = myFormats.size();
-    for(int i = 0; i < count - 1; ++i)
-      formats.append(myFormats[i] + " ");
-    formats.append(myFormats[count - 1]);
-  }
-  return formats;
+// This contains all known platform aliases as listed on each of the scraping
+// source sites
+QStringList Platform::getAliases(QString platform) const {
+    QStringList aliases;
+    // Platform name itself is always appended as the first alias
+    aliases.append(platform);
+    aliases.append(peas[platform].toHash()["aliases"].toStringList());
+    qDebug() << "getAliases():" << aliases << "\n";
+    return aliases;
 }
 
-// If user provides no scraping source with '-s' this sets the default for the platform
-QString Platform::getDefaultScraper() const
-{
-  return "cache";
-}
-
-// This contains all known platform aliases as listed on each of the scraping source sites
-QStringList Platform::getAliases(QString platform) const
-{
-  QStringList aliases;
-  // Platform name itself is always appended as the first alias
-  aliases.append(platform);
-  aliases.append(peas[platform].toHash()["aliases"].toStringList());
-  qDebug() << "getAliases():" << aliases << "\n";
-  return aliases;
-}
-
-bool Platform::loadPlatformsIdMap()
-{
+bool Platform::loadPlatformsIdMap() {
     QString fn = "platforms_idmap.csv";
     QFile configFile(fn);
     if (!configFile.open(QIODevice::ReadOnly)) {
-      printf("\033[1;31mFile not found '%s'\n\nNow quitting...\033[0m\n", fn.toUtf8().constData());
-      return false;
+        printf("\033[1;31mFile not found '%s'\n\nNow quitting...\033[0m\n",
+               fn.toUtf8().constData());
+        return false;
     }
     while (!configFile.atEnd()) {
         QString line = QString(configFile.readLine()).trimmed();
-        if (line.isEmpty() || line.startsWith("#") || line.startsWith("folder,")) {
-          continue;
+        if (line.isEmpty() || line.startsWith("#") ||
+            line.startsWith("folder,")) {
+            continue;
         }
         QStringList parts = line.split(',');
         if (parts.length() != 4) {
-          printf("\033[1;31mFile '%s', line '%s' has not four columns, but %d. Please fix.\n\nNow quitting...\033[0m\n", fn.toUtf8().constData(), parts.join(',').toUtf8().constData(), parts.length());
-          configFile.close();
-          return false;
+            printf("\033[1;31mFile '%s', line '%s' has not four columns, but "
+                   "%d. Please fix.\n\nNow quitting...\033[0m\n",
+                   fn.toUtf8().constData(),
+                   parts.join(',').toUtf8().constData(), parts.length());
+            configFile.close();
+            return false;
         }
         QString pkey = parts[0].trimmed();
         if (pkey.isEmpty()) {
-          printf("\033[1;31mFile '%s', line '%s' has empty folder/platform. Ignoring this line. Please fix to mute this warning.\033[0m\n", fn.toUtf8().constData(), parts.join(',').toUtf8().constData());
-          configFile.close();
-          return false;
-        }        
+            printf(
+                "\033[1;31mFile '%s', line '%s' has empty folder/platform. "
+                "Ignoring this line. Please fix to mute this warning.\033[0m\n",
+                fn.toUtf8().constData(), parts.join(',').toUtf8().constData());
+            configFile.close();
+            return false;
+        }
         parts.removeFirst();
         QVector<int> ids(QVector<int>(3));
         int i = 0;
         for (QString id : parts) {
-          id = id.trimmed();
-          ids[i] = -1;
-          if (!id.isEmpty()) {
-            bool ok;
-            int tmp = id.toInt(&ok);
-            if (ok) {
-              ids[i] = (tmp == 0) ? -1:tmp;
-            } else {
-              printf("\033[1;33mFile '%s', line '%s,%s' has unparsable int value (use -1 for unknown platform id). Assumming -1 for now, please fix to mute this warning.\033[0m\n", fn.toUtf8().constData(), pkey.toUtf8().constData(), parts.join(',').toUtf8().constData());
+            id = id.trimmed();
+            ids[i] = -1;
+            if (!id.isEmpty()) {
+                bool ok;
+                int tmp = id.toInt(&ok);
+                if (ok) {
+                    ids[i] = (tmp == 0) ? -1 : tmp;
+                } else {
+                    printf(
+                        "\033[1;33mFile '%s', line '%s,%s' has unparsable int "
+                        "value (use -1 for unknown platform id). Assumming -1 "
+                        "for now, please fix to mute this warning.\033[0m\n",
+                        fn.toUtf8().constData(), pkey.toUtf8().constData(),
+                        parts.join(',').toUtf8().constData());
+                }
             }
-          }
-          i++; 
+            i++;
         }
         platformIdsMap.insert(pkey, ids);
     }
@@ -188,24 +191,24 @@ bool Platform::loadPlatformsIdMap()
     return true;
 }
 
-int Platform::getPlatformIdOnScraper(const QString platform, const QString scraper) const
-{
-  int id = -1;
-  if (platformIdsMap.contains(platform)) {
-    QVector<int> ids = platformIdsMap[platform];
-    qDebug() << "platform ids" << ids << "\n"; 
-    if (scraper == "screenscraper") {
-      id = ids[0];
-    } else if (scraper == "mobygames") {
-      id = ids[1];
-    } else if (scraper == "thegamesdb") {
-      id = ids[2];
+int Platform::getPlatformIdOnScraper(const QString platform,
+                                     const QString scraper) const {
+    int id = -1;
+    if (platformIdsMap.contains(platform)) {
+        QVector<int> ids = platformIdsMap[platform];
+        qDebug() << "platform ids" << ids << "\n";
+        if (scraper == "screenscraper") {
+            id = ids[0];
+        } else if (scraper == "mobygames") {
+            id = ids[1];
+        } else if (scraper == "thegamesdb") {
+            id = ids[2];
+        }
     }
-  }
-  qDebug() << "Got platform id" << id << "for platform" << platform << "and scraper" << scraper << "\n";
-  return id;
+    qDebug() << "Got platform id" << id << "for platform" << platform
+             << "and scraper" << scraper << "\n";
+    return id;
 }
-
 
 // --- Console colors ---
 // Black        0;30     Dark Gray     1;30

@@ -16,7 +16,7 @@
  *  along with skyscraper; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
- 
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
@@ -30,6 +30,6 @@ namespace Config {
     void setupUserConfig();
     void checkLegacyFiles();
     QString getSupportedPlatforms();
-}
+} // namespace Config
 
 #endif // CONFIG_H

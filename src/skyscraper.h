@@ -26,73 +26,72 @@
 #ifndef SKYSCRAPER_H
 #define SKYSCRAPER_H
 
+#include "abstractfrontend.h"
+#include "cache.h"
 #include "netcomm.h"
 #include "netmanager.h"
-#include "scraperworker.h"
-#include "cache.h"
-#include "abstractfrontend.h"
-#include "settings.h"
 #include "platform.h"
-
-#include <QObject>
-#include <QFile>
-#include <QElapsedTimer>
+#include "scraperworker.h"
+#include "settings.h"
 
 #include <QCommandLineParser>
+#include <QElapsedTimer>
+#include <QFile>
+#include <QObject>
 
-class Skyscraper : public QObject
-{
-  Q_OBJECT
+class Skyscraper : public QObject {
+    Q_OBJECT
 
 public:
-  Skyscraper(const QCommandLineParser &parser, const QString &currentDir);
-  ~Skyscraper();
-  QSharedPointer<Queue> queue;
-  QSharedPointer<NetManager> manager;
-  int state = 0;
+    Skyscraper(const QCommandLineParser &parser, const QString &currentDir);
+    ~Skyscraper();
+    QSharedPointer<Queue> queue;
+    QSharedPointer<NetManager> manager;
+    int state = 0;
 
 public slots:
-  void run();
+    void run();
 
 signals:
-  void finished();
+    void finished();
 
 private slots:
-  void entryReady(const GameEntry &entry, const QString &output, const QString &debug);
-  void checkThreads();
+    void entryReady(const GameEntry &entry, const QString &output,
+                    const QString &debug);
+    void checkThreads();
 
 private:
-  Settings config;
-  void loadConfig(const QCommandLineParser &parser);
-  QString secsToString(const int &seconds);
-  void checkForFolder(QDir &folder, bool create = true);
-  void showHint();
-  void doPrescrapeJobs();
-  void loadAliasMap();
-  void loadMameMap();
-  void loadWhdLoadMap();
-  void setRegionPrios();
-  void setLangPrios();
-  //void migrate(QString filename);
+    Settings config;
+    void loadConfig(const QCommandLineParser &parser);
+    QString secsToString(const int &seconds);
+    void checkForFolder(QDir &folder, bool create = true);
+    void showHint();
+    void doPrescrapeJobs();
+    void loadAliasMap();
+    void loadMameMap();
+    void loadWhdLoadMap();
+    void setRegionPrios();
+    void setLangPrios();
+    // void migrate(QString filename);
 
-  AbstractFrontend *frontend;
+    AbstractFrontend *frontend;
 
-  QSharedPointer<Cache> cache;
+    QSharedPointer<Cache> cache;
 
-  QList<GameEntry> gameEntries;
-  QList<QString> cliFiles;
-  QMutex entryMutex;
-  QMutex checkThreadMutex;
-  QElapsedTimer timer;
-  QString gameListFileString;
-  QString skippedFileString;
-  int doneThreads;
-  int notFound;
-  int found;
-  int avgSearchMatch;
-  int avgCompleteness;
-  int currentFile;
-  int totalFiles;
+    QList<GameEntry> gameEntries;
+    QList<QString> cliFiles;
+    QMutex entryMutex;
+    QMutex checkThreadMutex;
+    QElapsedTimer timer;
+    QString gameListFileString;
+    QString skippedFileString;
+    int doneThreads;
+    int notFound;
+    int found;
+    int avgSearchMatch;
+    int avgCompleteness;
+    int currentFile;
+    int totalFiles;
 };
 
 #endif // SKYSCRAPER_H

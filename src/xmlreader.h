@@ -26,23 +26,21 @@
 #ifndef XMLREADER_H
 #define XMLREADER_H
 
-#include <QDomDocument>
-
 #include "gameentry.h"
 
-class XmlReader : public QDomDocument
-{
+#include <QDomDocument>
+
+class XmlReader : public QDomDocument {
 public:
-  XmlReader();
-  ~XmlReader();
-  bool setFile(QString filename);
-  QList<GameEntry> getEntries(QString inputFolder);
-  void addEntries(const QDomNodeList &nodes, QList<GameEntry> &gameEntries,
-		  const QString &inputFolder);
+    XmlReader();
+    ~XmlReader();
+    bool setFile(QString filename);
+    QList<GameEntry> getEntries(QString inputFolder);
+    void addEntries(const QDomNodeList &nodes, QList<GameEntry> &gameEntries,
+                    const QString &inputFolder);
 
 private:
-  QString makeAbsolute(QString filePath, const QString &inputFolder);
-
+    QString makeAbsolute(QString filePath, const QString &inputFolder);
 };
 
 #endif // XMLREADER_H

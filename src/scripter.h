@@ -28,14 +28,12 @@
 
 #include <QObject>
 
-class Scripter : public QObject
-{
-  Q_OBJECT
+class Scripter : public QObject {
+    Q_OBJECT
 
 public:
-  Scripter();
-  ~Scripter();
-
+    Scripter();
+    ~Scripter();
 };
 
 #endif // SCRIPTER_H

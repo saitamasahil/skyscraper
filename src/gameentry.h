@@ -46,92 +46,92 @@ constexpr int TEXTURE = 14;
 
 class GameEntry {
 public:
-  GameEntry();
-  void calculateCompleteness(bool videoEnabled = false);
-  int getCompleteness() const;
-  void resetMedia();
+    GameEntry();
+    void calculateCompleteness(bool videoEnabled = false);
+    int getCompleteness() const;
+    void resetMedia();
 
-  QString id = "";
-  QString path = "";
-  QString title = "";
-  QString titleSrc = "";
-  QString platform = "";
-  QString platformSrc = "";
-  QString description = "";
-  QString descriptionSrc = "";
-  QString releaseDate = "";
-  QString releaseDateSrc = "";
-  QString developer = "";
-  QString developerSrc = "";
-  QString publisher = "";
-  QString publisherSrc = "";
-  QString tags = "";
-  QString tagsSrc = "";
-  QString players = "";
-  QString playersSrc = "";
-  QString ages = "";
-  QString agesSrc = "";
-  QString rating = "";
-  QString ratingSrc = "";
+    QString id = "";
+    QString path = "";
+    QString title = "";
+    QString titleSrc = "";
+    QString platform = "";
+    QString platformSrc = "";
+    QString description = "";
+    QString descriptionSrc = "";
+    QString releaseDate = "";
+    QString releaseDateSrc = "";
+    QString developer = "";
+    QString developerSrc = "";
+    QString publisher = "";
+    QString publisherSrc = "";
+    QString tags = "";
+    QString tagsSrc = "";
+    QString players = "";
+    QString playersSrc = "";
+    QString ages = "";
+    QString agesSrc = "";
+    QString rating = "";
+    QString ratingSrc = "";
 
-  QByteArray coverData = QByteArray();
-  QString coverFile = "";
-  QString coverSrc = "";
-  QByteArray screenshotData = QByteArray();
-  QString screenshotFile = "";
-  QString screenshotSrc = "";
-  QByteArray wheelData = QByteArray();
-  QString wheelFile = "";
-  QString wheelSrc = "";
-  QByteArray marqueeData = QByteArray();
-  QString marqueeFile = "";
-  QString marqueeSrc = "";
-  QByteArray videoData = "";
-  QByteArray textureData = QByteArray();
-  QString textureFile = "";
-  QString textureSrc = "";
-  QString videoFile = "";
-  QString videoSrc = "";
+    QByteArray coverData = QByteArray();
+    QString coverFile = "";
+    QString coverSrc = "";
+    QByteArray screenshotData = QByteArray();
+    QString screenshotFile = "";
+    QString screenshotSrc = "";
+    QByteArray wheelData = QByteArray();
+    QString wheelFile = "";
+    QString wheelSrc = "";
+    QByteArray marqueeData = QByteArray();
+    QString marqueeFile = "";
+    QString marqueeSrc = "";
+    QByteArray videoData = "";
+    QByteArray textureData = QByteArray();
+    QString textureFile = "";
+    QString textureSrc = "";
+    QString videoFile = "";
+    QString videoSrc = "";
 
-  int searchMatch = 0;
-  QString cacheId = "";
-  QString source = "";
-  QString url = "";
-  QString sqrNotes = "";
-  QString parNotes = "";
-  QString videoFormat = "";
-  QString baseName = "";
-  QString absoluteFilePath = "";
-  bool found = true;
+    int searchMatch = 0;
+    QString cacheId = "";
+    QString source = "";
+    QString url = "";
+    QString sqrNotes = "";
+    QString parNotes = "";
+    QString videoFormat = "";
+    QString baseName = "";
+    QString absoluteFilePath = "";
+    bool found = true;
 
-  QByteArray miscData = "";
+    QByteArray miscData = "";
 
-  // EmulationStation specific metadata for preservation
-  QString eSFavorite = "";
-  QString eSHidden = "";
-  QString eSPlayCount = "";
-  QString eSLastPlayed = "";
-  QString eSKidGame = "";
-  QString eSSortName = "";
+    // EmulationStation specific metadata for preservation
+    QString eSFavorite = "";
+    QString eSHidden = "";
+    QString eSPlayCount = "";
+    QString eSLastPlayed = "";
+    QString eSKidGame = "";
+    QString eSSortName = "";
 
-  // AttractMode specific metadata for preservation
-  // #Name;Title;Emulator;CloneOf;Year;Manufacturer;Category;Players;Rotation;Control;Status;DisplayCount;DisplayType;AltRomname;AltTitle;Extra;Buttons
-  QString aMCloneOf = "";
-  QString aMRotation = "";
-  QString aMControl = "";
-  QString aMStatus = "";
-  QString aMDisplayCount = "";
-  QString aMDisplayType = "";
-  QString aMAltRomName = "";
-  QString aMAltTitle = "";
-  QString aMExtra = "";
-  QString aMButtons = "";
+    // AttractMode specific metadata for preservation
+    // #Name;Title;Emulator;CloneOf;Year;Manufacturer;Category;Players;Rotation;Control;Status;DisplayCount;DisplayType;AltRomname;AltTitle;Extra;Buttons
+    QString aMCloneOf = "";
+    QString aMRotation = "";
+    QString aMControl = "";
+    QString aMStatus = "";
+    QString aMDisplayCount = "";
+    QString aMDisplayType = "";
+    QString aMAltRomName = "";
+    QString aMAltTitle = "";
+    QString aMExtra = "";
+    QString aMButtons = "";
 
-  // Pegasus specific metadata for preservation
-  QList<QPair<QString, QString> > pSValuePairs;
+    // Pegasus specific metadata for preservation
+    QList<QPair<QString, QString>> pSValuePairs;
 
 private:
-  double completeness = 0;
+    double completeness = 0;
 };
 
 #endif // GAMEENTRY_H

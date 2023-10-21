@@ -28,27 +28,27 @@
 
 #include "abstractfrontend.h"
 
-class RetroBat : public AbstractFrontend
-{
-  Q_OBJECT
+class RetroBat : public AbstractFrontend {
+    Q_OBJECT
 
 public:
-  RetroBat();
-  void assembleList(QString &finalOutput, QList<GameEntry> &gameEntries) override;
-  bool skipExisting(QList<GameEntry> &gameEntries, QSharedPointer<Queue> queue) override;
-  bool canSkip() override;
-  bool loadOldGameList(const QString &gameListFileString) override;
-  void preserveFromOld(GameEntry &entry) override;
-  QString getGameListFileName() override;
-  QString getInputFolder() override;
-  QString getGameListFolder() override;
-  QString getCoversFolder() override;
-  QString getScreenshotsFolder() override;
-  QString getWheelsFolder() override;
-  QString getMarqueesFolder() override;
-  QString getTexturesFolder() override;
-  QString getVideosFolder() override;
-
+    RetroBat();
+    void assembleList(QString &finalOutput,
+                      QList<GameEntry> &gameEntries) override;
+    bool skipExisting(QList<GameEntry> &gameEntries,
+                      QSharedPointer<Queue> queue) override;
+    bool canSkip() override;
+    bool loadOldGameList(const QString &gameListFileString) override;
+    void preserveFromOld(GameEntry &entry) override;
+    QString getGameListFileName() override;
+    QString getInputFolder() override;
+    QString getGameListFolder() override;
+    QString getCoversFolder() override;
+    QString getScreenshotsFolder() override;
+    QString getWheelsFolder() override;
+    QString getMarqueesFolder() override;
+    QString getTexturesFolder() override;
+    QString getVideosFolder() override;
 };
 
 #endif // RETROBAT_H

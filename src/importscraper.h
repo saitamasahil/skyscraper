@@ -27,56 +27,59 @@
 #define IMPORTSCRAPER_H
 
 #include "abstractscraper.h"
+
 #include <QRegularExpression>
 
-class ImportScraper : public AbstractScraper
-{
-  Q_OBJECT
+class ImportScraper : public AbstractScraper {
+    Q_OBJECT
 
 public:
-  ImportScraper(Settings *config, QSharedPointer<NetManager> manager);
-  void runPasses(QList<GameEntry> &gameEntries, const QFileInfo &info, QString &, QString &) override;
-  void getGameData(GameEntry &game) override;
-  QString getCompareTitle(QFileInfo info) override;
-  void getTitle(GameEntry &game);
-  void getRating(GameEntry &game);
-  void getCover(GameEntry &game) override;
-  void getScreenshot(GameEntry &game) override;
-  void getWheel(GameEntry &game) override;
-  void getMarquee(GameEntry &game) override;
-  void getTexture(GameEntry &game) override;
-  void getVideo(GameEntry &game) override;
+    ImportScraper(Settings *config, QSharedPointer<NetManager> manager);
+    void runPasses(QList<GameEntry> &gameEntries, const QFileInfo &info,
+                   QString &, QString &) override;
+    void getGameData(GameEntry &game) override;
+    QString getCompareTitle(QFileInfo info) override;
+    void getTitle(GameEntry &game);
+    void getRating(GameEntry &game);
+    void getCover(GameEntry &game) override;
+    void getScreenshot(GameEntry &game) override;
+    void getWheel(GameEntry &game) override;
+    void getMarquee(GameEntry &game) override;
+    void getTexture(GameEntry &game) override;
+    void getVideo(GameEntry &game) override;
 
 private:
-  bool checkType(QString baseName, QList<QFileInfo> &infos, QString &inputFile);
-  bool loadDefinitions();
-  void loadData();
-  void checkForTag(QList<QString> &pre, QString &post, QString &tag, QString &line);
+    bool checkType(QString baseName, QList<QFileInfo> &infos,
+                   QString &inputFile);
+    bool loadDefinitions();
+    void loadData();
+    void checkForTag(QList<QString> &pre, QString &post, QString &tag,
+                     QString &line);
 
-  QString titleTag = "###TITLE###";
-  QString descriptionTag = "###DESCRIPTION###";
-  QString developerTag = "###DEVELOPER###";
-  QString publisherTag = "###PUBLISHER###";
-  QString playersTag = "###PLAYERS###";
-  QString agesTag = "###AGES###";
-  QString ratingTag = "###RATING###";
-  QString tagsTag = "###TAGS###";
-  QString releaseDateTag = "###RELEASEDATE###";
+    QString titleTag = "###TITLE###";
+    QString descriptionTag = "###DESCRIPTION###";
+    QString developerTag = "###DEVELOPER###";
+    QString publisherTag = "###PUBLISHER###";
+    QString playersTag = "###PLAYERS###";
+    QString agesTag = "###AGES###";
+    QString ratingTag = "###RATING###";
+    QString tagsTag = "###TAGS###";
+    QString releaseDateTag = "###RELEASEDATE###";
 
-  QList<QFileInfo> textual;
-  QList<QFileInfo> covers;
-  QList<QFileInfo> screenshots;
-  QList<QFileInfo> wheels;
-  QList<QFileInfo> marquees;
-  QList<QFileInfo> textures;
-  QList<QFileInfo> videos;
-  QString textualFile = "";
-  QString coverFile = "";
-  QString screenshotFile = "";
-  QString wheelFile = "";
-  QString marqueeFile = "";
-  QString textureFile = "";
-  QString videoFile = "";
+    QList<QFileInfo> textual;
+    QList<QFileInfo> covers;
+    QList<QFileInfo> screenshots;
+    QList<QFileInfo> wheels;
+    QList<QFileInfo> marquees;
+    QList<QFileInfo> textures;
+    QList<QFileInfo> videos;
+    QString textualFile = "";
+    QString coverFile = "";
+    QString screenshotFile = "";
+    QString wheelFile = "";
+    QString marqueeFile = "";
+    QString textureFile = "";
+    QString videoFile = "";
 };
 
 #endif // IMPORTSCRAPER_H

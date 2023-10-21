@@ -26,28 +26,28 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+#include <QMap>
 #include <QObject>
 #include <QStringList>
-#include <QMap>
 #include <QVariantMap>
 #include <QVector>
 
-
-class Platform : public QObject
-{
-  Q_OBJECT
+class Platform : public QObject {
+    Q_OBJECT
 public:
-    static Platform& get();
+    static Platform &get();
 
     bool loadConfig();
     void clearConfigData();
 
     QStringList getPlatforms() const;
     QStringList getScrapers(QString platform) const;
-    QString getFormats(QString platform, QString extensions, QString addExtensions) const;
+    QString getFormats(QString platform, QString extensions,
+                       QString addExtensions) const;
     QString getDefaultScraper() const;
     QStringList getAliases(QString platform) const;
-    int getPlatformIdOnScraper(const QString platform, const QString scraper) const;
+    int getPlatformIdOnScraper(const QString platform,
+                               const QString scraper) const;
 
 private:
     bool loadPlatformsIdMap();
