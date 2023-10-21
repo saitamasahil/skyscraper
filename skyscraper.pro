@@ -54,7 +54,9 @@ HEADERS += src/skyscraper.h \
            src/netcomm.h \
            src/xmlreader.h \
            src/settings.h \
+           src/cli.h \
            src/compositor.h \
+           src/config.h \
            src/strtools.h \
            src/imgtools.h \
            src/esgamelist.h \
@@ -77,7 +79,6 @@ HEADERS += src/skyscraper.h \
            src/mobygames.h \
            src/igdb.h \
            src/arcadedb.h \
-           src/scripter.h \
            src/platform.h \
            src/layer.h \
            src/fxshadow.h \
@@ -104,7 +105,9 @@ SOURCES += src/main.cpp \
            src/netmanager.cpp \
            src/netcomm.cpp \
            src/xmlreader.cpp \
+           src/cli.cpp \
            src/compositor.cpp \
+           src/config.cpp \
            src/strtools.cpp \
            src/imgtools.cpp \
            src/esgamelist.cpp \
@@ -127,7 +130,6 @@ SOURCES += src/main.cpp \
            src/mobygames.cpp \
            src/igdb.cpp \
            src/arcadedb.cpp \
-           src/scripter.cpp \
            src/platform.cpp \
            src/layer.cpp \
            src/fxshadow.cpp \

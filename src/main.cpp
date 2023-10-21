@@ -23,379 +23,137 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 
+#include "cli.h"
+#include "config.h"
+#include "skyscraper.h"
+#include "strtools.h"
+
+#include <QCoreApplication>
+#include <QDir>
+#include <QTimer>
 #include <QtGlobal>
 
-// Includes for Linux and MacOS
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 #include <signal.h>
-#endif
-
-// Includes for Windows
-#if defined(Q_OS_WIN)
+#elif defined(Q_OS_WIN)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QTextStream>
-#include <QDateTime>
-#include <QTimer>
-#include <QTextCodec>
-#include <QCommandLineParser>
-#include <QCommandLineOption>
-
-#include "strtools.h"
-#include "skyscraper.h"
-#include "scripter.h"
-#include "platform.h"
-
 Skyscraper *x = nullptr;
 int sigIntRequests = 0;
 
-void customMessageHandler(QtMsgType type, const QMessageLogContext&, const QString &msg)
-{
-  QString txt;
-  // Decide which type of debug message it is, and add string to signify it
-  // Then append the debug message itself to the same string.
-  switch (type) {
+void customMessageHandler(QtMsgType type, const QMessageLogContext &,
+                          const QString &msg) {
+    QString txt;
+    // Decide which type of debug message it is, and add string to signify it
+    // Then append the debug message itself to the same string.
+    switch (type) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
-  case QtInfoMsg:
-    txt += QString(" INFO: %1").arg(msg);
-    break;
+    case QtInfoMsg:
+        txt += QString(" INFO: %1").arg(msg);
+        break;
 #endif
-  case QtDebugMsg:
-    txt += QString("DEBUG: %1").arg(msg);
-    break;
-  case QtWarningMsg:
-    txt += QString(" WARN: %1").arg(msg);
-    break;
-  case QtCriticalMsg:
-    txt += QString(" CRIT: %1").arg(msg);
-    break;
-  case QtFatalMsg:
-    txt += QString("FATAL: %1").arg(msg);
-    abort();
-  }
-  printf("%s", txt.toStdString().c_str());
-  fflush(stdout);
+    case QtDebugMsg:
+        txt += QString("DEBUG: %1").arg(msg);
+        break;
+    case QtWarningMsg:
+        txt += QString(" WARN: %1").arg(msg);
+        break;
+    case QtCriticalMsg:
+        txt += QString(" CRIT: %1").arg(msg);
+        break;
+    case QtFatalMsg:
+        txt += QString("FATAL: %1").arg(msg);
+        abort();
+    }
+    printf("%s", txt.toStdString().c_str());
+    fflush(stdout);
 }
 
+// clang-format off
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
-void sigHandler(int signal)
+void sigHandler(int signal) {
+    if (signal == 2) {
+#elif defined(Q_OS_WIN)
+BOOL WINAPI ConsoleHandler(DWORD dwType) {
+    if (dwType == CTRL_C_EVENT) {
 #endif
+        sigIntRequests++;
+        if (sigIntRequests <= 2) {
+            if (x != nullptr) {
+                if (x->state == 0) {
+                    // Nothing important going on, just exit
+                    exit(1);
+                } else if (x->state == 1) {
+                    // Ignore signal, something important is going on
+                    // that needs to finish!
+                } else if (x->state == 2) {
+                    // Cache being edited, clear the queue to quit
+                    // nicely
+                    x->queue->clearAll();
+                } else if (x->state == 3) {
+                    // Threads are running, clear queue for a nice exit
+                    printf(
+                        "\033[1;33mUser wants to quit, trying to exit "
+                        "nicely. This can take a few seconds depending "
+                        "on how many threads are running...\033[0m\n");
+                    x->queue->clearAll();
+                }
+            } else {
+                exit(1);
+            }
+        } else {
+            printf("\033[1;31mUser REALLY wants to quit NOW, forcing "
+                    "unclean exit...\033[0m\n");
+            exit(1);
+        }
+    }
 #if defined(Q_OS_WIN)
-BOOL WINAPI ConsoleHandler(DWORD dwType)
+    return TRUE;
 #endif
-{
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+}
+#endif
+
+int main(int argc, char *argv[]) {
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
-  if(signal == 2) {
-    sigIntRequests++;
+    struct sigaction sigIntHandler;
+
+    sigIntHandler.sa_handler = sigHandler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+
+    sigaction(SIGINT, &sigIntHandler, NULL);
+#elif defined(Q_OS_WIN)
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE);
 #endif
-#if defined(Q_OS_WIN)
-  if(dwType == CTRL_C_EVENT) {
-    sigIntRequests++;
-#endif
-    if(sigIntRequests <= 2) {
-      if(x != nullptr) {
-	if(x->state == 0) {
-	  // Nothing important going on, just exit
-	  exit(1);
-	} else if(x->state == 1) {
-	  // Ignore signal, something important is going on that needs to finish!
-	} else if(x->state == 2) {
-	  // Cache being edited, clear the queue to quit nicely
-	  x->queue->clearAll();
-	} else if(x->state == 3) {
-	  // Threads are running, clear queue for a nice exit
-	  printf("\033[1;33mUser wants to quit, trying to exit nicely. This can take a few seconds depending on how many threads are running...\033[0m\n");
-	  x->queue->clearAll();
-	}
-      } else {
-	exit(1);
-      }
+
+    QCoreApplication app(argc, argv);
+    app.setApplicationVersion(VERSION);
+
+    // Get current dir. If user has specified file(s) on command line we
+    // need this.
+    QString currentDir = QDir::currentPath();
+
+    // Install the custom debug message handler used by qDebug()
+    qInstallMessageHandler(customMessageHandler);
+
+    Config::setupUserConfig();
+    Config::checkLegacyFiles();
+
+    QCommandLineParser parser;
+    Cli::createParser(&parser, Config::getSupportedPlatforms());
+    parser.process(app);
+
+    if (argc <= 1 || parser.isSet("help") || parser.isSet("h")) {
+        parser.showHelp();
     } else {
-      printf("\033[1;31mUser REALLY wants to quit NOW, forcing unclean exit...\033[0m\n");
-      exit(1);
-    }
-  }
-#if defined(Q_OS_WIN)
-  return TRUE;
-#endif
-}
-
-enum class FileOp
-{
-    KEEP,
-    OVERWRITE,
-    CREATE_DIST
-};
-
-void copyFile(const QString &src, const QString &dest, FileOp fileOp = FileOp::OVERWRITE)
-{
-  if(QFileInfo::exists(src)) {
-    if(QFileInfo::exists(dest)) {
-      if(fileOp == FileOp::OVERWRITE) {
-	      QFile::remove(dest);
-	      QFile::copy(src, dest);
-        qDebug() << "Overwritten file" << dest << "\n";
-      } else if (fileOp == FileOp::CREATE_DIST) {
-        QString d = QString(dest + ".dist");
-	      QFile::remove(d);
-	      QFile::copy(src, d);
-        qDebug() << "Created original dist file as" << d << "\n";
-      }
-    } else {
-      QFile::copy(src, dest);
-      qDebug() << "Created file" << dest << "\n";
-    }
-  } else {
-    printf("\033[1;31mSource config file not found '%s'. Please check setup, bailing out...\033[0m\n", src.toStdString().c_str());
-    exit(1);
-  }
-}
-
-void setupUserConfig()
-{
-  // Set the working directory to the applications own path
-  QDir skyDir(QDir::homePath() + "/.skyscraper");
-  if(!skyDir.exists()) {
-    if(!skyDir.mkpath(".")) {
-      printf("Couldn't create folder '%s'. Please check permissions, now exiting...\n", skyDir.absolutePath().toStdString().c_str());
-      exit(1);
-    }
-  }
-
-  // Create import paths
-  skyDir.mkpath("import");
-  skyDir.mkpath("import/textual");
-  skyDir.mkpath("import/screenshots");
-  skyDir.mkpath("import/covers");
-  skyDir.mkpath("import/wheels");
-  skyDir.mkpath("import/marquees");
-  skyDir.mkpath("import/textures");
-  skyDir.mkpath("import/videos");
-
-  // Create resources folder
-  skyDir.mkpath("resources");
-
-  // Rename 'dbs' folder to migrate 2.x users to 3.x
-  skyDir.rename(skyDir.absolutePath() + "/dbs", skyDir.absolutePath() + "/cache");
-
-  // Create cache folder
-  skyDir.mkpath("cache");
-  QDir::setCurrent(skyDir.absolutePath());
-
-  // copy configs
-  QString localEtcPath = QString("/usr/local/etc/skyscraper/");
-
-  if (!QFileInfo::exists(localEtcPath)) {
-    // RetroPie installation type
-    return;
-  }
-
-  QMap<QString, QPair<QString, FileOp>> configFiles = {
-    {"ARTWORK.md", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"artwork.xml.example1", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"artwork.xml.example2", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"artwork.xml.example3", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"artwork.xml.example4", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"cache/priorities.xml.example", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"config.ini.example", QPair<QString, FileOp>("config.ini.example", FileOp::OVERWRITE)},
-    {"CACHE.md", QPair<QString, FileOp>("cache/README.md", FileOp::OVERWRITE)},
-    {"hints.xml", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"import/definitions.dat.example1", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"import/definitions.dat.example2", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"import/IMPORT.md", QPair<QString, FileOp>("import/README.md", FileOp::OVERWRITE)},
-    {"mameMap.csv", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"mobygames_platforms.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"README.md", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"resources/boxfront.png", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"resources/boxside.png", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"screenscraper_platforms.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"tgdb_developers.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"tgdb_genres.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"tgdb_platforms.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-    {"tgdb_publishers.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-
-    {"config.ini.example", QPair<QString, FileOp>("config.ini", FileOp::KEEP)},
-    {"import/definitions.dat.example2", QPair<QString, FileOp>("import/definitions.dat", FileOp::KEEP)},
-    {"resources/frameexample.png", QPair<QString, FileOp>("", FileOp::KEEP)},
-    {"resources/maskexample.png", QPair<QString, FileOp>("", FileOp::KEEP)},
-    {"resources/scanlines1.png", QPair<QString, FileOp>("", FileOp::KEEP)},
-    {"resources/scanlines2.png", QPair<QString, FileOp>("", FileOp::KEEP)},
-    // create <fn>.dist if exists
-    {"aliasMap.csv", QPair<QString, FileOp>("", FileOp::CREATE_DIST)},
-    {"artwork.xml", QPair<QString, FileOp>("", FileOp::CREATE_DIST)},
-    {"peas.json", QPair<QString, FileOp>("", FileOp::CREATE_DIST)},
-    {"platforms_idmap.csv", QPair<QString, FileOp>("", FileOp::CREATE_DIST)}
-  };
-
-  for(auto src : configFiles.keys()) {
-    QString dest = configFiles.value(src).first;
-    if (dest.isEmpty()) {
-      dest = src;
-    }
-    copyFile(localEtcPath + src, dest, configFiles.value(src).second);
-  }
-}
-
-QString getSupportedPlatforms()
-{
-  if (!Platform::get().loadConfig()) {
-    exit(1);
-  }
-
-  QString platforms;
-  for(const auto &platform: Platform::get().getPlatforms()) {
-    platforms.append("'" + platform + "', ");
-  }
-  // Remove the last ', '
-  return platforms.left(platforms.length() - 2);
-
-}
-
-
-int main(int argc, char *argv[])
-{
-#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
-  struct sigaction sigIntHandler;
-
-  sigIntHandler.sa_handler = sigHandler;
-  sigemptyset(&sigIntHandler.sa_mask);
-  sigIntHandler.sa_flags = 0;
-
-  sigaction(SIGINT, &sigIntHandler, NULL);
-#endif
-
-#if defined(Q_OS_WIN)
-  SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE);
-#endif
-
-  QCoreApplication app(argc, argv);
-  app.setApplicationVersion(VERSION);
-
-  // Get current dir. If user has specified file(s) on command line we need this.
-  QString currentDir = QDir::currentPath();
-
-  // Install the custom debug message handler used by qDebug()
-  qInstallMessageHandler(customMessageHandler);
-
-  setupUserConfig();
-
-  QStringList legacyJsons = QString("mobygames platforms screenscraper").split(" ");
-  for (auto bn : legacyJsons) {
-    QString fn = bn + ".json";
-    if (QFileInfo::exists(fn)) {
-      printf("\033[1;33mFile '%s' found, which is no longer used in this version of Skyscraper. Please move file to mute this warning. See docs/PLATFORMS.md for additional info.\033[0m\n", fn.toUtf8().constData());
-    }
-  }
-
-  QString platforms = getSupportedPlatforms();
-
-  QCommandLineParser parser;
-
-  parser.setApplicationDescription(StrTools::getVersionHeader() + "Skyscraper looks for compatible game files for the chosen platform (set with '-p'). It allows you to gather and cache media and game information for the files using various scraping modules (set with '-s'). It then lets you generate game lists for the supported frontends by combining all previously cached resources ('game list generation mode' is initiated by simply leaving out the '-s' option). While doing so it also composites game art for all files by following the recipe at '/home/USER/.skyscraper/artwork.xml'.\n\nIn addition to the command line options Skyscraper also provides a lot of customizable options for configuration, artwork, game name aliases, resource priorities and much more. Please check the full documentation at 'github.com/Gemba/skyscraper/tree/master/docs' for a detailed explanation of all features.\n\nRemember that most of the following options can also be set in the '/home/USER/.skyscraper/config.ini' file. All cli options and config.ini options are thoroughly documented at the above link.");
-  parser.addHelpOption();
-  parser.addVersionOption();
-  QCommandLineOption pOption("p", "The platform you wish to scrape.\n(Currently supports " + platforms + ".)", "PLATFORM", "");
-  QCommandLineOption fOption("f", "The frontend you wish to generate a gamelist for. Remember to leave out the '-s' option when using this in order to enable Skyscraper's gamelist generation mode.\n(Currently supports 'emulationstation', 'retrobat', 'attractmode' and 'pegasus'. Default is 'emulationstation')", "FRONTEND", "");
-  QCommandLineOption eOption("e", "Set extra frontend option. This is required by the 'attractmode' frontend to set the emulator and optionally for the 'pegasus' frontend to set the launch command.\n(Default is none)", "STRING", "");
-  QCommandLineOption iOption("i", "Folder which contains the game/rom files.\n(default is '/home/USER/RetroPie/roms/PLATFORM')", "PATH", "");
-  QCommandLineOption gOption("g", "Game list export folder.\n(default depends on frontend)", "PATH", "");
-  QCommandLineOption oOption("o", "Game media export folder.\n(default depends on frontend)", "PATH", "");
-  QCommandLineOption sOption("s", "The scraping module you wish to gather resources from for the platform set with '-p'.\nLeave the '-s' option out to enable Skyscraper's gamelist generation mode.\n(WEB: 'arcadedb', 'igdb', 'mobygames', 'openretro', 'screenscraper', 'thegamesdb' and 'worldofspectrum', LOCAL: 'esgamelist' and 'import')", "MODULE", "");
-  QCommandLineOption uOption("u", "userKey or UserID and Password for use with the selected scraping module.\n(Default is none)", "KEY/USER:PASSWORD", "");
-  QCommandLineOption mOption("m", "Minimum match percentage when comparing search result titles to filename titles.\n(default is 65)", "0-100", "");
-  QCommandLineOption lOption("l", "Maximum game description length. Everything longer than this will be truncated.\n(default is 2500)", "0-10000", "");
-  QCommandLineOption tOption("t", "Number of scraper threads to use. This might change depending on the scraping module limits.\n(default is 4)", "1-8", "");
-  QCommandLineOption cOption("c", "Use this config file to set up Skyscraper.\n(default is '/home/USER/.skyscraper/config.ini')", "FILENAME", "");
-  QCommandLineOption aOption("a", "Specify a non-default artwork.xml file to use when setting up the artwork compositing when in gamelist generation mode.\n(default is '/home/USER/.skyscraper/artwork.xml')", "FILENAME", "");
-  QCommandLineOption dOption("d", "Set custom resource cache folder.\n(default is '/home/USER/.skyscraper/cache/PLATFORM')", "FOLDER", "");
-  QCommandLineOption addextOption("addext", "Add this or these file extension(s) to accepted file extensions during a scraping run. (example: '*.zst' or '*.zst *.ext')", "EXTENSION(S)", "");
-  QCommandLineOption flagsOption("flags", "Allows setting flags that will impact the run in various ways. See '--flags help' for a list of all available flags and what they do.", "FLAG1,FLAG2,...", "");
-  QCommandLineOption cacheOption("cache", "This option is the master option for all options related to the resource cache. It must be followed by 'COMMAND[:OPTIONS]'.\nSee '--cache help' for a full description of all functions.", "COMMAND[:OPTIONS]", "");
-  QCommandLineOption refreshOption("refresh", "Same as '--cache refresh'.");
-  QCommandLineOption startatOption("startat", "Tells Skyscraper which file to start at. Forces '--refresh' and '--flags nosubdirs' enabled.", "FILENAME", "");
-  QCommandLineOption endatOption("endat", "Tells Skyscraper which file to end at. Forces '--refresh' and '--flags nosubdirs' enabled.", "FILENAME", "");
-  QCommandLineOption includefilesOption("includefiles", "(DEPRECATED, please use '--includepattern' instead) Tells Skyscraper to only include the files matching the provided asterisk pattern(s). Remember to double-quote the pattern to avoid weird behaviour. You can add several patterns by separating them with ','. In cases where you need to match for a comma you need to escape it as '\\,'. (Pattern example: '\"Super*,*Fighter*\"')", "PATTERN", "");
-  QCommandLineOption includepatternOption("includepattern", "Tells Skyscraper to only include the files matching the provided asterisk pattern(s). Remember to double-quote the pattern to avoid weird behaviour. You can add several patterns by separating them with ','. In cases where you need to match for a comma you need to escape it as '\\,'. (Pattern example: '\"Super*,*Fighter*\"')", "PATTERN", "");
-  QCommandLineOption excludefilesOption("excludefiles", "(DEPRECATED, please use '--excludepattern' instead) Tells Skyscraper to always exclude the files matching the provided asterisk pattern(s). Remember to double-quote the pattern to avoid weird behaviour. You can add several patterns by separating them with ','. In cases where you need to match for a comma you need to escape it as '\\,'. (Pattern example: '\"*[BIOS]*,*proto*\"')", "PATTERN", "");
-  QCommandLineOption excludepatternOption("excludepattern", "Tells Skyscraper to always exclude the files matching the provided asterisk pattern(s). Remember to double-quote the pattern to avoid weird behaviour. You can add several patterns by separating them with ','. In cases where you need to match for a comma you need to escape it as '\\,'. (Pattern example: '\"*[BIOS]*,*proto*\"')", "PATTERN", "");
-  QCommandLineOption fromfileOption("fromfile", "(DEPRECATED, please use '--includefrom' instead) Tells Skyscraper to load the list of filenames to work on from a file. This file can be generated with the '--cache report:missing' option or made manually.", "FILENAME", "");
-  QCommandLineOption includefromOption("includefrom", "Tells Skyscraper to only include the files listed in FILENAME. One filename per line. This file can be generated with the '--cache report:missing' option or made manually.", "FILENAME", "");
-  QCommandLineOption excludefromOption("excludefrom", "Tells Skyscraper to exclude all files listed in FILENAME. One filename per line. This file can be generated with the '--cache report:missing' option or made manually.", "FILENAME", "");
-  QCommandLineOption maxfailsOption("maxfails", "Sets the allowed number of initial 'Not found' results before rage-quitting. (Default is 42)", "1-200", "");
-  QCommandLineOption queryOption("query", "Allows you to set a custom search query (eg. 'rick+dangerous' for name based modules or 'sha1=CHECKSUM', 'md5=CHECKSUM' or 'romnom=FILENAME' for the 'screenscraper' module). Requires the single rom filename you wish to override for to be passed on command line as well, otherwise it will be ignored.", "QUERY", "");
-  QCommandLineOption regionOption("region", "Add preferred game region for scraping modules that support it.\n(Default prioritization is 'eu', 'us', 'wor' and 'jp' + others in that order)", "CODE", "eu");
-  QCommandLineOption langOption("lang", "Set preferred result language for scraping modules that support it.\n(Default 'en')", "CODE", "en");
-  QCommandLineOption verbosityOption("verbosity", "Print more info while scraping\n(Default is 0.)", "0-3", "0");
-
-#if QT_VERSION >= 0x050800
-  includefilesOption.setFlags(QCommandLineOption::HiddenFromHelp);
-  excludefilesOption.setFlags(QCommandLineOption::HiddenFromHelp);
-  fromfileOption.setFlags(QCommandLineOption::HiddenFromHelp);
-#endif
-
-  parser.addOption(pOption);
-  parser.addOption(sOption);
-  parser.addOption(uOption);
-  parser.addOption(iOption);
-  parser.addOption(gOption);
-  parser.addOption(oOption);
-  parser.addOption(fOption);
-  parser.addOption(eOption);
-  parser.addOption(tOption);
-  parser.addOption(aOption);
-  parser.addOption(mOption);
-  parser.addOption(lOption);
-  parser.addOption(cOption);
-  parser.addOption(dOption);
-  parser.addOption(flagsOption);
-  parser.addOption(verbosityOption);
-  parser.addOption(cacheOption);
-  parser.addOption(refreshOption);
-  parser.addOption(langOption);
-  parser.addOption(regionOption);
-  parser.addOption(queryOption);
-  parser.addOption(startatOption);
-  parser.addOption(endatOption);
-  parser.addOption(includefilesOption);
-  parser.addOption(includepatternOption);
-  parser.addOption(excludefilesOption);
-  parser.addOption(excludepatternOption);
-  parser.addOption(fromfileOption);
-  parser.addOption(includefromOption);
-  parser.addOption(excludefromOption);
-  parser.addOption(maxfailsOption);
-  parser.addOption(addextOption);
-
-  parser.process(app);
-
-  if(argc <= 1 || parser.isSet("help") || parser.isSet("h")) {
-    parser.showHelp();
-  } else {
-    x = new Skyscraper(parser, currentDir);
-    QObject::connect(x, &Skyscraper::finished, &app, &QCoreApplication::quit);
-    QTimer::singleShot(0, x, SLOT(run()));
-  }
-  return app.exec();
-  /*
-  if(argc > 1) {
-    if(parser.isSet("help") || parser.isSet("h")) {
-      parser.showHelp();
-    } else {
-      x = new Skyscraper(parser, currentDir);
-      QObject::connect(x, &Skyscraper::finished, &app, &QCoreApplication::quit);
-      QTimer::singleShot(0, x, SLOT(run()));
+        x = new Skyscraper(parser, currentDir);
+        QObject::connect(x, &Skyscraper::finished, &app,
+                            &QCoreApplication::quit);
+        QTimer::singleShot(0, x, SLOT(run()));
     }
     return app.exec();
-  } else {
-    Scripter scripter;
-    return 0;
-  }
-  */
 }
-
+// clang-format on
