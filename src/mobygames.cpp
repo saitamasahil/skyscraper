@@ -205,11 +205,17 @@ void MobyGames::getPlayers(GameEntry &game) {
 
 void MobyGames::getTags(GameEntry &game) {
     QJsonArray jsonGenres = jsonObj["genres"].toArray();
-    for (int a = 0; a < jsonGenres.count(); ++a) {
-        game.tags.append(jsonGenres.at(a).toObject()["genre_name"].toString() +
-                         ", ");
+    for (auto gg : jsonGenres) {
+        QJsonObject jg = gg.toObject();
+        int genreCatId = jg["genre_category_id"].toInt();
+        qDebug() << "Got genre cat id" << genreCatId << "\n";
+        if (/*Basic Genres*/ 1 == genreCatId || /*Gameplay*/ 4  == genreCatId) {
+            QString gs = jg["genre_name"].toString();
+            game.tags.append(gs + ", ");
+            qDebug() << "Using" << gs << "\n";
+        }
     }
-    game.tags = game.tags.left(game.tags.length() - 2);
+    game.tags.chop(2);
 }
 
 void MobyGames::getAges(GameEntry &game) {
@@ -392,9 +398,9 @@ void MobyGames::getCover(GameEntry &game) {
         }
     }
 
-    coverUrl.replace("http://",
-                     "https://"); // For some reason the links are http but they
-                                  // are always redirected to https
+    // For some reason the links are http but they
+    // are always redirected to https
+    coverUrl.replace("http://", "https://");
 
     if (!coverUrl.isEmpty()) {
         netComm->request(coverUrl);
