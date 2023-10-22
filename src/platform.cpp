@@ -33,9 +33,21 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QProcess>
+#include <QSet>
 #include <QString>
 #include <QStringList>
 #include <iostream>
+
+Platform &Platform::get() {
+    static Platform platform;
+    return platform;
+}
+
+QStringList Platform::getPlatforms() const { return platforms; }
+
+// If user provides no scraping source with '-s' this sets the default for the
+// platform
+QString Platform::getDefaultScraper() const { return "cache"; }
 
 bool Platform::loadConfig() {
     clearConfigData();
@@ -43,7 +55,7 @@ bool Platform::loadConfig() {
     QString fn = "peas.json";
     QFile configFile(fn);
     if (!configFile.open(QIODevice::ReadOnly)) {
-        printf("\033[1;31mFile not found '%s'\n\nNow quitting...\033[0m\n",
+        printf("\033[1;31mFile not found '%s'. Now quitting...\033[0m\n",
                fn.toUtf8().constData());
         return false;
     }
@@ -52,7 +64,7 @@ bool Platform::loadConfig() {
     QJsonDocument json(QJsonDocument::fromJson(saveData));
 
     if (json.isNull() || json.isEmpty()) {
-        printf("\033[1;31mFile '%s' empty or no JSON format\n\nNow "
+        printf("\033[1;31mFile '%s' empty or no JSON format. Now "
                "quitting...\033[0m\n",
                fn.toUtf8().constData());
         return false;
@@ -78,13 +90,6 @@ void Platform::clearConfigData() {
     platformIdsMap.clear();
 }
 
-Platform &Platform::get() {
-    static Platform platform;
-    return platform;
-}
-
-QStringList Platform::getPlatforms() const { return platforms; }
-
 QStringList Platform::getScrapers(QString platform) const {
     QStringList scrapers = peas[platform].toHash()["scrapers"].toStringList();
     // Always add 'cache' as the last one
@@ -99,26 +104,27 @@ QString Platform::getFormats(QString platform, QString extensions,
         return extensions;
     }
 
-    QString formats = "*.zip *.7z *.ml "; // The last ' ' IS IMPORTANT!!!!!
-    if (!addExtensions.isEmpty() && addExtensions.contains("*.")) {
-        formats.append(addExtensions);
-    }
-    if (formats.right(1) != " ") {
-        formats.append(" ");
-    }
-    QStringList myFormats = peas[platform].toHash()["formats"].toStringList();
-    if (!myFormats.isEmpty()) {
-        int count = myFormats.size();
-        for (int i = 0; i < count - 1; ++i)
-            formats.append(myFormats[i] + " ");
-        formats.append(myFormats[count - 1]);
-    }
-    return formats;
-}
+    QSet<QString> formats({"*.zip", "*.7z", "*.ml"});
 
-// If user provides no scraping source with '-s' this sets the default for the
-// platform
-QString Platform::getDefaultScraper() const { return "cache"; }
+    for (auto f : addExtensions.split(" ", QString::SkipEmptyParts)) {
+        if (f.startsWith("*.")) {
+            formats << f;
+        }
+    }
+
+    QStringList myFormats = peas[platform].toHash()["formats"].toStringList();
+    for (auto f : myFormats) {
+        if (f.trimmed().startsWith("*.")) {
+            formats << f.trimmed();
+        }
+    }
+
+    QList<QString> l = formats.values();
+    std::sort(l.begin(), l.end());
+    QString ret = l.join(" ");
+    qDebug() << "getFormats()" << ret << "\n";
+    return ret;
+}
 
 // This contains all known platform aliases as listed on each of the scraping
 // source sites
@@ -135,7 +141,7 @@ bool Platform::loadPlatformsIdMap() {
     QString fn = "platforms_idmap.csv";
     QFile configFile(fn);
     if (!configFile.open(QIODevice::ReadOnly)) {
-        printf("\033[1;31mFile not found '%s'\n\nNow quitting...\033[0m\n",
+        printf("\033[1;31mFile not found '%s'. Now quitting...\033[0m\n",
                fn.toUtf8().constData());
         return false;
     }
@@ -148,7 +154,7 @@ bool Platform::loadPlatformsIdMap() {
         QStringList parts = line.split(',');
         if (parts.length() != 4) {
             printf("\033[1;31mFile '%s', line '%s' has not four columns, but "
-                   "%d. Please fix.\n\nNow quitting...\033[0m\n",
+                   "%d. Please fix. Now quitting...\033[0m\n",
                    fn.toUtf8().constData(),
                    parts.join(',').toUtf8().constData(), parts.length());
             configFile.close();

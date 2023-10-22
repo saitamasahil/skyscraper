@@ -246,7 +246,7 @@ void TheGamesDb::getTags(GameEntry &game) {
             game.tags.append(g + ", ");
             genres.removeFirst();
         }
-        game.tags = game.tags.left(game.tags.length() - 2);
+        game.tags.chop(2);
     }
 }
 

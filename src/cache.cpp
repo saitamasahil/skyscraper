@@ -1976,177 +1976,92 @@ void Cache::fillBlanks(GameEntry &entry, const QString scraper) {
         }
     }
 
-    {
-        QString type = "title";
+    QStringList txtTypes = { "title" ,"platform" ,"description" ,"publisher",
+        "developer", "players", "ages", "tags", "rating", "releasedate"
+    };
+
+    for (auto type : txtTypes) {
         QString result = "";
         QString source = "";
         if (fillType(type, matchingResources, result, source)) {
-            entry.title = result;
-            entry.titleSrc = source;
+            if (type == "title") {
+                entry.title = result;
+                entry.titleSrc = source;
+            } else if (type == "platform") {
+                entry.platform = result;
+                entry.platformSrc = source;
+            } else if (type == "description") {
+                entry.description = result;
+                entry.descriptionSrc = source;
+            } else if (type == "publisher") {
+                entry.publisher = result;
+                entry.publisherSrc = source;
+            } else if (type == "developer") {
+                entry.developer = result;
+                entry.developerSrc = source;
+            } else if (type == "players") {
+                entry.players = result;
+                entry.playersSrc = source;
+            } else if (type == "ages") {
+                entry.ages = result;
+                entry.agesSrc = source;
+            } else if (type == "tags") {
+                entry.tags = result;
+                entry.tagsSrc = source;
+            } else if (type == "rating") {
+                entry.rating = result;
+                entry.ratingSrc = source;
+            } else if (type == "releasedate") {
+                entry.releaseDate = result;
+                entry.releaseDateSrc = source;
+            }
         }
     }
-    {
-        QString type = "platform";
+
+    QStringList binTypes = { "cover" ,"screenshot" ,"wheel" ,"marquee",
+        "texture", "video"
+    };
+
+    for (auto type : txtTypes) {
         QString result = "";
         QString source = "";
+        QByteArray data;
         if (fillType(type, matchingResources, result, source)) {
-            entry.platform = result;
-            entry.platformSrc = source;
-        }
-    }
-    {
-        QString type = "description";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            entry.description = result;
-            entry.descriptionSrc = source;
-        }
-    }
-    {
-        QString type = "publisher";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            entry.publisher = result;
-            entry.publisherSrc = source;
-        }
-    }
-    {
-        QString type = "developer";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            entry.developer = result;
-            entry.developerSrc = source;
-        }
-    }
-    {
-        QString type = "players";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            entry.players = result;
-            entry.playersSrc = source;
-        }
-    }
-    {
-        QString type = "ages";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            entry.ages = result;
-            entry.agesSrc = source;
-        }
-    }
-    {
-        QString type = "tags";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            entry.tags = result;
-            entry.tagsSrc = source;
-        }
-    }
-    {
-        QString type = "rating";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            entry.rating = result;
-            entry.ratingSrc = source;
-        }
-    }
-    {
-        QString type = "releasedate";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            entry.releaseDate = result;
-            entry.releaseDateSrc = source;
-        }
-    }
-    {
-        QString type = "cover";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
+            if (type == "video") {
+                QFileInfo info(cacheDir.absolutePath() + "/" + result);
+                QFile f(info.absoluteFilePath());
+                if (f.open(QIODevice::ReadOnly)) {
+                    entry.videoData = f.readAll();
+                    f.close();
+                    entry.videoFormat = info.suffix();
+                    entry.videoFile = info.absoluteFilePath();
+                    entry.videoSrc = source;
+                }
+                continue;
+            }
             QFile f(cacheDir.absolutePath() + "/" + result);
             if (f.open(QIODevice::ReadOnly)) {
-                entry.coverData = f.readAll();
+                data = f.readAll();
                 f.close();
             }
-            entry.coverSrc = source;
-        }
-    }
-    {
-        QString type = "screenshot";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            QFile f(cacheDir.absolutePath() + "/" + result);
-            if (f.open(QIODevice::ReadOnly)) {
-                entry.screenshotData = f.readAll();
-                f.close();
-            }
-            entry.screenshotSrc = source;
-        }
-    }
-    {
-        QString type = "wheel";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            QFile f(cacheDir.absolutePath() + "/" + result);
-            if (f.open(QIODevice::ReadOnly)) {
-                entry.wheelData = f.readAll();
-                f.close();
-            }
-            entry.wheelSrc = source;
-        }
-    }
-    {
-        QString type = "marquee";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            QFile f(cacheDir.absolutePath() + "/" + result);
-            if (f.open(QIODevice::ReadOnly)) {
-                entry.marqueeData = f.readAll();
-                f.close();
-            }
-            entry.marqueeSrc = source;
-        }
-    }
-    {
-        QString type = "texture";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            QFile f(cacheDir.absolutePath() + "/" + result);
-            if (f.open(QIODevice::ReadOnly)) {
-                entry.textureData = f.readAll();
-                f.close();
-            }
-            entry.textureSrc = source;
-        }
-    }
-    {
-        QString type = "video";
-        QString result = "";
-        QString source = "";
-        if (fillType(type, matchingResources, result, source)) {
-            QFileInfo info(cacheDir.absolutePath() + "/" + result);
-            QFile f(info.absoluteFilePath());
-            if (f.open(QIODevice::ReadOnly)) {
-                entry.videoData = f.readAll();
-                f.close();
-                entry.videoFormat = info.suffix();
-                entry.videoFile = info.absoluteFilePath();
-                entry.videoSrc = source;
+            if (type == "cover") {
+                entry.coverData = data;
+                entry.coverSrc = source;
+            } else if (type == "screenshot") {
+                entry.screenshotData = data;
+                entry.screenshotSrc = source;
+            } else if (type == "wheel") {
+                entry.wheelData = data;
+                entry.wheelSrc = source;
+            } else if (type == "marquee") {
+                entry.marqueeData = data;
+                entry.marqueeSrc = source;
+            } else if (type == "texture") {
+                entry.textureData = data;
+                entry.textureSrc = source;
             }
         }
-    }
+    }   
 }
 
 bool Cache::fillType(QString &type, QList<Resource> &matchingResources,

@@ -238,7 +238,7 @@ void Igdb::getTags(GameEntry &game) {
     for (const auto &jsonGenre : jsonGenres) {
         game.tags.append(jsonGenre.toObject()["name"].toString() + ", ");
     }
-    game.tags = game.tags.left(game.tags.length() - 2);
+    game.tags.chop(2);
 }
 
 void Igdb::getAges(GameEntry &game) {

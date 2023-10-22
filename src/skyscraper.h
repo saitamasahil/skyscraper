@@ -47,7 +47,8 @@ public:
     ~Skyscraper();
     QSharedPointer<Queue> queue;
     QSharedPointer<NetManager> manager;
-    int state = 0;
+    enum OpMode { SINGLE, NO_INTR, CACHE_EDIT, THREADED };
+    int state = SINGLE;
 
 public slots:
     void run();
@@ -66,7 +67,10 @@ private:
     QString secsToString(const int &seconds);
     void checkForFolder(QDir &folder, bool create = true);
     void showHint();
-    void doPrescrapeJobs();
+    void prepareScraping();
+    void updateWhdloadDb(NetComm &netComm, QEventLoop &q);
+    void prepareIgdb(NetComm &netComm, QEventLoop &q);
+    void prepareScreenscraper(NetComm &netComm, QEventLoop &q);
     void loadAliasMap();
     void loadMameMap();
     void loadWhdLoadMap();

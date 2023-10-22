@@ -150,7 +150,7 @@ QString NameTools::getUrlQueryName(const QString baseName, const int words,
     // If we have the first game in a series, remove the ' I' for more search
     // results
     if (newName.right(2) == " I") {
-        newName = newName.left(newName.length() - 2);
+        newName.chop(2);
     }
 
     newName = newName.toLower();

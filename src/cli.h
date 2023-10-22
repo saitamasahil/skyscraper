@@ -25,6 +25,8 @@
 
 namespace Cli {
     void createParser(QCommandLineParser *parser, const QString platforms);
+    void subCommandUsage(const QString subCmd);
+    QMap<QString, QString> getSubCommandOpts(const QString subCmd);
 }
 
 #endif // CLI_H

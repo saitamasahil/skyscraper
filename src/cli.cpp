@@ -23,6 +23,7 @@
 #include "strtools.h"
 
 #include <QCommandLineOption>
+#include <QMapIterator>
 
 void Cli::createParser(QCommandLineParser *parser, QString platforms) {
 
@@ -48,27 +49,27 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     parser->addVersionOption();
     QCommandLineOption pOption(
         "p",
-        "The platform you wish to scrape.\n(Currently supports " + platforms +
-            ".)",
+        "The platform you wish to scrape. Currently supports " + platforms + 
+        ".",
         "PLATFORM", "");
     QCommandLineOption fOption(
         "f",
         "The frontend you wish to generate a gamelist for. Remember to leave "
         "out the '-s' option when using this in order to enable Skyscraper's "
         "gamelist generation mode.\n(Currently supports 'emulationstation', "
-        "'retrobat', 'attractmode' and 'pegasus'. Default is "
-        "'emulationstation')",
+        "'retrobat', 'attractmode' and 'pegasus'. Default: "
+        "'emulationstation'",
         "FRONTEND", "");
     QCommandLineOption eOption(
         "e",
         "Set extra frontend option. This is required by the 'attractmode' "
         "frontend to set the emulator and optionally for the 'pegasus' "
-        "frontend to set the launch command.\n(Default is none)",
+        "frontend to set the launch command. Default: unset",
         "STRING", "");
     QCommandLineOption iOption(
         "i",
-        "Folder which contains the game/rom files.\n(default is "
-        "'/home/USER/RetroPie/roms/PLATFORM')",
+        "Folder which contains the game/rom files. Default: "
+        "'/home/USER/RetroPie/roms/PLATFORM'",
         "PATH", "");
     QCommandLineOption gOption(
         "g", "Game list export folder.\n(default depends on frontend)", "PATH",
@@ -87,38 +88,39 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     QCommandLineOption uOption(
         "u",
         "userKey or UserID and Password for use with the selected scraping "
-        "module.\n(Default is none)",
+        "module. Default: unset)",
         "KEY/USER:PASSWORD", "");
     QCommandLineOption mOption(
         "m",
         "Minimum match percentage when comparing search result titles to "
-        "filename titles.\n(default is 65)",
+        "filename titles. Default: 65",
         "0-100", "");
     QCommandLineOption lOption(
         "l",
         "Maximum game description length. Everything longer than this will be "
-        "truncated.\n(default is 2500)",
+        "truncated. Default: 2500",
         "0-10000", "");
     QCommandLineOption tOption(
         "t",
         "Number of scraper threads to use. This might change depending on the "
-        "scraping module limits.\n(default is 4)",
+        "scraping module limits. Default is 4",
         "1-8", "");
     QCommandLineOption cOption(
         "c",
-        "Use this config file to set up Skyscraper.\n(default is "
-        "'/home/USER/.skyscraper/config.ini')",
+        "Use this config file to set up Skyscraper. Default: "
+        "'/home/USER/.skyscraper/config.ini'",
         "FILENAME", "");
     QCommandLineOption aOption(
         "a",
         "Specify a non-default artwork.xml file to use when setting up the "
-        "artwork compositing when in gamelist generation mode.\n(default is "
-        "'/home/USER/.skyscraper/artwork.xml')",
+        "artwork compositing when in gamelist generation mode. Default: "
+        "'/home/USER/.skyscraper/artwork.xml'",
         "FILENAME", "");
-    QCommandLineOption dOption("d",
-                               "Set custom resource cache folder.\n(default is "
-                               "'/home/USER/.skyscraper/cache/PLATFORM')",
-                               "FOLDER", "");
+    QCommandLineOption dOption(
+        "d",
+        "Set custom resource cache folder. Default: "
+        "'/home/USER/.skyscraper/cache/PLATFORM'",
+        "FOLDER", "");
     QCommandLineOption addextOption(
         "addext",
         "Add this or these file extension(s) to accepted file extensions "
@@ -201,7 +203,7 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     QCommandLineOption maxfailsOption(
         "maxfails",
         "Sets the allowed number of initial 'Not found' results before "
-        "rage-quitting. (Default is 42)",
+        "rage-quitting. Default: 42",
         "1-200", "");
     QCommandLineOption queryOption(
         "query",
@@ -214,15 +216,16 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     QCommandLineOption regionOption(
         "region",
         "Add preferred game region for scraping modules that support "
-        "it.\n(Default prioritization is 'eu', 'us', 'wor' and 'jp' + others "
-        "in that order)",
+        "it. Default prioritization: 'eu', 'us', 'wor' and 'jp' + others "
+        "in that order.",
         "CODE", "eu");
-    QCommandLineOption langOption("lang",
-                                  "Set preferred result language for scraping "
-                                  "modules that support it.\n(Default 'en')",
-                                  "CODE", "en");
+    QCommandLineOption langOption(
+        "lang",
+        "Set preferred result language for scraping modules that support it. "
+        "Default: 'en'",
+        "CODE", "en");
     QCommandLineOption verbosityOption(
-        "verbosity", "Print more info while scraping\n(Default is 0.)", "0-3",
+        "verbosity", "Print more info while scraping. Default: 0", "0-3",
         "0");
 
 #if QT_VERSION >= 0x050800
@@ -263,4 +266,186 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     parser->addOption(excludefromOption);
     parser->addOption(maxfailsOption);
     parser->addOption(addextOption);
+}
+
+void Cli::subCommandUsage(const QString subCmd) {
+
+    if (subCmd == "flags") {
+        printf("Use comma-separated flags (eg. '--flags FLAG1,FLAG2') to "
+               "enable multiple flags.\nThe following is a list of valid "
+               "flags and what they do.\n");
+    }
+
+    printf("\nShowing '\033[1;33m--%s ...\033[0m' help:\n\n",
+           subCmd.toUtf8().constData());
+
+    QMap<QString, QString> subOptions;
+    subOptions = getSubCommandOpts(subCmd);
+
+    int keywordMaxLen = 0;
+    for (auto k : subOptions.keys()) {
+        if (k.length() > keywordMaxLen) {
+            keywordMaxLen = k.length();
+        }
+    }
+    int textWidth = 80 - 2 - 2 - keywordMaxLen;
+
+    QMapIterator<QString, QString> i(subOptions);
+    QString lb("\n");
+    while (i.hasNext()) {
+        i.next();
+        QString k = i.key().leftJustified(keywordMaxLen, ' ');
+        QString v;
+        int ptr = 0;
+        for (auto w : i.value().split(' ')) {
+            if (ptr + w.length() >= textWidth) {
+                ptr = 0;
+                v.append(lb.leftJustified(keywordMaxLen + 5, ' '));
+            }
+            ptr += w.length() + 1;
+            v.append(w);
+            v.append(' ');
+        }
+        v.chop(1);
+        printf("\033[1;33m  %s\033[0m  %s\n", k.toUtf8().constData(),
+               v.toUtf8().constData());
+    }
+    printf("\n");
+}
+
+QMap<QString, QString> Cli::getSubCommandOpts(const QString subCmd) {
+    QMap<QString, QString> m;
+    if (subCmd == "cache") {
+        m = {
+            {"show", "Prints a status of all cached resources for the selected "
+                     "platform."},
+            {"validate",
+             "Checks the consistency of the cache for the selected platform."},
+            {"edit",
+             "Let's you edit resources for the selected platform for all files "
+             "or a range of files. Add a filename on command line to edit "
+             "cached resources for just that one file, use '--includefrom' to "
+             "edit files created with the '--cache report' option or use "
+             "'--startat' and '--endat' to edit a range of roms."},
+            {"edit:new=<TYPE>",
+             "Let's you batch add resources of <TYPE> to the selected platform "
+             "for all files or a range of files. Add a filename on command "
+             "line to edit cached resources for just that one file, use "
+             "'--includefrom' to edit files created with the '--cache report' "
+             "option or use '--startat' and '--endat' to edit a range of "
+             "roms."},
+            {"vacuum",
+             "Compares your romset to any cached resource and removes the "
+             "resources that you no longer have roms for."},
+            {"report:missing=<OPTION>",
+             "Generates reports with all files that are missing the "
+             "specified resources. Check '--cache report:missing=help' "
+             "for more info."},
+            {"merge:<PATH>",
+             "Merges two resource caches together. It will merge the resource "
+             "cache specified by <PATH> into the local resource cache by "
+             "default. To merge into a non-default destination cache folder "
+             "set it with '-d <PATH>'. Both should point to folders with the "
+             "'db.xml' inside."},
+            {"purge:all",
+             "Removes ALL cached resources for the selected platform."},
+            {"purge:m=<MODULE>,t=<TYPE>",
+             "Removes cached resources related to the selected module(m) and / "
+             "or type(t). Either one can be left out in which case ALL "
+             "resources from the selected module or ALL resources rom the "
+             "selected type will be removed."},
+            {"refresh", "Forces a refresh of existing cached resources for any "
+                        "scraping module. Requires a scraping module set with "
+                        "'-s'. Similar to '--refresh'."},
+        };
+    } else {
+        m = {
+            {"forcefilename",
+             "Use filename as game name instead of the returned game title "
+             "when generating a game list. Consider using 'nameTemplate' "
+             "config.ini option instead."},
+            {"interactive", "Always ask user to choose best returned result "
+                            "from the scraping modules."},
+            {"nobrackets",
+             "Disables any [] and () tags in the frontend game titles. "
+             "Consider using 'nameTemplate' config.ini option instead."},
+            {"nocovers",
+             "Disable covers/boxart from being cached locally. Only do this if "
+             "you do not plan to use the cover artwork in 'artwork.xml'"},
+            {"nocropblack",
+             "Disables cropping away black borders around screenshot resources "
+             "when compositing the final gamelist artwork."},
+            {"nohints",
+             "Disables the 'DID YOU KNOW:' hints when running Skyscraper."},
+            {"nomarquees",
+             "Disable marquees from being cached locally. Only do this if you "
+             "do not plan to use the marquee artwork in 'artwork.xml'"},
+            {"noresize",
+             "Disable resizing of artwork when saving it to the resource "
+             "cache. Normally they are resized to save space."},
+            {"noscreenshots", "Disable screenshots/snaps from being cached "
+                              "locally. Only do this if you do not plan to use "
+                              "the screenshot artwork in 'artwork.xml'"},
+            {"nosubdirs",
+             "Do not include input folder subdirectories when scraping."},
+            {"nowheels",
+             "Disable wheels from being cached locally. Only do this if you do "
+             "not plan to use the wheel artwork in 'artwork.xml'"},
+            {"onlymissing", "Tells Skyscraper to skip all files which already "
+                            "have any data from any source in the cache."},
+            {"pretend",
+             "Only relevant when generating a game list. It disables the game "
+             "list generator and artwork compositor and only outputs the "
+             "results of the potential game list generation to the terminal. "
+             "Use it to check what and how the data will be combined from "
+             "cached resources."},
+            {"relative",
+             "Forces all gamelist paths to be relative to rom location."},
+            {"skipexistingcovers",
+             "When generating gamelists, skip processing covers that already "
+             "exist in the media output folder."},
+            {"skipexistingmarquees",
+             "When generating gamelists, skip processing marquees that already "
+             "exist in the media output folder."},
+            {"skipexistingscreenshots",
+             "When generating gamelists, skip processing screenshots that "
+             "already exist in the media output folder."},
+            {"skipexistingtextures",
+             "When generating gamelists, skip processing textures, covers, "
+             "disc art that already exist in the media output folder."},
+            {"skipexistingvideos",
+             "When generating gamelists, skip copying videos that already "
+             "exist in the media output folder."},
+            {"skipexistingwheels",
+             "When generating gamelists, skip processing wheels that already "
+             "exist in the media output folder."},
+            {"skipped", "When generating a gamelist, also include games that "
+                        "do not have any cached data."},
+            {"symlink",
+             "Forces cached videos to be symlinked to game list destination to "
+             "save space. WARNING! Deleting or moving files from your cache "
+             "can invalidate the links!"},
+            {"theinfront",
+             "Forces Skyscraper to always try and move 'The' to the beginning "
+             "of the game title when generating gamelists. By default 'The' "
+             "will be moved to the end of the game titles."},
+            {"tidydesc", "Tidy common misformats in description text. See "
+                         "manual for details."},
+            {"unattend",
+             "Skip initial questions when scraping. It will then always "
+             "overwrite existing gamelist and not skip existing entries."},
+            {"unattendskip",
+             "Skip initial questions when scraping. It will then always "
+             "overwrite existing gamelist and always skip existing entries."},
+            {"unpack",
+             "Unpacks and checksums the file inside 7z or zip files instead of "
+             "the compressed file itself. Be aware that this option requires "
+             "'7z' to be installed on the system to work. Only relevant for "
+             "'screenscraper' scraping module."},
+            {"videos",
+             "Enables scraping and caching of videos for the scraping modules "
+             "that support them. Beware, this takes up a lot of disk space!"},
+        };
+    }
+    return m;
 }

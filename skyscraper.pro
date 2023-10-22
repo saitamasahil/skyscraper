@@ -105,6 +105,7 @@ SOURCES += src/main.cpp \
            src/netmanager.cpp \
            src/netcomm.cpp \
            src/xmlreader.cpp \
+           src/settings.cpp \
            src/cli.cpp \
            src/compositor.cpp \
            src/config.cpp \

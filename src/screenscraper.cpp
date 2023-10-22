@@ -386,7 +386,7 @@ void ScreenScraper::getTags(GameEntry &game) {
         }
     }
 
-    game.tags = game.tags.left(game.tags.length() - 2);
+    game.tags.chop(2);
 }
 
 void ScreenScraper::getCover(GameEntry &game) {

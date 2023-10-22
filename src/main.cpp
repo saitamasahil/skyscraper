@@ -86,17 +86,17 @@ BOOL WINAPI ConsoleHandler(DWORD dwType) {
         sigIntRequests++;
         if (sigIntRequests <= 2) {
             if (x != nullptr) {
-                if (x->state == 0) {
+                if (x->state == Skyscraper::OpMode::SINGLE) {
                     // Nothing important going on, just exit
                     exit(1);
-                } else if (x->state == 1) {
+                } else if (x->state == Skyscraper::OpMode::NO_INTR) {
                     // Ignore signal, something important is going on
                     // that needs to finish!
-                } else if (x->state == 2) {
+                } else if (x->state == Skyscraper::OpMode::CACHE_EDIT) {
                     // Cache being edited, clear the queue to quit
                     // nicely
                     x->queue->clearAll();
-                } else if (x->state == 3) {
+                } else if (x->state == Skyscraper::OpMode::THREADED) {
                     // Threads are running, clear queue for a nice exit
                     printf(
                         "\033[1;33mUser wants to quit, trying to exit "
@@ -115,8 +115,8 @@ BOOL WINAPI ConsoleHandler(DWORD dwType) {
     }
 #if defined(Q_OS_WIN)
     return TRUE;
-#endif
-#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+}
+#elif defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 }
 #endif
 
