@@ -68,7 +68,6 @@ void NetComm::replyReady() {
     data = reply->readAll();
     error = reply->error();
     contentType = reply->rawHeader("Content-Type");
-    ;
     redirUrl = reply->rawHeader("Location");
     reply->deleteLater();
     emit dataReady();
