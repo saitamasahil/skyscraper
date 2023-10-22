@@ -20,6 +20,13 @@ These pull requests have been merged into this fork.
 
 ## Changes
 
+### 2023-10-22 (Version 3.9.1)
+
+- Feature: Mobygames scraper genres limited to two most relevant genre
+  categories ('Basic Genre' and 'Gameplay')
+- Update: Removed legacy and unused code
+- Update: Code formatting (LLVM)
+
 ### 2023-10-20 (Version 3.9.0)
 
 - Feature: Mobygames scraper respects game id from mobygames.com website via
