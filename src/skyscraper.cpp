@@ -1498,51 +1498,7 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
             }
         }
     }
-    if (parser.isSet("videos")) {
-        config.videos = true;
-    }
-    if (parser.isSet("symlink")) {
-        config.symlink = true;
-    }
-    if (parser.isSet("skipexistingvideos")) {
-        config.skipExistingVideos = true;
-    }
-    if (parser.isSet("nocovers")) {
-        config.cacheCovers = false;
-    }
-    if (parser.isSet("noscreenshots")) {
-        config.cacheScreenshots = false;
-    }
-    if (parser.isSet("nowheels")) {
-        config.cacheWheels = false;
-    }
-    if (parser.isSet("nomarquees")) {
-        config.cacheMarquees = false;
-    }
-    if (parser.isSet("skipexistingcovers")) {
-        config.skipExistingCovers = true;
-    }
-    if (parser.isSet("skipexistingscreenshots")) {
-        config.skipExistingScreenshots = true;
-    }
-    if (parser.isSet("skipexistingwheels")) {
-        config.skipExistingWheels = true;
-    }
-    if (parser.isSet("skipexistingmarquees")) {
-        config.skipExistingMarquees = true;
-    }
-    if (parser.isSet("skipexistingtextures")) {
-        config.skipExistingTextures = true;
-    }
-    if (parser.isSet("skipped")) {
-        config.skipped = true;
-    }
-    if (parser.isSet("nobrackets")) {
-        config.brackets = false;
-    }
-    if (parser.isSet("relative")) {
-        config.relativePaths = true;
-    }
+
     if (parser.isSet("addext")) {
         config.addExtensions = parser.value("addext");
     }
@@ -1600,18 +1556,7 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
             exit(0);
         }
     }
-    if (parser.isSet("noresize")) {
-        config.cacheResize = false;
-    }
-    if (parser.isSet("nosubdirs")) {
-        config.subdirs = false;
-    }
-    if (parser.isSet("unpack")) {
-        config.unpack = true;
-    }
-    if (parser.isSet("onlymissing")) {
-        config.onlyMissing = true;
-    }
+
     if (parser.isSet("startat")) {
         config.startAt = parser.value("startat");
     }
@@ -1642,30 +1587,14 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
         parser.value("maxfails").toInt() <= 200) {
         config.maxFails = parser.value("maxfails").toInt();
     }
-    if (parser.isSet("pretend")) {
-        config.pretend = true;
-    }
-    if (parser.isSet("interactive")) {
-        config.interactive = true;
-    }
-    if (parser.isSet("unattend")) {
-        config.unattend = true;
-    }
-    if (parser.isSet("unattendskip")) {
-        config.unattendSkip = true;
-    }
-    if (parser.isSet("forcefilename")) {
-        config.forceFilename = true;
-    }
+
     if (parser.isSet("region")) {
         config.region = parser.value("region");
     }
     if (parser.isSet("lang")) {
         config.lang = parser.value("lang");
     }
-    if (parser.isSet("nohints")) {
-        config.hints = false;
-    }
+
     if (parser.isSet("verbosity")) {
         config.verbosity = parser.value("verbosity").toInt();
     }
