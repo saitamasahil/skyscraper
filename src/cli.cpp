@@ -388,6 +388,8 @@ QMap<QString, QString> Cli::getSubCommandOpts(const QString subCmd) {
                               "the screenshot artwork in 'artwork.xml'"},
             {"nosubdirs",
              "Do not include input folder subdirectories when scraping."},
+            {"notidydesc", "Disables tidying common misformats in description "
+                         "text. See manual CLIHELP.md for details."},
             {"nowheels",
              "Disable wheels from being cached locally. Only do this if you do "
              "not plan to use the wheel artwork in 'artwork.xml'"},
@@ -429,8 +431,6 @@ QMap<QString, QString> Cli::getSubCommandOpts(const QString subCmd) {
              "Forces Skyscraper to always try and move 'The' to the beginning "
              "of the game title when generating gamelists. By default 'The' "
              "will be moved to the end of the game titles."},
-            {"tidydesc", "Tidy common misformats in description text. See "
-                         "manual for details."},
             {"unattend",
              "Skip initial questions when scraping. It will then always "
              "overwrite existing gamelist and not skip existing entries."},

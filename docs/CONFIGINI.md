@@ -144,6 +144,15 @@ Will result in: `1945k III [1945kiii], 2 player(s)`
 ###### Allowed in sections
 `[main]`, `[<PLATFORM>]`
 
+#### tidyDesc="true"
+
+Cleans up some misformatting in scraped description:
+    1. Heading and trailing spaces are stripped
+    2. Multiple spaces between sentences are reduced to one space
+    3. Bulletpoint beginning with * or ● are replaced with a dash
+    4. Stylized ellipsis (… Unicode:`&#8230;`) is replace with three dots
+    5. Multiple exclamation marks are reduced to one, unless for games titles are explicitly typed like that, like 'Super Punch-Out!!'. (Quoting Terry Pratchett: 'Multiple exclamation marks,' he went on, shaking his head, 'are a sure sign of a diseased mind.' -- in Eric)
+
 #### jpgQuality="95"
 Sets the default jpg quality when saving image resources to the cache. This will be ignored if `--flags noresize` is set. Default is 95.
 

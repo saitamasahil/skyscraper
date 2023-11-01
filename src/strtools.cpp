@@ -126,7 +126,7 @@ QByteArray StrTools::magic(const QByteArray str) {
                        ";");
     }
 
-    thingie = thingie.left(thingie.length() - 1);
+    thingie.chop(1);
 
     return thingie;
 }
@@ -330,7 +330,7 @@ QString StrTools::conformTags(const QString str) {
         tag = tag.left(1).toUpper() + tag.mid(1, tag.length() - 1);
         tags += tag.simplified() + ", ";
     }
-    tags = tags.left(tags.length() - 2);
+    tags.chop(2);
     return tags;
 }
 
@@ -363,4 +363,58 @@ QString StrTools::getMd5Sum(const QByteArray &data) {
     QCryptographicHash md5(QCryptographicHash::Md5);
     md5.addData(data);
     return md5.result().toHex();
+}
+
+
+QString StrTools::tidyText(QString text, bool ignoreBangs) {
+    // remove and replace some artifacts from description text
+    text = text.replace("…","...");
+    text = text.replace(".  ",". ");
+    text = text.replace("!  ","! ");
+    text = text.replace("?  ","? ");
+    if (!ignoreBangs) {
+        QRegularExpression re("\\!+");
+        text = text.replace(re, "!");
+    }
+
+    QStringList pars = text.split("\n");
+    QStringList po;
+    int ctr = 0;
+    int tmpCtr = -1;
+    bool itemize = false;
+    QRegularExpression re("^[\\*●]\\s+");
+    QString tmpPiggy;
+    for (auto l : pars) {
+        ctr++;
+        l = l.trimmed();
+        if (l.startsWith("* ") || l.startsWith("● ")) {
+            if (ctr - 1 == tmpCtr) {
+                po.append(tmpPiggy.replace(re, "- "));
+                tmpCtr = -1;
+                itemize = true;
+            } else if (!itemize) {
+                tmpPiggy = l;
+                tmpCtr = ctr;
+                continue;
+            }
+            if (itemize) {
+                po.append(l.replace(re, "- "));
+                continue;
+            }
+        }
+        if (tmpCtr > -1) {
+            // no list of items, single line beginning with '* ', leave as is
+            tmpCtr = -1;
+            po.append(tmpPiggy);
+        }
+        itemize = false;
+        po.append(l);
+    }
+    // if last line
+    if (tmpCtr > -1) {
+        // no list of items, single line beginning with '* ', leave as is
+        tmpCtr = -1;
+        po.append(tmpPiggy);
+    }
+    return po.join("\n");
 }

@@ -201,6 +201,14 @@ NOTE! This is not related to the artwork compositing that happens when generatin
 Disables the caching of the resource type `screenshot` when scraping with any module. If you never use screenshots in your artwork configuration, this flag can save you some space. Consider setting this in [`config.ini`](CONFIGINI.md#cachescreenshotstrue) instead.
 #### nosubdirs
 By default Skyscraper will include roms located in subfolders. By adding this flag Skyscraper will only scrape the roms located directly in the input folder. See `-i <PATH>` above to read more about the rom input folder. Consider setting this in [`config.ini`](CONFIGINI.md#subdirstrue) instead.
+#### notidydesc
+Disables clean up some misformatting in scraped description:
+    1. Heading and trailing spaces are stripped
+    2. Multiple spaces between sentences are reduced to one space
+    3. Bulletpoint beginning with * or ● are replaced with a dash
+    4. Stylized ellipsis (… Unicode:`&#8230;`) is replace with three dots
+    5. Multiple exclamation marks are reduced to one, unless for games titles are explicitly typed like that, like 'Super Punch-Out!!'. (Quoting Terry Pratchett: 'Multiple exclamation marks,' he went on, shaking his head, 'are a sure sign of a diseased mind.' -- in Eric)
+
 #### nowheels
 Disables the caching of the resource type `wheel` when scraping with any module. If you never use wheels in your artwork configuration, this flag can save you some space. Consider setting this in [`config.ini`](CONFIGINI.md#cachewheelstrue) instead.
 #### onlymissing

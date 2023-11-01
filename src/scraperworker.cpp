@@ -315,6 +315,10 @@ void ScraperWorker::run() {
                                                info.completeBaseName() + "." +
                                                game.videoFormat);
         game.description = StrTools::xmlUnescape(game.description);
+        if (config.tidyDesc) {
+            bool skipBangs = game.title.contains("!!");
+            game.description = StrTools::tidyText(game.description, skipBangs);
+        }
         game.releaseDate = StrTools::xmlUnescape(game.releaseDate);
         // Make sure we have the correct 'yyyymmdd' format of 'releaseDate'
         game.releaseDate = StrTools::conformReleaseDate(game.releaseDate);

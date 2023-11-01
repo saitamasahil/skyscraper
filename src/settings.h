@@ -90,6 +90,7 @@ struct Settings {
     int verbosity = 0;
     int maxFails = 42;
     bool skipped = false;
+    bool tidyDesc = true;
     QString artworkConfig = "artwork.xml";
     QByteArray artworkXml = "";
     QString excludePattern = "";
