@@ -105,8 +105,14 @@ QString Platform::getFormats(QString platform, QString extensions,
     }
 
     QSet<QString> formats({"*.zip", "*.7z", "*.ml"});
+    QStringList addExts; 
 
-    for (auto f : addExtensions.split(" ", QString::SkipEmptyParts)) {
+#if QT_VERSION >= 0x050e00
+    addExts = addExtensions.split(" ", Qt::SkipEmptyParts);
+#else
+    addExts = addExtensions.split(" ", QString::SkipEmptyParts);
+#endif
+    for (auto f : addExts) {
         if (f.startsWith("*.")) {
             formats << f;
         }
