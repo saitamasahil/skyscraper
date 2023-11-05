@@ -6,6 +6,8 @@ on:
       - '*'
 
 jobs:
+  # skip CD
+  if: false
   Binary:
     name: Publish ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
