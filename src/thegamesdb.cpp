@@ -266,17 +266,27 @@ void TheGamesDb::getCover(GameEntry &game) {
 }
 
 void TheGamesDb::getScreenshot(GameEntry &game) {
-    QString req = gfxUrl + "/screenshots/" + game.id + "-1";
-    netComm->request(req + ".jpg");
-    q.exec();
-    if (netComm->getError() != QNetworkReply::NoError) {
-        netComm->request(req + ".png");
-        q.exec();
-    }
+    QString req;
+    QStringList exts = {".jpg", ".png"};
+    // some platforms use screenshot/ rather than screenshots/
+    QStringList pl = {"s/", "/"};
+    int i = 0;
+    do {
+        int k = 0;
+        do {
+            req = gfxUrl + "/screenshot" + pl[k] + game.id + "-1" + exts[i];
+            netComm->request(req);
+            q.exec();
+            k++;
+        } while (k < 2 && netComm->getError() != QNetworkReply::NoError);
+        i++;
+    } while (i < 2 && netComm->getError() != QNetworkReply::NoError);
+
     QImage image;
     if (netComm->getError() == QNetworkReply::NoError &&
         image.loadFromData(netComm->getData())) {
         game.screenshotData = netComm->getData();
+        qDebug() << "tgdb: got screenshot from " << req << "\n";
     }
 }
 
