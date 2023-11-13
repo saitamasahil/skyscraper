@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 #endif
 
     QCoreApplication app(argc, argv);
-    app.setApplicationVersion(VERSION);
+    app.setApplicationVersion(StrTools::getVersionBanner());
 
     // Get current dir. If user has specified file(s) on command line we
     // need this.

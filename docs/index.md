@@ -1,14 +1,18 @@
 ## Skyscraper Enhanced and Reloaded
 
-Welcome to the powerful one-stop scraping-tool to maintain your gamelists!
-
 <figure markdown>
-  ![](resources/logo.png)
+  ![](resources/skyscraper_banner.png)
 </figure>
 
-This fork is based on commit `654a31b` from 2022-10-26 from [Joe Huss'
-Skyscraper fork](https://github.com/detain/skyscraper). Skyscraper focuses on
-RetroPie integration but it can also be used without RetroPie. The
-RetroPie-Setup has a scriptmodule to install this Skyscraper fork.
+Welcome to the powerful one-stop scraping-tool to maintain your gamelists!
 
-See also [changes](CHANGELOG.md) since Lars' retired his project.
+Skyscraper focuses on RetroPie integration but it can also be used without
+RetroPie. However, the RetroPie-Setup has a
+[scriptmodule](https://github.com/RetroPie/RetroPie-Setup/blob/master/scriptmodules/supplementary/skyscraper.sh)
+to install this Skyscraper fork.
+
+This fork is based on commit `654a31b` (2022-10-26) from [this
+fork](https://github.com/detain/skyscraper). See also [changes](CHANGELOG.md)
+since Lars' retired his project.
+
+Ready? Let's [dive in](USECASE.md)!

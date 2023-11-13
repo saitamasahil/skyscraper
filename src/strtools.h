@@ -39,6 +39,7 @@ public:
     static QString conformReleaseDate(QString str);
     static QString conformTags(const QString str);
     static QString getVersionHeader();
+    static QString getVersionBanner();
     static QString stripBrackets(const QString str);
     static QString stripHtmlTags(QString str);
     static QString getMd5Sum(const QByteArray &data);

@@ -346,6 +346,24 @@ QString StrTools::getVersionHeader() {
                    "\033[0m\n");
 }
 
+QString StrTools::getVersionBanner() {
+    QStringList g = {"62", "60", "95", "132", "131", "167", "203"};
+    int idx = 0;
+    QStringList b = {
+        // clang-format off
+         g[idx++] + "m _______ __                                                     ___",
+         g[idx++] + "m|   _   |  |--.--.--.-----.----.----.---.-.-----.-----.----.   |\"\"\"|",
+         g[idx++] + "m|   1___|    <|  |  |__ --|  __|   _|  _  |  _  |  -__|   _|   |\"\"\"|",
+         g[idx++] + "m|____   |__|__|___  |_____|____|__| |___._|   __|_____|__|     |\"\"\"|",
+        (g[idx++] + "m|:  1   |     |_____|                     |__|  %1     |\"\"\"|").arg(VERSION,10),
+         g[idx++] + "m|::.. . |                                                      |\"\"\"|",
+         g[idx++] + "m`-------' by Lars Muldjord and contributors                   \"\"''''\"",
+        // clang-format on
+    };
+    QString bs= "\b\b\b\b\b\b\b\b\b\b\b";
+    return bs + "\033[38;5;" + b.join("\n\033[38;5;") + "\033[0m \n";
+}
+
 QString StrTools::stripBrackets(const QString str) {
     return str.left(str.indexOf("(")).left(str.indexOf("[")).simplified();
 }
