@@ -42,7 +42,10 @@ constexpr int AGES = 12;
 constexpr int TITLE = 13;
 constexpr int TEXTURE = 14;
 
-#include <QImage>
+#include <QByteArray>
+#include <QList>
+#include <QPair>
+#include <QString>
 
 class GameEntry {
 public:
