@@ -25,6 +25,7 @@
 
 #include "abstractscraper.h"
 
+#include "gameentry.h"
 #include "nametools.h"
 #include "platform.h"
 #include "strtools.h"
@@ -82,7 +83,6 @@ void AbstractScraper::getGameData(GameEntry &game) {
     data = netComm->getData();
     // printf("URL IS: '%s'\n", game.url.toStdString().c_str());
     // printf("DATA IS:\n'%s'\n", data.data());
-
     populateGameEntry(game);
 }
 
@@ -119,19 +119,30 @@ void AbstractScraper::populateGameEntry(GameEntry &game) {
             getReleaseDate(game);
             break;
         case COVER:
-            getCover(game);
+            // in adb
+            if (config->cacheCovers) {
+                getCover(game);
+            }
             break;
         case SCREENSHOT:
-            getScreenshot(game);
+            if (config->cacheScreenshots) {
+                getScreenshot(game);
+            }
             break;
         case WHEEL:
-            getWheel(game);
+            if (config->cacheWheels) {
+                getWheel(game);
+            }
             break;
         case MARQUEE:
-            getMarquee(game);
+            if (config->cacheMarquees) {
+                getMarquee(game);
+            }
             break;
         case TEXTURE:
-            getTexture(game);
+            if (config->cacheTextures) {
+                getTexture(game);
+            }
             break;
         case VIDEO:
             if (config->videos) {

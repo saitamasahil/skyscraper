@@ -76,57 +76,7 @@ void ArcadeDB::getSearchResults(QList<GameEntry> &gameEntries,
 }
 
 void ArcadeDB::getGameData(GameEntry &game) {
-    for (int a = 0; a < fetchOrder.length(); ++a) {
-        switch (fetchOrder.at(a)) {
-        case DESCRIPTION:
-            getDescription(game);
-            break;
-        case DEVELOPER:
-            getDeveloper(game);
-            break;
-        case PUBLISHER:
-            getPublisher(game);
-            break;
-        case PLAYERS:
-            getPlayers(game);
-            break;
-        case RATING:
-            getRating(game);
-            break;
-        case TAGS:
-            getTags(game);
-            break;
-        case RELEASEDATE:
-            getReleaseDate(game);
-            break;
-        case COVER:
-            if (config->cacheCovers) {
-                getCover(game);
-            }
-            break;
-        case SCREENSHOT:
-            if (config->cacheScreenshots) {
-                getScreenshot(game);
-            }
-            break;
-        case WHEEL:
-            if (config->cacheWheels) {
-                getWheel(game);
-            }
-            break;
-        case MARQUEE:
-            if (config->cacheMarquees) {
-                getMarquee(game);
-            }
-            break;
-        case VIDEO:
-            if (config->videos) {
-                getVideo(game);
-            }
-            break;
-        default:;
-        }
-    }
+    populateGameEntry(game);
 }
 
 void ArcadeDB::getReleaseDate(GameEntry &game) {

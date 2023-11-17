@@ -79,12 +79,18 @@ void ESGameList::getGameData(GameEntry &game) {
     game.rating = gameNode.firstChildElement("rating").text();
     game.tags = gameNode.firstChildElement("genre").text();
     game.description = gameNode.firstChildElement("desc").text();
-    game.marqueeData =
-        loadImageData(gameNode.firstChildElement("marquee").text());
-    game.coverData =
-        loadImageData(gameNode.firstChildElement("thumbnail").text());
-    game.screenshotData =
-        loadImageData(gameNode.firstChildElement("image").text());
+    if (config->cacheMarquees) {
+        game.marqueeData =
+            loadImageData(gameNode.firstChildElement("marquee").text());
+    }
+    if (config->cacheCovers) {
+        game.coverData =
+            loadImageData(gameNode.firstChildElement("thumbnail").text());
+    }
+    if (config->cacheScreenshots) {
+        game.screenshotData =
+            loadImageData(gameNode.firstChildElement("image").text());
+    }
     if (config->videos) {
         loadVideoData(game, gameNode.firstChildElement("video").text());
     }

@@ -181,7 +181,6 @@ void OpenRetro::getGameData(GameEntry &game) {
 
     // Remove all the variants so we don't choose between their screenshots
     data = data.left(data.indexOf("</table></div><div id='"));
-
     populateGameEntry(game);
 }
 
