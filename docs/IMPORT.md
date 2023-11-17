@@ -66,9 +66,9 @@ Import file: `/home/USER/.skyscraper/import/textual/<EXACT ROM BASE NAME>.xml`
 
 ```
 
-!!! warning 
+!!! tip
 
-    Make sure any line matches _exactly_ with the line in the recipe **including white-space characters such as newline characters, spaces and tabs!** Otherwise Skyscraper won't recognize it. Especially for newline characters this can be difficult to debug. Newline characters appear the same in an editor so you won't notice the problem until you load it up in a hex editor.
+    As with Skyscraper 3.9.2 onwards you are no longer required to have the same indention or whitespace (hard tabs, spaces) as in the `definitions.dat`. Matching is solely done via XML elements (e.g. `<title>`), which saves you headache in identifiying whitespace mismatch between the XML template and your XML import file. Just assure to use closing elements (`</title>`) and the same caSiNg in the tags between template and import file.
 
 **Example 2**
 
@@ -99,6 +99,10 @@ Ages       : Minimum age restriction as integer (example '16')
 Genre      : Genres, Comma-separated
 Date       : The game release date (example '1985-06-01')
 ```
+
+!!! warning 
+
+    Make sure any line matches _exactly_ with the line in the recipe **including white-space characters such as newline characters, spaces and tabs!** Otherwise Skyscraper won't recognize it. Especially for newline characters this can be difficult to debug. Newline characters appear the same in an editor so you won't notice the problem until you load it up in a hex editor.
 
 #### List of known tags
 

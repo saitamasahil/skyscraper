@@ -83,8 +83,17 @@ void AbstractScraper::getGameData(GameEntry &game) {
     // printf("URL IS: '%s'\n", game.url.toStdString().c_str());
     // printf("DATA IS:\n'%s'\n", data.data());
 
-    for (int a = 0; a < fetchOrder.length(); ++a) {
-        switch (fetchOrder.at(a)) {
+    populateGameEntry(game);
+}
+
+void AbstractScraper::getTitle(GameEntry &) {}
+
+void AbstractScraper::populateGameEntry(GameEntry &game) {
+    for (int t : fetchOrder) {
+        switch (t) {
+        case TITLE:
+            getTitle(game);
+            break;
         case DESCRIPTION:
             getDescription(game);
             break;

@@ -26,6 +26,7 @@
 #include "importscraper.h"
 
 #include <QDir>
+#include <QDomDocument>
 
 ImportScraper::ImportScraper(Settings *config,
                              QSharedPointer<NetManager> manager)
@@ -76,69 +77,7 @@ void ImportScraper::getGameData(GameEntry &game) {
     game.title = "";
 
     loadData();
-
-    QByteArray dataOrig = data;
-    for (int a = 0; a < fetchOrder.length(); ++a) {
-        switch (fetchOrder.at(a)) {
-        case TITLE:
-            getTitle(game);
-            data = dataOrig;
-            break;
-        case DESCRIPTION:
-            getDescription(game);
-            data = dataOrig;
-            break;
-        case DEVELOPER:
-            getDeveloper(game);
-            data = dataOrig;
-            break;
-        case PUBLISHER:
-            getPublisher(game);
-            data = dataOrig;
-            break;
-        case PLAYERS:
-            getPlayers(game);
-            data = dataOrig;
-            break;
-        case AGES:
-            getAges(game);
-            data = dataOrig;
-            break;
-        case RATING:
-            getRating(game);
-            data = dataOrig;
-            break;
-        case TAGS:
-            getTags(game);
-            data = dataOrig;
-            break;
-        case RELEASEDATE:
-            getReleaseDate(game);
-            data = dataOrig;
-            break;
-        case COVER:
-            getCover(game);
-            break;
-        case SCREENSHOT:
-            getScreenshot(game);
-            break;
-        case WHEEL:
-            getWheel(game);
-            break;
-        case MARQUEE:
-            getMarquee(game);
-            break;
-        case TEXTURE:
-            getTexture(game);
-            break;
-        case VIDEO:
-            if (config->videos) {
-                getVideo(game);
-            }
-            break;
-        default:;
-        }
-    }
+    populateGameEntry(game);
 }
 
 void ImportScraper::runPasses(QList<GameEntry> &gameEntries,
@@ -236,34 +175,76 @@ void ImportScraper::getVideo(GameEntry &game) {
     }
 }
 
-void ImportScraper::getTitle(GameEntry &game) {
-    if (titlePre.isEmpty()) {
-        return;
+void ImportScraper::getAges(GameEntry &game) {
+    if (isXml) {
+        game.ages = getElementText(agesPre);
+    } else {
+        QByteArray dataOrig = data;
+        AbstractScraper::getAges(game);
+        data = dataOrig;
     }
-    for (const auto &nom : titlePre) {
-        if (!checkNom(nom)) {
-            return;
-        }
+}
+
+void ImportScraper::getDescription(GameEntry &game) {
+    if (isXml) {
+        game.description = getElementText(descriptionPre);
+    } else {
+        QByteArray dataOrig = data;
+        AbstractScraper::getDescription(game);
+        data = dataOrig;
     }
-    for (const auto &nom : titlePre) {
-        nomNom(nom);
+}
+
+void ImportScraper::getDeveloper(GameEntry &game) {
+    if (isXml) {
+        game.developer = getElementText(developerPre);
+    } else {
+        QByteArray dataOrig = data;
+        AbstractScraper::getDeveloper(game);
+        data = dataOrig;
     }
-    game.title = data.left(data.indexOf(titlePost.toUtf8())).simplified();
+}
+
+void ImportScraper::getPlayers(GameEntry &game) {
+    if (isXml) {
+        game.players = getElementText(playersPre);
+    } else {
+        QByteArray dataOrig = data;
+        AbstractScraper::getPlayers(game);
+        data = dataOrig;
+    }
+}
+
+void ImportScraper::getPublisher(GameEntry &game) {
+    if (isXml) {
+        game.publisher = getElementText(publisherPre);
+    } else {
+        QByteArray dataOrig = data;
+        AbstractScraper::getPublisher(game);
+        data = dataOrig;
+    }
 }
 
 void ImportScraper::getRating(GameEntry &game) {
     if (ratingPre.isEmpty()) {
         return;
     }
-    for (const auto &nom : ratingPre) {
-        if (!checkNom(nom)) {
-            return;
+
+    if (isXml) {
+        game.rating = getElementText(ratingPre);
+    } else {
+        QByteArray dataOrig = data;
+        for (const auto &nom : ratingPre) {
+            if (!checkNom(nom)) {
+                return;
+            }
         }
+        for (const auto &nom : ratingPre) {
+            nomNom(nom);
+        }
+        game.rating = data.left(data.indexOf(ratingPost.toUtf8()));
+        data = dataOrig;
     }
-    for (const auto &nom : ratingPre) {
-        nomNom(nom);
-    }
-    game.rating = data.left(data.indexOf(ratingPost.toUtf8()));
 
     // check for 0, 0.5, 1, 1.5, ... 5 (star rating)
     QRegularExpression re("^[0-5](\\.5)?$");
@@ -289,6 +270,62 @@ void ImportScraper::getRating(GameEntry &game) {
     }
 }
 
+void ImportScraper::getReleaseDate(GameEntry &game) {
+    if (isXml) {
+        game.releaseDate = getElementText(releaseDatePre);
+    } else {
+        QByteArray dataOrig = data;
+        AbstractScraper::getReleaseDate(game);
+        data = dataOrig;
+    }
+}
+
+void ImportScraper::getTags(GameEntry &game) {
+    if (isXml) {
+        game.tags = getElementText(tagsPre);
+    } else {
+        QByteArray dataOrig = data;
+        AbstractScraper::getTags(game);
+        data = dataOrig;
+    }
+}
+
+void ImportScraper::getTitle(GameEntry &game) {
+    if (titlePre.isEmpty()) {
+        return;
+    }
+    if (isXml) {
+        game.title = getElementText(titlePre);
+    } else {
+        QByteArray dataOrig = data;
+        for (const auto &nom : titlePre) {
+            if (!checkNom(nom)) {
+                return;
+            }
+        }
+        for (const auto &nom : titlePre) {
+            nomNom(nom);
+        }
+        game.title = data.left(data.indexOf(titlePost.toUtf8())).simplified();
+        data = dataOrig;
+    }
+}
+
+QString ImportScraper::getElementText(QStringList e) {
+    QString v;
+    if (!e.isEmpty()) {
+        QString elem = e.at(0);
+        QDomDocument doc;
+        doc.setContent(data);
+        QDomElement root = doc.documentElement();
+        QDomNode n = root.namedItem(elem);
+        if (!n.isNull()) {
+            v = n.toElement().text();
+        }
+    }
+    return v;
+}
+
 void ImportScraper::loadData() {
     if (!textualFile.isEmpty()) {
         QFile f(textualFile);
@@ -310,15 +347,19 @@ bool ImportScraper::loadDefinitions() {
     if (defFile.open(QIODevice::ReadOnly)) {
         while (!defFile.atEnd()) {
             QString line(defFile.readLine());
-            checkForTag(titlePre, titlePost, titleTag, line);
-            checkForTag(publisherPre, publisherPost, publisherTag, line);
-            checkForTag(developerPre, developerPost, developerTag, line);
-            checkForTag(playersPre, playersPost, playersTag, line);
-            checkForTag(agesPre, agesPost, agesTag, line);
-            checkForTag(ratingPre, ratingPost, ratingTag, line);
-            checkForTag(tagsPre, tagsPost, tagsTag, line);
-            checkForTag(releaseDatePre, releaseDatePost, releaseDateTag, line);
-            checkForTag(descriptionPre, descriptionPost, descriptionTag, line);
+            isXml |= checkForTag(titlePre, titlePost, titleTag, line);
+            isXml |=
+                checkForTag(publisherPre, publisherPost, publisherTag, line);
+            isXml |=
+                checkForTag(developerPre, developerPost, developerTag, line);
+            isXml |= checkForTag(playersPre, playersPost, playersTag, line);
+            isXml |= checkForTag(agesPre, agesPost, agesTag, line);
+            isXml |= checkForTag(ratingPre, ratingPost, ratingTag, line);
+            isXml |= checkForTag(tagsPre, tagsPost, tagsTag, line);
+            isXml |= checkForTag(releaseDatePre, releaseDatePost,
+                                 releaseDateTag, line);
+            isXml |= checkForTag(descriptionPre, descriptionPost,
+                                 descriptionTag, line);
         }
         defFile.close();
         return true;
@@ -326,12 +367,21 @@ bool ImportScraper::loadDefinitions() {
     return false;
 }
 
-void ImportScraper::checkForTag(QList<QString> &pre, QString &post,
+bool ImportScraper::checkForTag(QList<QString> &pre, QString &post,
                                 QString &tag, QString &line) {
+    bool isXml = false;
     if (line.indexOf(tag) != -1 && line.indexOf(tag) != 0) {
-        pre.append(line.left(line.indexOf(tag)));
+        QString preStr = line.left(line.indexOf(tag));
+        QString ttmp = preStr.trimmed();
+        isXml = ttmp.startsWith("<") && ttmp.endsWith(">");
+        if (isXml) {
+            pre.append(ttmp.replace("<", "").replace(">", ""));
+        } else {
+            pre.append(preStr);
+        }
         post = line.right(line.length() - (line.indexOf(tag) + tag.length()));
     }
+    return isXml;
 }
 
 bool ImportScraper::checkType(QString baseName, QList<QFileInfo> &infos,

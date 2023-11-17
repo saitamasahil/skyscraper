@@ -39,22 +39,31 @@ public:
                    QString &, QString &) override;
     void getGameData(GameEntry &game) override;
     QString getCompareTitle(QFileInfo info) override;
-    void getTitle(GameEntry &game);
-    void getRating(GameEntry &game);
+
+    void getAges(GameEntry &game) override;
     void getCover(GameEntry &game) override;
-    void getScreenshot(GameEntry &game) override;
-    void getWheel(GameEntry &game) override;
+    void getDescription(GameEntry &game) override;
+    void getDeveloper(GameEntry &game) override;
     void getMarquee(GameEntry &game) override;
+    void getPlayers(GameEntry &game) override;
+    void getPublisher(GameEntry &game) override;
+    void getRating(GameEntry &game) override;
+    void getReleaseDate(GameEntry &game) override;
+    void getScreenshot(GameEntry &game) override;
+    void getTags(GameEntry &game) override;
     void getTexture(GameEntry &game) override;
+    void getTitle(GameEntry &game) override;
     void getVideo(GameEntry &game) override;
+    void getWheel(GameEntry &game) override;
 
 private:
     bool checkType(QString baseName, QList<QFileInfo> &infos,
                    QString &inputFile);
     bool loadDefinitions();
     void loadData();
-    void checkForTag(QList<QString> &pre, QString &post, QString &tag,
+    bool checkForTag(QList<QString> &pre, QString &post, QString &tag,
                      QString &line);
+    QString getElementText(QStringList e);
 
     QString titleTag = "###TITLE###";
     QString descriptionTag = "###DESCRIPTION###";
@@ -80,6 +89,9 @@ private:
     QString marqueeFile = "";
     QString textureFile = "";
     QString videoFile = "";
+
+    // true if definition.dat is XML style
+    bool isXml;
 };
 
 #endif // IMPORTSCRAPER_H

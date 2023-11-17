@@ -57,6 +57,7 @@ protected:
 
     virtual void getSearchResults(QList<GameEntry> &gameEntries,
                                   QString searchName, QString platform);
+    virtual void populateGameEntry(GameEntry &game);
     virtual void getDescription(GameEntry &game);
     virtual void getDeveloper(GameEntry &game);
     virtual void getPublisher(GameEntry &game);
@@ -70,6 +71,7 @@ protected:
     virtual void getWheel(GameEntry &game);
     virtual void getMarquee(GameEntry &game);
     virtual void getTexture(GameEntry &game);
+    virtual void getTitle(GameEntry &);
     virtual void getVideo(GameEntry &game);
 
     virtual void nomNom(const QString nom, bool including = true);
@@ -77,7 +79,6 @@ protected:
 
     virtual bool platformMatch(QString found, QString platform);
     virtual int getPlatformId(const QString);
-
 
     QList<int> fetchOrder;
 

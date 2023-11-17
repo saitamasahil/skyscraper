@@ -182,49 +182,7 @@ void OpenRetro::getGameData(GameEntry &game) {
     // Remove all the variants so we don't choose between their screenshots
     data = data.left(data.indexOf("</table></div><div id='"));
 
-    for (int a = 0; a < fetchOrder.length(); ++a) {
-        switch (fetchOrder.at(a)) {
-        case DESCRIPTION:
-            getDescription(game);
-            break;
-        case DEVELOPER:
-            getDeveloper(game);
-            break;
-        case PUBLISHER:
-            getPublisher(game);
-            break;
-        case PLAYERS:
-            getPlayers(game);
-            break;
-        case RATING:
-            getRating(game);
-            break;
-        case TAGS:
-            getTags(game);
-            break;
-        case RELEASEDATE:
-            getReleaseDate(game);
-            break;
-        case COVER:
-            getCover(game);
-            break;
-        case SCREENSHOT:
-            getScreenshot(game);
-            break;
-        case WHEEL:
-            getWheel(game);
-            break;
-        case MARQUEE:
-            getMarquee(game);
-            break;
-        case VIDEO:
-            if (config->videos) {
-                getVideo(game);
-            }
-            break;
-        default:;
-        }
-    }
+    populateGameEntry(game);
 }
 
 void OpenRetro::getDescription(GameEntry &game) {
