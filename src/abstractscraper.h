@@ -73,11 +73,11 @@ protected:
     virtual void getVideo(GameEntry &game);
 
     virtual void nomNom(const QString nom, bool including = true);
+    bool checkNom(const QString nom);
 
     virtual bool platformMatch(QString found, QString platform);
     virtual int getPlatformId(const QString);
 
-    bool checkNom(const QString nom);
 
     QList<int> fetchOrder;
 
