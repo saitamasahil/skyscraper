@@ -28,7 +28,7 @@
 #include <QNetworkRequest>
 #include <QUrl>
 
-constexpr int MAXSIZE = 100 * 1024 * 1024;
+constexpr int MAXSIZE = 100 * 1000 * 1000;
 
 NetComm::NetComm(QSharedPointer<NetManager> manager) : manager(manager) {
     requestTimer.setSingleShot(true);
