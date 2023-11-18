@@ -62,20 +62,27 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
     }
 
     QStringList keys = settings->allKeys();
-    QSet<QString> cfgIniKeys(keys.begin(), keys.end());
+    QSet<QString> cfgIniKeys(keys.toSet());
     QSet<QString> allowedKeys = getKeys(type);
     QSet<QString> intersect = allowedKeys.intersect(cfgIniKeys);
-    QSet<QString> invalid = cfgIniKeys.subtract(allowedKeys);
     bool frontendKey = false;
     if (intersect.contains("frontend")) {
         intersect.remove("frontend");
         frontendKey = true;
     }
-    QStringList inter2(intersect.begin(), intersect.end());
+    QStringList inter2;
+    // Qt5.15 does not have: QStringList inter2(intersect.begin(),
+    // intersect.end());
+    QSetIterator<QString> iter(intersect);
+    while (iter.hasNext()) {
+        inter2.append(iter.next());
+    }
     inter2.sort();
     if (frontendKey) {
+        // have this first as it drives other allowed options
         inter2.insert(0, "frontend");
     }
+    QSet<QString> invalid = cfgIniKeys.subtract(allowedKeys);
     if (!invalid.isEmpty()) {
         qWarning() << "Surplus keys: " << invalid << "\n";
     }
