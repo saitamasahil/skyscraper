@@ -1,10 +1,12 @@
-## config.ini options
+## config.ini Options
 
-Look below to find a thorough description of all options and sections available in the `/home/USER/.skyscraper/config.ini` configuration file. These options will then be applied whenever running Skyscraper with the `Skyscraper` command.
+Look below to find a thorough description of all options and sections available in the `/home/<USER>/.skyscraper/config.ini` configuration file. These options will then be applied whenever running Skyscraper with the `Skyscraper` command.
 
 Please take note that almost all of these options are set at a useful default as documented here (and can therefore be left out) and should only be set if your use case requires it.
 
-NOTE 1! Some users seem to have a habit of editing the `/home/USER/skysource/config.ini` file. THIS IS NOT THE CORRECT FILE! Please read the above. :)
+!!! warning
+
+    Some users seem to have a habbit of editing the `/home/<USER>/skysource/config.ini` file. _This is not the correct file!_ Please read the first paragraph. :)
 
 Options can be set on four levels; either `[main]`, `[<PLATFORM>]`, `[<FRONTEND>]` or `[<SCRAPER>]`.
 
@@ -18,7 +20,7 @@ Settings in the `[main]` section will always be set regardless of selected platf
 
 Each section can have overlapping parameters. In case where a certain option exists in several sections they are prioritized as scraping module first, then frontend, then platform and lastly main. Any commandline option which relates to an configuration setting in `config.ini` has highest precedence, regardless of the other four levels respective sections.
 
-You can find an example config file at `/home/USER/.skyscraper/config.ini.example`. This file contains all available options. Just copy the file to `config.ini` and uncomment and edit the ones you wish to use by removing the `#` or `;` in front of the variables. Remember to also uncomment the section the option relates to such as `[main]` or `[amiga]`.
+You can find an example config file at `/home/<USER>/.skyscraper/config.ini.example`. This file contains all available options. Just copy the file to `config.ini` and uncomment and edit the ones you wish to use by removing the `#` or `;` in front of the variables. Remember to also uncomment the section the option relates to such as `[main]` or `[amiga]`.
 
 !!! note
 
@@ -186,7 +188,7 @@ Allowed in sections: Only for frontends `[emulationstation]` or `[retrobat]`
 
 #### cacheFolder
 
-Sets a non-default location for the storing and loading of cached game resources. This is what is referred to in the docs as the _resource cache_. By default this folder is set to `/home/USER/.skyscraper/cache/<PLATFORM>`. Don't change this unless you have a good reason to (for instance if you want your cache to reside on a USB drive).
+Sets a non-default location for the storing and loading of cached game resources. This is what is referred to in the docs as the _resource cache_. By default this folder is set to `/home/<USER>/.skyscraper/cache/<PLATFORM>`. Don't change this unless you have a good reason to (for instance if you want your cache to reside on a USB drive).
 
 !!! note
 
@@ -339,7 +341,7 @@ Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<SCRAPER>]`
 
 #### importFolder
 
-Sets a non-default folder when scraping using the `-s import` module. By default this is set to `/home/<USER>/.skyscraper/import` and will also look for a `/<PLATFORM>` inside of the chosen folder. Read more about the `-s import` module [here](IMPORT.md).
+Sets a non-default folder when scraping using the `-s import` module. By default this is set to `/home/<USER>/.skyscraper/import` and will also look for a `/<PLATFORM>` inside of the chosen folder.
 
 Default value: `/home/pi/.skyscraper/import/<PLATFORM>`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`
@@ -709,7 +711,7 @@ langPrios="it,en"
 
 #### artworkXml
 
-Sets a non-default xml file to use when setting up the artwork compositing. By default Skyscraper uses the file `/home/USER/.skyscraper/artwork.xml`. Read more about the artwork.xml format and customization options [here](ARTWORK.md).
+Sets a non-default xml file to use when setting up the artwork compositing. By default Skyscraper uses the file `/home/<USER>/.skyscraper/artwork.xml`. Read more about the artwork.xml format and customization options [here](ARTWORK.md).
 
 !!! tip
 

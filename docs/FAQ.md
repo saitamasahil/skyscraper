@@ -16,7 +16,7 @@ And now for the questions (with answers)...
 
 ??? Question "Skyscraper keeps quitting on me with errors about request limits or similar. What's going on?"
 
-    Almost all of the scraping modules, such as ScreenScraper and TheGamesDb, have restrictions applied to avoid users overloading their servers. These restrictions are set by them, not Skyscraper. Some modules even require you to log in to use them. Read more about the restrictions and how to deal with them [here](SCRAPINGMODULES.md). If you've created a user at ScreenScraper and want to use your credentials with Skyscraper, just add the following section to `/home/USER/.skyscraper/config.ini`. Type it _exactly_ like this, but with your own user and pass.
+    Almost all of the scraping modules, such as ScreenScraper and TheGamesDb, have restrictions applied to avoid users overloading their servers. These restrictions are set by them, not Skyscraper. Some modules even require you to log in to use them. Read more about the restrictions and how to deal with them [here](SCRAPINGMODULES.md). If you've created a user at ScreenScraper and want to use your credentials with Skyscraper, just add the following section to `/home/<USER>/.skyscraper/config.ini`. Type it _exactly_ like this, but with your own user and pass.
     ```
     [screenscraper]
     userCreds="USER:PASS"
@@ -24,7 +24,7 @@ And now for the questions (with answers)...
 
 ??? Question "Skyscraper by default generates a composited screenshot that combines both boxart, screenshot and wheel. I just want it to export the raw artwork, how do I do that?"
 
-    Skyscraper includes a powerful artwork compositor you can set up any way you like. Read more about the possibilities [here](ARTWORK.md). If you just want it to export the raw unmodified screenshot and other pieces of artwork, you can use the `/home/USER/.skyscraper/artwork.xml.example2` and copy it to `/home/USER/.skyscraper/artwork.xml`. Remember to regenerate the gamelists after you've done this to make use of the new artwork configuration. This can be done simply by running Skyscraper with `Skyscraper -p PLATFORM`. This will regenerate the gamelist for that platform using this new artwork configuration.
+    Skyscraper includes a powerful artwork compositor you can set up any way you like. Read more about the possibilities [here](ARTWORK.md). If you just want it to export the raw unmodified screenshot and other pieces of artwork, you can use the `/home/<USER>/.skyscraper/artwork.xml.example2` and copy it to `/home/<USER>/.skyscraper/artwork.xml`. Remember to regenerate the gamelists after you've done this to make use of the new artwork configuration. This can be done simply by running Skyscraper with `Skyscraper -p PLATFORM`. This will regenerate the gamelist for that platform using this new artwork configuration.
 
 ??? Question "I've edited the artwork.xml or some other part of Skyscraper's gamelist specific configurations, but the games still show up the same inside my frontend. Why is that?"
 
@@ -44,11 +44,11 @@ And now for the questions (with answers)...
 
 ??? Question "I want to set up different options for different platforms. It's really tiresome setting it all on command-line. Can this be done easier?"
 
-    YES! Absolutely. In addition to taking options from the command-line, Skyscraper also reads the `/home/USER/.skyscraper/config.ini` file, which is where you should set everything up. This file allows you to configure things both globally, per-platform, per-frontend and per-scraping module. Read more about the available options and option priorities [here](CONFIGINI.md).
+    YES! Absolutely. In addition to taking options from the command-line, Skyscraper also reads the `/home/<USER>/.skyscraper/config.ini` file, which is where you should set everything up. This file allows you to configure things both globally, per-platform, per-frontend and per-scraping module. Read more about the available options and option priorities [here](CONFIGINI.md).
 
 ??? Question "When I try to scrape data or generate gamelists I get all sorts of write permission errors and missing configurations. What's going on?"
 
-    You are probably running, or at some point ran, Skyscraper with `sudo Skyscraper` instead of just `Skyscraper`. Doing so will result in all sorts of weird behaviour as Skyscraper was then run as the `root` user instead of the ordinary user. Depending on what command-line parameters you ran Skyscraper with, this will have caused permission issues for your files in `/home/USER/RetroPie/roms` subfolders and might also have caused permission issues with the `/home/USER/.skyscraper` folder.  
+    You are probably running, or at some point ran, Skyscraper with `sudo Skyscraper` instead of just `Skyscraper`. Doing so will result in all sorts of weird behaviour as Skyscraper was then run as the `root` user instead of the ordinary user. Depending on what command-line parameters you ran Skyscraper with, this will have caused permission issues for your files in `/home/<USER>/RetroPie/roms` subfolders and might also have caused permission issues with the `/home/<USER>/.skyscraper` folder.  
     This is a common problem for new Linux users who are used to working with Windows. In Linux you rarely need Administrator privileges. Running a command with `sudo` in front of it will run it as the root / Administrator user. And any folders or files being generated while that command runs, will then be owned by root. When you run software as the normal user afterwards and it tries to write to those folders or files, it will fail.  
     You need to reset those permissions back to be owned by your ordinary user. If you are running RetroPie, the following commands might fix your problem (RUN AT YOUR OWN RISK!):
     ```bash
@@ -59,7 +59,7 @@ And now for the questions (with answers)...
 
 ??? Question "I generated a game list for the Pegasus frontend. When I fire up Pegasus the data is there, but it doesn't look very good. Why is that?"
 
-    Skyscraper contains a powerful artwork compositor that can customize the exported screenshot, boxart etc. any way you like. This is done through the `/home/USER/.skyscraper/artwork.xml` file. The default configuration for this file is made to look good when exporting for the default frontend EmulationStation. When you use a different frontend, you need to customize this file a bit to make it look good. For Pegasus I suggest something like this:
+    Skyscraper contains a powerful artwork compositor that can customize the exported screenshot, boxart etc. any way you like. This is done through the `/home/<USER>/.skyscraper/artwork.xml` file. The default configuration for this file is made to look good when exporting for the default frontend EmulationStation. When you use a different frontend, you need to customize this file a bit to make it look good. For Pegasus I suggest something like this:
     ```xml
     <?xml version="1.0" encoding="UTF-8"?>
     <artwork>
@@ -76,5 +76,5 @@ And now for the questions (with answers)...
 
 ??? Question "I've changed my `artwork.xml` configuration and regenerated the game list, but it still looks the same in the frontend. Why is that?"
 
-    Did you perhaps edit `/home/USER/skysource/artwork.xml` instead of `/home/USER/.skyscraper/artwork.xml`? The latter is the one you need to edit.  
+    Did you perhaps edit `/home/<USER>/skysource/artwork.xml` instead of `/home/<USER>/.skyscraper/artwork.xml`? The latter is the one you need to edit.  
     Read more about how to set up a custom `artwork.xml` [here](ARTWORK.md).

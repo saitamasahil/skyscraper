@@ -36,14 +36,14 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
         "frontends by combining all previously cached resources ('game list "
         "generation mode' is initiated by simply leaving out the '-s' option). "
         "While doing so it also composites game art for all files by following "
-        "the recipe at '/home/USER/.skyscraper/artwork.xml'.\n\nIn addition to "
+        "the recipe at '/home/<USER>/.skyscraper/artwork.xml'.\n\nIn addition to "
         "the command line options Skyscraper also provides a lot of "
         "customizable options for configuration, artwork, game name aliases, "
         "resource priorities and much more. Please check the full "
         "documentation at 'github.com/Gemba/skyscraper/tree/master/docs' for a "
         "detailed explanation of all features.\n\nRemember that most of the "
         "following options can also be set in the "
-        "'/home/USER/.skyscraper/config.ini' file. All cli options and "
+        "'/home/<USER>/.skyscraper/config.ini' file. All cli options and "
         "config.ini options are thoroughly documented at the above link.");
     parser->addHelpOption();
     parser->addVersionOption();
@@ -69,7 +69,7 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     QCommandLineOption iOption(
         "i",
         "Folder which contains the game/rom files. Default: "
-        "'/home/USER/RetroPie/roms/PLATFORM'",
+        "'/home/<USER>/RetroPie/roms/PLATFORM'",
         "PATH", "");
     QCommandLineOption gOption(
         "g", "Game list export folder.\n(default depends on frontend)", "PATH",
@@ -108,18 +108,18 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     QCommandLineOption cOption(
         "c",
         "Use this config file to set up Skyscraper. Default: "
-        "'/home/USER/.skyscraper/config.ini'",
+        "'/home/<USER>/.skyscraper/config.ini'",
         "FILENAME", "");
     QCommandLineOption aOption(
         "a",
         "Specify a non-default artwork.xml file to use when setting up the "
         "artwork compositing when in gamelist generation mode. Default: "
-        "'/home/USER/.skyscraper/artwork.xml'",
+        "'/home/<USER>/.skyscraper/artwork.xml'",
         "FILENAME", "");
     QCommandLineOption dOption(
         "d",
         "Set custom resource cache folder. Default: "
-        "'/home/USER/.skyscraper/cache/PLATFORM'",
+        "'/home/<USER>/.skyscraper/cache/PLATFORM'",
         "FOLDER", "");
     QCommandLineOption addextOption(
         "addext",

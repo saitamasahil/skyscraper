@@ -10,7 +10,7 @@ Also consider that almost all of these options are set at a useful default (and 
 
 !!! info
 
-    Most of the options can also be set in the `/home/USER/.skyscraper/config.ini` file thus removing the need to type them on command line all the time. Check the config.ini doc [here](CONFIGINI.md) for more info on this.
+    Most of the options can also be set in the `/home/<USER>/.skyscraper/config.ini` file thus removing the need to type them on command line all the time. Check the config.ini doc [here](CONFIGINI.md) for more info on this.
 
 ## Short Options
 
@@ -29,7 +29,7 @@ Skyscraper -h
 
 Sets the platform you wish to scrape. Supported platforms can be seen using the `--help` option described above.
 
-Running the following commands will scrape from all cached resources and generate a game list and composite artwork using the recipe in `/home/USER/.skyscraper/artwork.xml` (check the artwork documentation for more info on this [here](ARTWORK.md).
+Running the following commands will scrape from all cached resources and generate a game list and composite artwork using the recipe in `/home/<USER>/.skyscraper/artwork.xml` (check the artwork documentation for more info on this [here](ARTWORK.md).
 
 Before running these commands you need to first gather some data into the cache. Please read the description of `-s <MODULE>` below.
 
@@ -165,7 +165,7 @@ Skyscraper -p snes -l 500
 
 ### -c &lt;FILENAME&gt;
 
-Sets a non-default config file. By default Skyscraper uses the file `/home/USER/.skyscraper/config.ini`.
+Sets a non-default config file. By default Skyscraper uses the file `/home/<USER>/.skyscraper/config.ini`.
 
 **Example(s)**
 
@@ -175,7 +175,7 @@ Skyscraper -p snes -c "/path/to/config.ini"
 
 ### -a &lt;FILENAME&gt;
 
-Sets a non-default XML file to use when setting up the artwork compositing. By default Skyscraper uses the file `/home/USER/.skyscraper/artwork.xml`. Read more about the artwork.xml format and customization options [here](ARTWORK.md). Consider setting this in [`config.ini`](CONFIGINI.md#artworkxml) instead.
+Sets a non-default XML file to use when setting up the artwork compositing. By default Skyscraper uses the file `/home/<USER>/.skyscraper/artwork.xml`. Read more about the artwork.xml format and customization options [here](ARTWORK.md). Consider setting this in [`config.ini`](CONFIGINI.md#artworkxml) instead.
 
 **Example(s)**
 
@@ -185,7 +185,7 @@ Skyscraper -p snes -a "/path/to/artwork.xml"
 
 ### -d &lt;FOLDER&gt;
 
-Sets a non-default location for the storing and loading of cached game resources. This is what is referred to in the docs as the _resource cache_. By default this folder is set to `/home/USER/.skyscraper/cache/<PLATFORM>`. Don't change this unless you have a good reason to (for instance if you want your cache to reside on a USB drive). The folder pointed to should be a folder with a Skyscraper `db.xml` file and its required subfolders inside of it (`covers`, `screenshots` etc.).
+Sets a non-default location for the storing and loading of cached game resources. This is what is referred to in the docs as the _resource cache_. By default this folder is set to `/home/<USER>/.skyscraper/cache/<PLATFORM>`. Don't change this unless you have a good reason to (for instance if you want your cache to reside on a USB drive). The folder pointed to should be a folder with a Skyscraper `db.xml` file and its required subfolders inside of it (`covers`, `screenshots` etc.).
 
 !!! note
 
@@ -447,7 +447,7 @@ Skyscraper -p snes -s screenscraper --cache refresh
 
 #### --cache report:missing=&lt;all, textual, artwork, media or RESOURCE1,RESOURCE2,...&gt;
 
-Will create report(s) containing all filenames of games missing the selected resource type(s). File(s) will be exported to `/home/USER/.skyscraper/reports/report-<PLATFORM>-missing_<RESOURCE>-yyyymmdd.txt`
+Will create report(s) containing all filenames of games missing the selected resource type(s). File(s) will be exported to `/home/<USER>/.skyscraper/reports/report-<PLATFORM>-missing_<RESOURCE>-yyyymmdd.txt`
 
 You can use any of the following:
 

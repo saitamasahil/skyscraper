@@ -1,6 +1,6 @@
 ## Artwork Look and Effects
 
-Skyscraper allows you to fully customize how you want the final frontend artwork to appear by editing the file `/home/USER/.skyscraper/artwork.xml`. Each piece of artwork can be composited from one or more of the other artwork resources and you can even apply several effects to them.
+Skyscraper allows you to fully customize how you want the final frontend artwork to appear by editing the file `/home/<USER>/.skyscraper/artwork.xml`. Each piece of artwork can be composited from one or more of the other artwork resources and you can even apply several effects to them.
 
 -   Each `<output>` node exports a single piece of artwork.
 -   If no `<layer>` nodes are nested in an output node, it will simply export the defined type as raw unmanipulated artwork.
@@ -10,7 +10,7 @@ Read on for an example `artwork.xml` and a more thorough description of the `<ou
 
 !!! warning
 
-    Some users seem to have a habbit of editing the `/home/USER/skysource/artwork.xml` file. _This is not the correct file!_ Please read the first paragraph. :)
+    Some users seem to have a habbit of editing the `/home/<USER>/skysource/artwork.xml` file. _This is not the correct file!_ Please read the first paragraph. :)
 
 !!! tip
 
@@ -649,7 +649,7 @@ Provides the color to use hex-style. This can be used instead of the 'red', 'gre
 
 ### Custom image resources
 
-From Skyscraper version 2.3.0 you can use custom image resources wherever the documentation says so. Place your custom resources in the '`/home/USER/.skyscraper/resources`' folder and use it by adding the filename to the attribute.
+From Skyscraper version 2.3.0 you can use custom image resources wherever the documentation says so. Place your custom resources in the '`/home/<USER>/.skyscraper/resources`' folder and use it by adding the filename to the attribute.
 
 Example:
 
@@ -657,13 +657,13 @@ Example:
 <gamebox side="megadrive_logo.png" rotate="90"/>
 ```
 
-The file megadrive_logo.png will then be loaded from the '`/home/USER/.skyscraper/resources/megadrive_logo.png`' file. Feel free to create subfolders inside the resources folder. If you do, remember to add the partial path to the filename like so:
+The file megadrive_logo.png will then be loaded from the '`/home/<USER>/.skyscraper/resources/megadrive_logo.png`' file. Feel free to create subfolders inside the resources folder. If you do, remember to add the partial path to the filename like so:
 
 ```xml
 <gamebox side="platform_logos/megadrive_logo.png" rotate="90"/>
 ```
 
-This will look for the file at '`/home/USER/.skyscraper/resources/platform_logos/megadrive_logo.png`'.
+This will look for the file at '`/home/<USER>/.skyscraper/resources/platform_logos/megadrive_logo.png`'.
 
 !!! warning
 

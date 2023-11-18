@@ -104,7 +104,7 @@ Skyscraper's default internal region priority list is as follows. Topmost region
 
 ## Configuring Region Manually
 
-If you insist, of course you can configure the region manually. You can either do this on command-line or through `/home/USER/.skyscraper/config.ini`. It is recommended to set it in `config.ini` for a permanent setup.
+If you insist, of course you can configure the region manually. You can either do this on command-line or through `/home/<USER>/.skyscraper/config.ini`. It is recommended to set it in `config.ini` for a permanent setup.
 
 ### config.ini
 

@@ -4,7 +4,7 @@ The following describes how to import your own custom textual, artwork and / or 
 
 !!! tip 
   
-    For any path in the following description, you can also add a platform subfolder. Skyscraper will auto-detect this and use it instead of the base import folder. For instance, you can create the folder `/home/USER/.skyscraper/import/amiga` and it will use that as base instead of `/home/USER/.skyscraper/import/` when importing for the `amiga` platform.
+    For any path in the following description, you can also add a platform subfolder. Skyscraper will auto-detect this and use it instead of the base import folder. For instance, you can create the folder `/home/<USER>/.skyscraper/import/amiga` and it will use that as base instead of `/home/<USER>/.skyscraper/import/` when importing for the `amiga` platform.
 
 !!! info
 
@@ -15,7 +15,7 @@ The following describes how to import your own custom textual, artwork and / or 
 To import videos or images into the resource cache, use the following procedure:
 
 -   Name your image or video file with the _exact_ base name of the rom you wish to connect it to. Example: `Bubble Bobble.nes` will import images with a filename of `Bubble Bobble.jpg` or `Bubble Bobble.png` or other well-known image formats. As long as the base name is an _exact_ match. Same goes for video files. I recommend only making use of well-known video formats since Skyscraper imports them directly without conversion (unless you convert them as described [here](CONFIGINI.md#videoconvertcommand)), so they need to be supported directly by the frontend you plan to use.
--   Place all of your images or videos in the `/home/USER/.skyscraper/import/screenshots`, `covers`, `wheels`, `marquees` or `videos` folders.
+-   Place all of your images or videos in the `/home/<USER>/.skyscraper/import/screenshots`, `covers`, `wheels`, `marquees` or `videos` folders.
 -   Now run Skyscraper with `Skyscraper -p <PLATFORM> -s import`. If you named your files correctly, they will now be imported. Look for the green 'YES' in the output at the rom(s) you've placed files for. This will tell you if it succeeded or not.
 -   The data is now imported into the resource cache. To make use of if read [here](#how-to-actually-use-the-data).
 
@@ -25,15 +25,15 @@ If you are importing videos, you also need to add the command line flag `--flags
 
 ### Textual Data (Publisher, Players, Rating, ...)
 
-Skyscraper also allows you to import textual data for any rom you have in your collection. All you need to do is to prepare files for each rom with an _exactly_ matching base name. For instance `Bubble Bobble.nes` should have a file called `Bubble Bobble.txt` or `Bubble Bobble.xml` or whatever suffix you want to use. The suffix is not important. What _is_ important is that you place all of these raw data files into the `/home/USER/.skyscraper/import/textual` folder. And then you need to make a definitions file so Skyscraper has a recipe for these files.
+Skyscraper also allows you to import textual data for any rom you have in your collection. All you need to do is to prepare files for each rom with an _exactly_ matching base name. For instance `Bubble Bobble.nes` should have a file called `Bubble Bobble.txt` or `Bubble Bobble.xml` or whatever suffix you want to use. The suffix is not important. What _is_ important is that you place all of these raw data files into the `/home/<USER>/.skyscraper/import/textual` folder. And then you need to make a definitions file so Skyscraper has a recipe for these files.
 
 #### Textual data definitions file
 
-In order for Skyscraper to understand your textual data files, it needs a recipe. Or a definition of your format if you like. The format is completely up to you. The file must be placed at `/home/USER/.skyscraper/import/definitions.dat`. Here follows a few examples with a matching data file for comparison:
+In order for Skyscraper to understand your textual data files, it needs a recipe. Or a definition of your format if you like. The format is completely up to you. The file must be placed at `/home/<USER>/.skyscraper/import/definitions.dat`. Here follows a few examples with a matching data file for comparison:
 
 **Example 1**
 
-Definitions file: `/home/USER/.skyscraper/import/definitions.dat`
+Definitions file: `/home/<USER>/.skyscraper/import/definitions.dat`
 
 ```xml
 <game>
@@ -49,7 +49,7 @@ Definitions file: `/home/USER/.skyscraper/import/definitions.dat`
 </game>
 ```
 
-Import file: `/home/USER/.skyscraper/import/textual/<EXACT ROM BASE NAME>.xml`
+Import file: `/home/<USER>/.skyscraper/import/textual/<EXACT ROM BASE NAME>.xml`
 
 ```xml
 <game>
@@ -72,7 +72,7 @@ Import file: `/home/USER/.skyscraper/import/textual/<EXACT ROM BASE NAME>.xml`
 
 **Example 2**
 
-Definitions file: `/home/USER/.skyscraper/import/definitions.dat`
+Definitions file: `/home/<USER>/.skyscraper/import/definitions.dat`
 
 ```
 Title      : ###TITLE###
@@ -86,7 +86,7 @@ Genre      : ###TAGS###
 Date       : ###RELEASEDATE###
 ```
 
-Import file: `/home/USER/.skyscraper/import/textual/<EXACT ROM BASE NAME>.txt`
+Import file: `/home/<USER>/.skyscraper/import/textual/<EXACT ROM BASE NAME>.txt`
 
 ```
 Title      : Game Title

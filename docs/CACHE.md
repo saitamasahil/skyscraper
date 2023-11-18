@@ -6,13 +6,13 @@ Think of the resource cache as the cache in an internet browser. Most of the dat
 
 **Default resource cache folder**
 
-The default base folder for all of Skyscrapers' locally cached data is in the `/home/USER/.skyscraper/cache` folder. In this folder you'll find individual platform subfolders. Any of these are selfcontained and contains all of the cached data for that particular platform.
+The default base folder for all of Skyscrapers' locally cached data is in the `/home/<USER>/.skyscraper/cache` folder. In this folder you'll find individual platform subfolders. Any of these are selfcontained and contains all of the cached data for that particular platform.
 
 **Resource and scraping module priorities**
 
-There is ONE file that you can and should edit inside each of the `/home/USER/.skyscraper/cache/<PLATFORM>` folders. That file is called `priorities.xml` and decides the scraper priority of resources for each resource type. For instance, if you know that `thegamesdb` always provides the best `descriptions` for games, you'd add an `<order type="description">` node with a `<source>thegamesdb</source>` subnode. You can have multiple `<source>` nodes, Skyscraper will then prefer the topmost source when generating a game list. If the topmost isn't found it'll prioritize the next one and so forth. Any source that isn't listed with an `<order>` node will be prioritized using timestamps for when each resource was added to the cache. So you don't _have_ to add all of them.
+There is ONE file that you can and should edit inside each of the `/home/<USER>/.skyscraper/cache/<PLATFORM>` folders. That file is called `priorities.xml` and decides the scraper priority of resources for each resource type. For instance, if you know that `thegamesdb` always provides the best `descriptions` for games, you'd add an `<order type="description">` node with a `<source>thegamesdb</source>` subnode. You can have multiple `<source>` nodes, Skyscraper will then prefer the topmost source when generating a game list. If the topmost isn't found it'll prioritize the next one and so forth. Any source that isn't listed with an `<order>` node will be prioritized using timestamps for when each resource was added to the cache. So you don't _have_ to add all of them.
 
-Skyscraper provides the example file `/home/USER/.skyscraper/cache/priorities.xml.example`. Please don't edit this file manually, as it will be overwritten when you update Skyscraper. When a platform is scraped for the first time, it will automatically copy the example file to `/home/USER/.skyscraper/cache/<PLATFORM>/priorities.xml` unless it already exists. You can of course also copy the file yourself before scraping a platform. If you do so, be sure to remove the `.example` part of the filename so it's just called `priorities.xml`.
+Skyscraper provides the example file `/home/<USER>/.skyscraper/cache/priorities.xml.example`. Please don't edit this file manually, as it will be overwritten when you update Skyscraper. When a platform is scraped for the first time, it will automatically copy the example file to `/home/<USER>/.skyscraper/cache/<PLATFORM>/priorities.xml` unless it already exists. You can of course also copy the file yourself before scraping a platform. If you do so, be sure to remove the `.example` part of the filename so it's just called `priorities.xml`.
 
 **Update locally cached data**
 
@@ -28,7 +28,7 @@ Preferred way of editing the cache is via the various [`--cache`](CLIHELP.md#-ca
 
 !!! warning "Do not edit"
 
-    MOST FILES AND FOLDERS INSIDE THE `/home/USER/.skyscraper/cache` FOLDER ARE NOT MEANT TO BE MANIPULATED BY HAND! It can be done, but don't complain to me about the format of the database. It is NOT meant to be understood by humans. It is meant to be efficient for reading and parsing by Skyscraper itself. Same goes for the media files that reside in the subfolders.
+    MOST FILES AND FOLDERS INSIDE THE `/home/<USER>/.skyscraper/cache` FOLDER ARE NOT MEANT TO BE MANIPULATED BY HAND! It can be done, but don't complain to me about the format of the database. It is NOT meant to be understood by humans. It is meant to be efficient for reading and parsing by Skyscraper itself. Same goes for the media files that reside in the subfolders.
 
 !!! warning "Don't leave custom files in here"
 
@@ -37,7 +37,7 @@ Preferred way of editing the cache is via the various [`--cache`](CLIHELP.md#-ca
 
 **Other cool stuff you CAN DO**
 
-Each subfolder in the `/home/USER/.skyscraper/cache/` folder is self-contained and can be copied to other Skyscraper installations at your convenience. Just copy the folder itself over to some other computer that has Skyscraper 1.6.0 or later installed, and you can make use of the data when generating game lists. If you add it at a non-default location, set the custom folder with `-d <FOLDER>`.
+Each subfolder in the `/home/<USER>/.skyscraper/cache/` folder is self-contained and can be copied to other Skyscraper installations at your convenience. Just copy the folder itself over to some other computer that has Skyscraper 1.6.0 or later installed, and you can make use of the data when generating game lists. If you add it at a non-default location, set the custom folder with `-d <FOLDER>`.
 
 ### Resource Cache Format
 

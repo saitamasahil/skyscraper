@@ -45,7 +45,7 @@ Skyscraper's default internal language priority list is as follows. Topmost lang
 
 ## Configuring Language
 
-It is possible to manipulate the default internal language priority list. You can either do this on command-line or through `/home/USER/.skyscraper/config.ini`. It is recommended to set it in `config.ini` for a permanent setup.
+It is possible to manipulate the default internal language priority list. You can either do this on command-line or through `/home/<USER>/.skyscraper/config.ini`. It is recommended to set it in `config.ini` for a permanent setup.
 
 ### Permanent setting in config.ini
 

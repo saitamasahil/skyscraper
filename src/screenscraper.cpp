@@ -134,7 +134,7 @@ void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
                 "and contribute to gain more threads. Then use the credentials "
                 "with Skyscraper using the '-u user:pass' command line option "
                 "or by setting 'userCreds=\"user:pass\"' in "
-                "'/home/USER/.skyscraper/config.ini'.\033[0m\n\n");
+                "'/home/<USER>/.skyscraper/config.ini'.\033[0m\n\n");
             if (retries == RETRIESMAX - 1) {
                 reqRemaining = 0;
                 return;
@@ -164,7 +164,7 @@ void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
                 if (data.length() > 64) {
                     jsonErrorFile.write(data);
                     printf("The erroneous answer was written to "
-                           "'/home/USER/.skyscraper/screenscraper_error.json'. "
+                           "'/home/<USER>/.skyscraper/screenscraper_error.json'. "
                            "If this file contains game data, please consider "
                            "filing a bug report at "
                            "'https://github.com/Gemba/skyscraper/issues' and "
