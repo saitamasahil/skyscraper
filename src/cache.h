@@ -117,6 +117,7 @@ private:
     void verifyFiles(QDirIterator &dirIt, int &filesDeleted, int &noDelete,
                      QString resType);
     void verifyResources(int &resourcesDeleted);
+    bool removeMediaFile(Resource &res, const char *msg);
     bool fillType(QString &type, QList<Resource> &matchingResources,
                   QString &result, QString &source);
     bool doVideoConvert(Resource &resource, QString &cacheFile,
