@@ -50,10 +50,13 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
             // config.ini may set platform= in [main]
             config->platform = settings->value("platform").toString();
         } else {
-            if ((!parser->isSet("flags") && parser->value("flags") != "help") ||
-                (!parser->isSet("cache") && parser->value("cache") != "help")) {
+            bool cacheHelp =
+                parser->isSet("cache") && parser->value("cache") == "help";
+            bool flagsHelp =
+                parser->isSet("flags") && parser->value("flags") == "help";
+            if (!cacheHelp && !flagsHelp) {
                 printf("\033[1;31mPlease set a valid platform with '-p "
-                       "[platform]'\nCheck "
+                       "<PLATFORM>'\nCheck "
                        "'--help' for a list of supported platforms. "
                        "Qutting.\n\033[0m");
                 exit(1);
