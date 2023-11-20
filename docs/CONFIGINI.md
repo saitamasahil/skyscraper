@@ -55,7 +55,7 @@ userCreds="USER:PASSWORD"
 
 ```
 
-### Index of Options and Applicaple Sections
+### Index of Options with Applicable Sections
 
 | Parameter                                                   | `[main]` | `[<PLATFORM>]` | `[<FRONTEND>]` | `[<SCRAPER>]` |
 | ----------------------------------------------------------- | :------: | :------------: | :------------: | :-----------: |

@@ -68,7 +68,7 @@ Import file: `/home/<USER>/.skyscraper/import/textual/<EXACT ROM BASE NAME>.xml`
 
 !!! tip
 
-    As with Skyscraper 3.9.2 onwards you are no longer required to have the same indention or whitespace (hard tabs, spaces) as in the `definitions.dat`. Matching is solely done via XML elements (e.g. `<title>`), which saves you headache in identifiying whitespace mismatch between the XML template and your XML import file. Just assure to use closing elements (`</title>`) and the same caSiNg in the tags between template and import file.
+    As with Skyscraper 3.9.2 onwards you are no longer required to have the same indention or whitespace (hard tabs, spaces) as in the XML-like `definitions.dat`. Matching is solely done via XML elements (e.g. `<title>`), which saves you headache in identifiying whitespace mismatch between the XML template and your XML import file. If you use a custom XML-like `definitions.dat`: Keep the opening and closing XML element on one line and use one line per `###tag###` as in the example definition shown above. This is the default in the provided `definitions.dat`. In your import file just assure to use also closing elements (`</title>`) and the same caSiNg in the elements between template and import file, ie. provide a valid XML file.
 
 **Example 2**
 

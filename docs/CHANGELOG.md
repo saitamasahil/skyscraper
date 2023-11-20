@@ -2,12 +2,12 @@
 
 ### TBA (Version 3.9.2)
 
--   Feature: Configuration option `tidyDesc` added
--   Feature: Import of data in XML format is more lax (does not rely on 1:1
+-   Feature: Import of data in XML format is now more lax (does not rely on 1:1
     indention). Read also the hint
     [here](IMPORT.md#textual-data-definitions-file) 
--   Feature: Documentation hosted with mkdocs for ease of access
--   Update: Added index of configuration parameters to `CONFIGINI.md`
+-   Feature: Configuration option `tidyDesc` added. See documentatio [here](CONFIGINI.md#tidydesc)
+-   Feature: Documentation reviewed and hosted with mkdocs for ease of access. See [here](https://Gemba.github.io/Skyscraper) 
+-   Update: Added index of configuration parameters to `CONFIGINI.md`. Details see [here](CONFIGINI.md#index-of-options-with-applicable-sections)
 -   Update: Refactored `skyscraper.cpp` class. Factorised configuration settings
     into `settings.cpp`
 -   Update: Various other refactorings to remove duplicated code    
