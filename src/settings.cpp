@@ -61,32 +61,58 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
         }
     }
 
-    QStringList keys = settings->allKeys();
+    // get all enabled/set keys of this section
+    QStringList keys = settings->childKeys();
     QSet<QString> cfgIniKeys(keys.toSet());
+    // get allowed keys for this section type and retain intersection
     QSet<QString> allowedKeys = getKeys(type);
     QSet<QString> intersect = allowedKeys.intersect(cfgIniKeys);
+
     bool frontendKey = false;
     if (intersect.contains("frontend")) {
         intersect.remove("frontend");
         frontendKey = true;
     }
-    QStringList inter2;
-    // Qt5.15 does not have: QStringList inter2(intersect.begin(),
+
+    QStringList retained;
+    // Qt5.15 does not have: QStringList retained(intersect.begin(),
     // intersect.end());
     QSetIterator<QString> iter(intersect);
     while (iter.hasNext()) {
-        inter2.append(iter.next());
+        retained.append(iter.next());
     }
-    inter2.sort();
+    retained.sort();
+
     if (frontendKey) {
         // have this first as it drives other allowed options
-        inter2.insert(0, "frontend");
+        retained.insert(0, "frontend");
     }
+
+    // check if config.ini has not-applicable keys in section
     QSet<QString> invalid = cfgIniKeys.subtract(allowedKeys);
     if (!invalid.isEmpty()) {
-        qWarning() << "Surplus keys: " << invalid << "\n";
+        QString section;
+        switch (type) {
+        case CfgType::MAIN:
+            section = "main";
+            break;
+        case CfgType::PLATFORM:
+            section = config->platform;
+            break;
+        case CfgType::FRONTEND:
+            section = config->frontend;
+            break;
+        case CfgType::SCRAPER:
+            section = config->scraper;
+            break;
+        default:;
+        }
+        qInfo() << "Section type" << type << "[" << section << "]"
+                << "has\n";
+        qInfo() << "surplus keys (=ignored): " << invalid << "\n";
     }
-    for (auto k : inter2) {
+
+    for (auto k : retained) {
         QString conv = params[k].first;
         QVariant ss = settings->value(k);
         if (conv == "str") {
