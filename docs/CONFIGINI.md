@@ -724,7 +724,11 @@ Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<FRONTEND>]`
 
 #### relativePaths
 
-Currently only relevant when generating an EmulationStation game list (which is the default frontend when the `-f` option is left out). Enabling this forces the rom and any media paths inside the game list to be relative to the rom input folder.
+Enabling this forces the rom and any media paths inside the game list to be relative to the rom input folder. Currently only relevant when generating an EmulationStation, a Retrobat or a Pegasus game list (see also [frontend](#frontend) option).
+
+!!! info
+
+    This setting has no effect when the frontend is set to attractmode.
 
 Default value: `false`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`
