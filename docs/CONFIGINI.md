@@ -341,7 +341,7 @@ Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<SCRAPER>]`
 
 #### importFolder
 
-Sets a non-default folder when scraping using the `-s import` module. By default this is set to `/home/<USER>/.skyscraper/import` and will also look for a `/<PLATFORM>` inside of the chosen folder.
+Sets a non-default folder when scraping using the `-s import` module. By default this is set to `/home/<USER>/.skyscraper/import` and will also look for a `/<PLATFORM>` inside of the chosen folder. Read more about the `-s import` module [here](IMPORT.md).
 
 Default value: `/home/pi/.skyscraper/import/<PLATFORM>`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`
