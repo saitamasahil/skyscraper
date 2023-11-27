@@ -8,7 +8,7 @@
 -   Feature: Configuration option `tidyDesc` added. See documentation
     [here](CONFIGINI.md#tidydesc)
 -   Feature: Documentation reviewed and hosted with mkdocs for ease of access.
-    See [here](https://Gemba.github.io/Skyscraper)
+    See [here](https://gemba.github.io/skyscraper)
 -   Update: Added index of configuration parameters to `CONFIGINI.md`. Details
     see [here](CONFIGINI.md#index-of-options-with-applicable-sections)
 -   Update: Refactored `skyscraper.cpp` class. Factorised configuration settings
@@ -16,6 +16,8 @@
 -   Update: Various other refactorings to remove duplicated code
 -   Fix: Quit Skyscraper when neither `-p <PLATFORM>` nor `--cache help` nor
     `--flags help` is provided
+-   Fix: Warning remediated when NULL image was applied in composer/gamebox
+    rendering
 
 ### 2023-10-22 (Version 3.9.1)
 
