@@ -58,11 +58,16 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &,
         txt += QString("DEBUG: %1").arg(msg);
         break;
     case QtWarningMsg:
-        if (!msg.contains("NetManager")) {
-            // ugly, needs proper fix:
-            // NetManager "Cannot create children for a parent that is in a different thread."
-            txt += QString(" WARN: %1").arg(msg);
+        if (msg.contains("NetManager") ||
+            msg.contains("iCCP: known incorrect sRGB profile")) {
+            /* ugly, needs proper fix: */
+            // NetManager "Cannot create children for a parent that is in a
+            // different thread."
+            /* and */
+            // libpng warning: iCCP: known incorrect sRGB profile
+            return;
         }
+        txt += QString(" WARN: %1").arg(msg);
         break;
     case QtCriticalMsg:
         txt += QString(" CRIT: %1").arg(msg);
@@ -71,7 +76,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &,
         txt += QString("FATAL: %1").arg(msg);
         abort();
     }
-    printf("%s", txt.toStdString().c_str());
+    printf("%s\n", txt.toStdString().c_str());
     fflush(stdout);
 }
 
