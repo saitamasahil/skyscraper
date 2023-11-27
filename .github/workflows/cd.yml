@@ -6,9 +6,9 @@ on:
       - '*'
 
 jobs:
-  # skip CD
-  if: false
   Binary:
+    # skip CD
+    if: false
     name: Publish ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
