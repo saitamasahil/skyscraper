@@ -285,9 +285,9 @@ Disables clean up some misformatting in scraped description:
 2. Multiple spaces between sentences are reduced to one space
 3. Bulletpoint beginning with \* or ● are replaced with a dash
 4. Stylized ellipsis (… Unicode:`&#8230;`) is replace with three dots
-5. Multiple exclamation marks are reduced to one, unless for games titles are explicitly typed like that, like 'Super Punch-Out!!'. (Quoting Terry Pratchett: 'Multiple exclamation marks,' he went on, shaking his head, 'are a sure sign of a diseased mind.' -- in Eric)
+5. Multiple exclamation marks are reduced to one, unless for games titles are explicitly typed like that, like 'Super Punch-Out!!'.
 
-Consider setting this in [`config.ini`](CONFIGINI.md#cachewheels) instead.
+Consider setting this in [`config.ini`](CONFIGINI.md#tidydesc) instead.
 
 #### nowheels
 
@@ -303,7 +303,7 @@ This flag is _only_ relevant when generating a game list (by leaving out the `-s
 
 #### relative
 
-Only relevant when generating an EmulationStation game list (which is the default frontend when the `-f` option is left out). This forces the rom and any media paths (if they are the same as the input folder) inside the game list to be relative to the rom input folder. Consider setting this in [`config.ini`](CONFIGINI.md#relativepaths) instead.
+Only relevant when generating an EmulationStation, a Retrobat or a Pegasus game list, with the `-f` option. Emulationstation is the default frontend when the `-f` option is left out. This forces the rom and any media paths (if they are the same as the input folder) inside the game list to be relative to the rom input folder. Consider setting this in [`config.ini`](CONFIGINI.md#relativepaths) instead.
 
 #### skipexistingcovers
 

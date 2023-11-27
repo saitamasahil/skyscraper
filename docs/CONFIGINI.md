@@ -267,7 +267,12 @@ Cleans up some misformatting in scraped description:
 2. Multiple spaces between sentences are reduced to one space
 3. Bulletpoint beginning with \* or ● are replaced with a dash
 4. Stylized ellipsis (… Unicode:`&#8230;`) is replaced with three dot characters
-5. Multiple exclamation marks are reduced to one, unless for game titles are explicitly typed like that, like 'Super Punch-Out!!'. Quote: 'Multiple exclamation marks,' he went on, shaking his head, 'are a sure sign of a diseased mind.' -- in _Eric_ by Terry Pratchet
+5. Multiple exclamation marks are reduced to one, unless for game titles are explicitly typed like that, like 'Super Punch-Out!!'.
+
+!!! quote
+
+    'Multiple exclamation marks,' he went on, shaking his head, 'are a sure sign of a diseased mind.'  
+    -- _Eric_ by Terry Pratchett
 
 Default value: `true`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<SCRAPER>]`
