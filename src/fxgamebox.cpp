@@ -78,31 +78,33 @@ QImage FxGamebox::applyEffect(const QImage &src, const Layer &layer,
     trans.reset();
     trans.rotate(layer.delta, Qt::ZAxis);
     sideImage = sideImage.transformed(trans, Qt::SmoothTransformation);
-    // Scale spine / side artwork
-    if (layer.scaling == "") {
-        // Autoscale
-        if ((double)sideImage.height() / sideImage.width() >
-            (double)side.height() / side.width()) {
-            sideImage = sideImage.scaledToHeight(
-                side.height() - side.height() * borderFactor,
-                Qt::SmoothTransformation);
+    if (!sideImage.isNull()) {
+        // Scale spine / side artwork
+        if (layer.scaling == "") {
+            // Autoscale
+            if ((double)sideImage.height() / sideImage.width() >
+                (double)side.height() / side.width()) {
+                sideImage = sideImage.scaledToHeight(
+                    side.height() - side.height() * borderFactor,
+                    Qt::SmoothTransformation);
+            } else {
+                sideImage = sideImage.scaledToWidth(side.width(),
+                                                    Qt::SmoothTransformation);
+            }
         } else {
-            sideImage =
-                sideImage.scaledToWidth(side.width(), Qt::SmoothTransformation);
-        }
-    } else {
-        // Scale per 'sidescale' attribute
-        if (layer.scaling == "height") {
-            sideImage = sideImage.scaledToHeight(
-                side.height() - side.height() * borderFactor,
-                Qt::SmoothTransformation);
-        } else if (layer.scaling == "width") {
-            sideImage =
-                sideImage.scaledToWidth(side.width(), Qt::SmoothTransformation);
-        } else if (layer.scaling == "both") {
-            sideImage = sideImage.scaled(side.width(), side.height(),
-                                         Qt::IgnoreAspectRatio,
-                                         Qt::SmoothTransformation);
+            // Scale per 'sidescale' attribute
+            if (layer.scaling == "height") {
+                sideImage = sideImage.scaledToHeight(
+                    side.height() - side.height() * borderFactor,
+                    Qt::SmoothTransformation);
+            } else if (layer.scaling == "width") {
+                sideImage = sideImage.scaledToWidth(side.width(),
+                                                    Qt::SmoothTransformation);
+            } else if (layer.scaling == "both") {
+                sideImage = sideImage.scaled(side.width(), side.height(),
+                                             Qt::IgnoreAspectRatio,
+                                             Qt::SmoothTransformation);
+            }
         }
     }
 
