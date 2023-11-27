@@ -12,6 +12,11 @@ Huss](https://github.com/detain/skyscraper) (2022-2023). The original project is
 [Lars Muldjord](https://github.com/muldjord/skyscraper) (2017-2022), who did all
 the heavy lifting. 
 
+In addition to this brief README, there is the extensive [user
+manual](https://gemba.github.io/skyscraper). It contains everything from
+[docs/](docs) but with an enhanced layout (mkdocs) which should be easier to
+navigate.
+
 ----
 
 A powerful and versatile yet easy to use game scraper written in C++ for use with multiple frontends running on a Linux system (macOS and Windows too, but not officially supported). It scrapes and caches various game resources from various scraping sources, including media such as screenshot, cover and video. It then gives you the option to generate a game list and artwork for the chosen frontend by combining all of the cached resources.

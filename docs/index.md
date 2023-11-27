@@ -13,6 +13,6 @@ to install this Skyscraper fork.
 
 This fork is based on commit `654a31b` (2022-10-26) from [this
 fork](https://github.com/detain/skyscraper). See also [changes](CHANGELOG.md)
-since Lars' retired his project.
+made here since Lars' retired his project.
 
 Ready? Let's [dive in](USECASE.md)!
