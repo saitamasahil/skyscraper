@@ -66,7 +66,11 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
 
     // get all enabled/set keys of this section
     QStringList keys = settings->childKeys();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    QSet<QString> cfgIniKeys(keys.begin(), keys.end());
+#else
     QSet<QString> cfgIniKeys(keys.toSet());
+#endif
     // get allowed keys for this section type and retain intersection
     QSet<QString> allowedKeys = getKeys(type);
     QSet<QString> intersect = allowedKeys.intersect(cfgIniKeys);
@@ -77,13 +81,15 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
         frontendKey = true;
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    QStringList retained(intersect.begin(), intersect.end());
+#else
     QStringList retained;
-    // Qt5.15 does not have: QStringList retained(intersect.begin(),
-    // intersect.end());
     QSetIterator<QString> iter(intersect);
     while (iter.hasNext()) {
         retained.append(iter.next());
     }
+#endif
     retained.sort();
 
     if (frontendKey) {
