@@ -57,6 +57,8 @@ userCreds="USER:PASSWORD"
 
 ### Index of Options with Applicable Sections
 
+This is an alphabetical index of all configuration options including the sections they may be applied to.
+
 | Parameter                                                   | `[main]` | `[<PLATFORM>]` | `[<FRONTEND>]` | `[<SCRAPER>]` |
 | ----------------------------------------------------------- | :------: | :------------: | :------------: | :-----------: |
 | [addExtensions](CONFIGINI.md#addextensions)                 |    Y     |       Y        |                |               |
@@ -259,7 +261,7 @@ Allowed in sections: `[main]`, `[<PLATFORM>]`
 
 ---
 
-####tidyDesc
+#### tidyDesc
 
 Cleans up some misformatting in scraped description:
 
@@ -279,7 +281,7 @@ Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<SCRAPER>]`
 
 ---
 
-####jpgQuality
+#### jpgQuality
 
 Sets the default jpg quality when saving image resources to the cache. This will be ignored if `--flags noresize` is set. Default is 95.
 
@@ -290,7 +292,7 @@ Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<SCRAPER>]`
 
 ---
 
-####cacheCovers
+#### cacheCovers
 
 Enables/disables the caching of the resource type `cover` when scraping with any module. If you never use covers in your artwork configuration, setting this to `"false"` can save you some space.
 
@@ -374,7 +376,7 @@ If exporting for the `attractmode` frontend, please also take note of the requir
 
 If exporting for the `pegasus` frontend, please also take note of the optional `launch=""` option that allows you to set the launch parameter used by Pegasus.
 
-Check all supported frontends with '--help' and read a more about the details concerning each of them [here](FRONTENDS.md).
+Use as value for the frontend option the frontend name in all lowercase and with alphabetical characters only: `emulationstation`, `pegasus`, `retrobat`, `attractmode`, aso. Check all supported frontends with '--help' and read a more about the details concerning each of them [here](FRONTENDS.md).
 
 Default value: `emulationstation`  
 Allowed in sections: `[main]`

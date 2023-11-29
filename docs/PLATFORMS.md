@@ -2,10 +2,11 @@
 
 Get a list of supported platforms with `Skyscraper --help`.
 
-After the initial work from torresflo @ GitHub it is possible to add new platforms
-by editing the `platforms.json` file. Since version 3.9.0 of Skyscraper this file is
-replaced by `peas.json` (short for platforms, extensions/formats, aliases and
-scrapers) in the same folder. The information in the file is the same as before.
+After the initial work from torresflo @ GitHub it is possible to add new
+platforms by editing the `platforms.json` file. However, since version 3.9.0 of
+Skyscraper this file is replaced by `peas.json` (short for platforms,
+extensions/formats, aliases and scrapers) in the same folder. The information in
+the file is the same as before.
 
 Take this example from the `peas.json` file:
 
@@ -33,21 +34,23 @@ Take this example from the `peas.json` file:
     [...]
 ```
 
--   `megadrive`: this key reflects the platform/folder name (or more generally the
-    handle), usually provided with `-p` on the command line.
--   `aliases`: these aliases can be used to allow additional hits for a search.
-    The use of aliases is handy especially for scraping websites which do _not_
-    provide a web API. Currently Screenscraper, Mobygames or The Games DB are
-    providing an web API. See also section about `platforms_idmap.csv` below.
--   `formats`: set of ROM file extensions which will be included in scraping if
-    a ROM file is not provided explicitly via command line.
--   `scrapers`: Denotes the possible scrapers if not overridden by `-s` command
-    line switch. The `scrapers` segment in the JSON will be deprecated in some
-    later versions as it is not used in the codebase.
+- `megadrive`: this key reflects the platform/folder name (or more generally the
+  handle), usually provided with `-p` on the command line.
+- `aliases`: these aliases can be used to allow additional hits for a search.
+  The use of aliases is handy especially for scraping websites which do _not_
+  provide a web API. Currently Screenscraper, Mobygames or The Games DB are
+  providing an web API. See also section about
+  [`platforms_idmap.csv`](#exact-platform-mapping) and [Updating the
+  files](#updating-peasjson-and-platforms_idmapcsv) below.
+- `formats`: set of ROM file extensions which will be included in scraping if
+  a ROM file is not provided explicitly via command line.
+- `scrapers`: Denotes the possible scrapers if not overridden by `-s` command
+  line switch. The `scrapers` segment in the JSON will be deprecated in some
+  later versions as it is not used in the codebase.
 
 !!! tip
 
-    If you need a specific folder name for a platform (on your setup or due to an EmulationStation theme) use a symbolic link (see `megadrive` (folder) and `genesis` (symlink) for example on RetroPie or `plus4` (folder) and `c16` (symlink)) instead of adding a new platform in this JSON file.
+    If you need a specific folder name for a platform (on your setup or due to an EmulationStation theme) use a symbolic link (see `megadrive` (=folder) and `genesis` (=symlink) for example on RetroPie or `plus4` (=folder) and `c16` (=symlink)) instead of adding a new platform in this JSON file.
 
 ### Exact platform mapping
 
@@ -79,20 +82,27 @@ sibling to the Skyscraper executable. This is a part of the output:
 
 These two files are ment to be locally edited and extended for additional
 platforms. Whenever you add a new segment to the `peas.json` do also lookup the
-corresponding platform ids for the scraping sites with an API, for those without
-an API do fill in the platform alias which is used on the website in the
-`aliases` list.
+corresponding platform ids and add them to `platforms_idmap.csv` for the
+scraping sites with an API.
 
 To find the platform ids for Screenscraper, Mobygames and The Games DB, please
 consult the files `screenscraper_platforms.json`, `mobygames_platforms.json` and
 `tgdb_platforms.json` which are located sibling to your `config.ini` of the
-Skyscraper installation.
+Skyscraper installation. If you can not identify an id use `-1` as value in the CSV.
+
+For those scraping sites without an API or without exact id match do use the
+platform name which is used on the website and put it into the in the `aliases`
+list in the `peas.json` for the respective platform/system.
+
+!!! example
+
+    ScummVM or Steam do not have an exact match on Mobygames, however you may scrape successfully for ScummVM and Steam games if you use 'PC', 'DOS', 'Windows', 'Linux' or similar as `"aliases"` in the `"scummvm"` or `"steam"` section of `peas.json`. Usually you find the platform information if you lookup the game manually on the website.
 
 ### Migrating `platforms.json` and `screenscraper.json`
 
 !!! info
 
-    If you ever neither edited `platforms.json` nor `screenscraper.json` or do not have these files in the Skyscraper config folder (sibling to the `config.ini`) you can safely ignore this section.
+    If you neither edited `platforms.json` nor `screenscraper.json` or do not have these files in the Skyscraper config folder (sibling to the `config.ini`) you can safely ignore this section.
 
 If you have local changes in these files you can transfer your local
 changes to the new files. The new `peas.json` is the `platforms.json` but in a

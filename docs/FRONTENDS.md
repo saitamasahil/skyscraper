@@ -2,7 +2,7 @@
 
 When generating a game list with Skyscraper you have the option of generating it for several different frontends. A frontend is the graphical interface that lists and launches your games.
 
-Setting a frontend when generating a game list is done by setting the `-f <FRONTEND>` command-line parameter as explained [here](CLIHELP.md#-f-frontend) or by setting it in `/home/<USER>/.skyscraper/config.ini` as explained [here](CONFIGINI.md#frontend). Some frontends have further options that are either optional or required. Check the frontend sections below for more information on this.
+Setting a frontend when generating a game list is done by setting the `-f <FRONTEND>` command-line parameter as explained [here](CLIHELP.md#-f-frontend) or by setting it in `/home/<USER>/.skyscraper/config.ini` as explained [here](CONFIGINI.md#frontend). Use for the `<FRONTEND>` value the frontend name all lowercase and with alphabetical characters only: `emulationstation`, `pegasus`, `retrobat`, `attractmode`. Some frontends have further options that are either optional or required. Check the frontend sections below for more information on this.
 
 !!! warning
 

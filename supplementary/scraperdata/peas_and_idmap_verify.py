@@ -94,7 +94,9 @@ def print_coverage(df):
     print(
         f"    The Games DB : {tgdb_count:3d}/{total} ({100.0 * tgdb_count/total:.1f}%)"
     )
-
+    print("   Any not covered/matched platform can most likely be scraped by "
+        "utilizing the 'aliases' list of the peas.json file. Read the details: "
+        "https://gemba.github.io/skyscraper/PLATFORMS/#updating-peasjson-and-platforms_idmapcsv")
 
 def annotate_peas(f):
     if f in replacements:

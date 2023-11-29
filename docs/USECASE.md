@@ -60,7 +60,7 @@ You're done! The game list has been generated and you can relaunch your frontend
 
 ### But What About...
 
-Yes, yes, yes. This is just the basics. You can customize the artwork completely to your liking. You can prioritize the different cached resources any way you like. You can scrape single games in order to gather information for just that one game. You can enable video scraping. You can import your own data into the cache. You can edit the cached data. You can clean your cache. You can create aliases for games that are difficult to scrape. You can change your preferred region and language for the modules that support it. You can set up keys or user id's and password for the scraping modules that take advantage of this. There's _a lot_ you can do if you want to.
+Yes, yes, yes. This is just the basics. You can customize the artwork completely to your liking. You can prioritize the different cached resources any way you like. You can scrape single games in order to gather information for just that one game. You can enable video scraping. You can import your own data into the cache. You can edit the cached data. You can clean your cache. You can create aliases for games that are difficult to scrape (see `aliasMap.csv` sibling to your `config.ini`). You can change your preferred region and language for the modules that support it. You can set up keys or user id's and password for the scraping modules that take advantage of this. There's _a lot_ you can do if you want to.
 
 The important thing to note is that the defaults for Skyscraper is set to work well for most users. So unless you see something you want to change, you don't have to. But it's equally important to know that you _can_.
 

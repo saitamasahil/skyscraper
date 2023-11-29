@@ -5,7 +5,7 @@
 
 Since autumn 2023 this repo you have reached is the official successor of Lars'
 awesome Skyscraper and also the official version used in RetroPie. Read all
-about the change since then [here](docs/CHANGELOG.md). Happy scraping!
+about the change since then [here](https://gemba.github.io/skyscraper/CHANGELOG/). Happy scraping!
 
 Skyscraper was temporarily maintained by [Joe
 Huss](https://github.com/detain/skyscraper) (2022-2023). The original project is by
@@ -15,24 +15,25 @@ the heavy lifting.
 In addition to this brief README, there is the extensive [user
 manual](https://gemba.github.io/skyscraper). It contains everything from
 [docs/](docs) but with an enhanced layout (mkdocs) which should be easier to
-navigate.
+read and navigate.
 
 ----
 
 A powerful and versatile yet easy to use game scraper written in C++ for use with multiple frontends running on a Linux system (macOS and Windows too, but not officially supported). It scrapes and caches various game resources from various scraping sources, including media such as screenshot, cover and video. It then gives you the option to generate a game list and artwork for the chosen frontend by combining all of the cached resources.
 
-All Skyscraper features are [well-documented](docs) and there's also a [F.A.Q](docs/FAQ.md) with answers.
+All Skyscraper features are [well-documented](https://gemba.github.io/skyscraper/) and there's also a [F.A.Q](https://gemba.github.io/skyscraper/FAQ/) with answers.
 
 ## 🎮Platforms Supported (set with '-p'):
-Check the full list of platforms [here](docs/PLATFORMS.md).
+Check the full list of platforms [here](https://gemba.github.io/skyscraper/PLATFORMS/).
 
 ## 🕹Frontends Supported (set with '-f'):
 * EmulationStation
 * AttractMode
 * Pegasus
+* RetroBat
 
 ## 📚Supported scraping modules (set with '-s')
-Skyscraper supports a variety of different scraping sources called *scraping modules*. Use these to gather game data into the Skyscraper resource cache. Check the full list of scraping modules [here](docs/SCRAPINGMODULES.md) and read more about the resource cache [here](docs/CACHE.md).
+Skyscraper supports a variety of different scraping sources called *scraping modules*. Use these to gather game data into the Skyscraper resource cache. Check the full list of scraping modules [here](https://gemba.github.io/skyscraper/SCRAPINGMODULES/) and read more about the resource cache [here](https://gemba.github.io/skyscraper/CACHE/).
 
 ## 🧑‍💻Code contributions
 I welcome any contributions, although I would like to keep things backwards compatible.
@@ -40,13 +41,11 @@ I welcome any contributions, although I would like to keep things backwards comp
 ## How to install Skyscraper
 Follow the steps below to install the latest version of Skyscraper. Lines beginning with `$` signifies a command you need run in a terminal on the machine you wish to install it on.
 
-NOTE! If you are using the RetroPie distribution, you have the option to install Skyscraper directly from the RetroPie-Setup script (*you need to update the script before installing it!*). Read more about all of that [here](https://retropie.org.uk/docs/Scraper/#lars-muldjords-skyscraper). If not, read on.
+NOTE! If you are using the RetroPie distribution, you have the option to install Skyscraper directly from the RetroPie-Setup script (*you need to update the script before installing it!*). Read more about all of that [here](https://retropie.org.uk/docs/Scraper/#skyscraper). If not, read on.
 
 ### Installation of Skyscraper Enhanced on RetroPie
 
-You can install this "Skyscraper-Enhanced by" adding the [script](retropie-setup/skyscraper-enhanced.sh) in the `/home/pi/RetroPie-Setup/ext/<younameit>/scriptmodules/supplementary` folder of your retropie setup installation. Then run either `sudo RetroPie-Setup/retropie_setup.sh` and folow the dialogs or run `sudo RetroPie-Setup/retropie_packages.sh skyscraper-enhanced`
-
-This way, you can install and run the program through the retropie setup menu like the original Skyscraper. Note that the same config and installation folders of the original Skyscraper will be used instead of having everything duplicated in specific folders.
+This goes in the usual RetroPie stanza: Either run `sudo RetroPie-Setup/retropie_setup.sh` and folow the menus (_Manage packages_ -> _Manage optional packages_ -> then look for _Skyscraper_) or run `sudo RetroPie-Setup/retropie_packages.sh skyscraper`.
 
 ### Installation Prerequisites on Other Systems or Architectures
 #### Linux
@@ -113,10 +112,10 @@ Windows is not officially supported at this time! However, you [may roll your ow
 ## How to use Skyscraper
 IMPORTANT!!! In order for Skyscraper to work properly, it is necessary to quit your frontend before running it! If you're running EmulationStation, you can quit it by pressing F4.
 
-Remember, you can completely customize the artwork Skyscraper exports. Check out the documentation [here](docs/ARTWORK.md). If you just want to use the default (pretty cool looking) artwork Skyscraper provides, read on.
+Remember, you can completely customize the artwork Skyscraper exports. Check out the documentation [here](https://gemba.github.io/skyscraper/ARTWORK/). If you just want to use the default (pretty cool looking) artwork Skyscraper provides, read on.
 
 ### A simple use case
-For first-time users I recommend reading the short and to-the-point [use case](docs/USECASE.md). Please read it and get back here when you got the gist of it.
+For first-time users I recommend reading the short and to-the-point [use case](https://gemba.github.io/skyscraper/USECASE/). Please read it and get back here when you got the gist of it.
 
 ### A quick run-down of Skyscraper
 Skyscraper is a command line tool, and has many, many options for you to fiddle around with. I recommend taking a look at all of them to familiarize yourself with the possibilites:
@@ -125,7 +124,7 @@ $ Skyscraper --help
 $ Skyscraper --flags help
 $ Skyscraper --cache help
 ```
-This will give you a description of everything Skyscraper can do if you feel adventurous! For a thorough description of all available options, check [here](docs/CLIHELP.md).
+This will give you a description of everything Skyscraper can do if you feel adventurous! For a thorough description of all available options, check [here](https://gemba.github.io/skyscraper/CLIHELP/).
 
 The most important ones are probably:
 * `-p <PLATFORM>`
@@ -139,7 +138,7 @@ If you have your roms in a non-default location (default for RetroPie users is `
 * `-g <PATH>`
 * `-o <PATH>`
 
-For almost any command line option, consider setting them in the `/home/<USER>/.skyscraper/config.ini` file as described [here](docs/CONFIGINI.md). This will make the options permanent so you don't need to type them in all the time.
+For almost any command line option, consider setting them in the `/home/<USER>/.skyscraper/config.ini` file as described [here](https://gemba.github.io/skyscraper/CONFIGINI/). This will make the options permanent so you don't need to type them in all the time.
 
 #### Gathering data for a subset of roms
 Skyscraper offers several ways of gathering data for a subset of roms. If you just want to scrape the roms that have no data in the cache whatsoever, you can do so with the `--onlymissing` command-line option. You can also check out the `--startat FILENAME` and `--endat FILENAME` options. If you just want to gather data for a couple of roms you can simply add the filename(s) to the end of the command-line (eg. `Skyscraper -p amiga -s openretro "/path/to/rom name 1.lha" "/path/to/rom name 2.lha"`). And probably the most advanced (and quite handy) way to gather data for a subset of roms is to make use of the `--cache report:missing=RESOURCE` option. This can generate a report containing the filenames that are missing a certain resource. You can then feed the report back into Skyscraper with the `--fromfile REPORTFILE` afterwards. Skyscraper will then only scrape the files contained in the report.
@@ -147,29 +146,28 @@ Skyscraper offers several ways of gathering data for a subset of roms. If you ju
 ### config.ini
 A lesser known, but extremely useful, feature of Skyscraper is to add your desired config variables to `/home/<USER>/.skyscraper/config.ini`. Any options set in this file will be used by default by Skyscraper. So if you always use, for example, `-i <SOME FOLDER>` on command line, you can set the matching option `inputFolder="<SOME FOLDER>"` in the config.
 
-For a full description of all availabe config options, check [here](docs/CONFIGINI.md).
+For a full description of all availabe config options, check [here](https://gemba.github.io/skyscraper/CONFIGINI/).
 
 ### Resource cache
-One of Skyscraper's most powerful features is the resource cache. It's important to understand how this works in order to use Skyscraper to its full potential. Read more about it [here](docs/CACHE.md).
+One of Skyscraper's most powerful features is the resource cache. It's important to understand how this works in order to use Skyscraper to its full potential. Read more about it [here](https://gemba.github.io/skyscraper/CACHE/).
 
 ### Custom data
 I addition to allowing scraping from locally cached resources, Skyscraper also allows you to import your own data into the resource cache with the `-s import` scraping module. You can also edit existing resources in the cache or add individual `user` resources with the `--cache edit` command. Lastly, you also have the option of importing existing EmulationStation game list data into the Skyscraper resource cache if you need it. You can do this with the `-s esgamelist` scraping module.
 
-To read more about any of the features described above, please check out all of the documentation [here](docs/).
+To read more about any of the features described above, please check out all of the documentation [here](https://gemba.github.io/skyscraper/).
 
 ### Artwork look and effects
-Check the full artwork documentation [here](docs/ARTWORK.md)
+Check the full artwork documentation [here](https://gemba.github.io/skyscraper/ARTWORK/)
 
-## Skyscraper JSON Enhancement
+## Skyscraper Configurable Platforms Enhancement
 
 The main goal of this fork is to allow users to easily configurate and add platforms without having the needs to edit the code source directly.
 
 This feature is achieved by adding new config files:
-- [platforms.json](platforms.json): Describes now the supported platforms by Skyscraper. See details [here](docs/PLATFORMS.md).
-- [screenscraper.json](screenscraper.json): Maps the local platform name to the platform ID of screenscraper.fr webpage/API.
-- [mobygames.json](mobygames.json): Maps the local platform name to the platform ID of mobygames.com webpage/API.
+- [peas.json](peas.json): Describes now the supported platforms by Skyscraper. See all details [here](https://gemba.github.io/skyscraper/PLATFORMS/).
+- [platforms_idmap.csv]platforms_idmap.csv): Maps the local platform name to the platform ID of screenscraper.fr, Mobygames or The Games DB web API.
 
-These three are pretty straigthforward to edit if you want to add a new platform (as an example I added myself the platforms OpenBOR and Solarus). These files are copied in the folder `/home/pi/.skyscraper` on RetroPie (or `/usr/local/etc/skyscraper/` in general) at the first run of the program if you want to edit them after an installation.  
+These files are copied in the folder `/home/pi/.skyscraper` on RetroPie (or `/usr/local/etc/skyscraper/` in general) at the first run of the program if you want to edit them after an installation.  
 
 ## Release notes
 
