@@ -1,6 +1,6 @@
 ## Changes of this Fork
 
-### TBA (Version 3.9.2)
+### 2023-12-01 (Version 3.9.2)
 
 -   Feature: Import of data in XML format is now more lax (does not rely on
     strict identical indention). Read also the hint
