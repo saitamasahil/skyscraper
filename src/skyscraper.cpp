@@ -46,7 +46,6 @@
 #include "attractmode.h"
 #include "emulationstation.h"
 #include "pegasus.h"
-#include "retrobat.h"
 #include "skyscraper.h"
 #include "strtools.h"
 
@@ -67,7 +66,7 @@ Skyscraper::Skyscraper(const QCommandLineParser &parser,
     loadConfig(parser);
 }
 
-Skyscraper::~Skyscraper() { delete frontend; }
+Skyscraper::~Skyscraper() { frontend->deleteLater(); }
 
 void Skyscraper::run() {
     printf("Platform:           '\033[1;32m%s\033[0m'\n",
@@ -671,9 +670,9 @@ void Skyscraper::checkThreads() {
             cache->write(true);
             state = SINGLE;
         }
-        QString finalOutput;
         frontend->sortEntries(gameEntries);
         printf("Assembling game list...");
+        QString finalOutput;
         frontend->assembleList(finalOutput, gameEntries);
         printf(" \033[1;32mDone!\033[0m\n");
         QFile gameListFile(gameListFileString);
@@ -735,10 +734,8 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
     if (parser.isSet("f") && frontends.contains(parser.value("f"))) {
         config.frontend = parser.value("f");
     }
-    if (config.frontend == "emulationstation") {
+    if (config.frontend == "emulationstation" || config.frontend == "retrobat") {
         frontend = new EmulationStation;
-    } else if (config.frontend == "retrobat") {
-        frontend = new RetroBat;
     } else if (config.frontend == "attractmode") {
         frontend = new AttractMode;
     } else if (config.frontend == "pegasus") {

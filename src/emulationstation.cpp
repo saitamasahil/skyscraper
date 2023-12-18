@@ -91,12 +91,9 @@ bool EmulationStation::skipExisting(QList<GameEntry> &gameEntries,
 }
 
 void EmulationStation::preserveFromOld(GameEntry &entry) {
+    QString fn = getFilename(entry.path);
     for (const auto &oldEntry : oldEntries) {
-        QString oldFileName = oldEntry.path.mid(oldEntry.path.lastIndexOf("/"),
-                                                oldEntry.path.length());
-        QString fileName =
-            entry.path.mid(entry.path.lastIndexOf("/"), entry.path.length());
-        if (oldFileName == fileName) {
+        if (getFilename(oldEntry.path) == fn) {
             if (entry.eSFavorite.isEmpty()) {
                 entry.eSFavorite = oldEntry.eSFavorite;
             }
