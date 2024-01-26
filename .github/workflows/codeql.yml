@@ -54,8 +54,6 @@ jobs:
         languages: c-cpp
     - name: Build Skyscraper
       run: |
-        make --ignore-errors clean
-        rm --force .qmake.stash
         QT_SELECT=5 qmake 
         make -j$(nproc)
 
