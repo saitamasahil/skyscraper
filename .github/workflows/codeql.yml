@@ -42,7 +42,6 @@ jobs:
       matrix:
         language: [ 'c-cpp' ]
         os: [ubuntu-20.04]
-        runs-on: ${{ matrix.os }}
         config:
         - 
           qt_version: "5.15"
