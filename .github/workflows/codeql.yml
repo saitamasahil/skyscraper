@@ -52,8 +52,7 @@ jobs:
     - uses: github/codeql-action/init@v3
       with:
         languages: c-cpp
-    - if: matrix.language == 'cpp'
-      name: Build Skyscraper
+    - name: Build Skyscraper
       run: |
         make --ignore-errors clean
         rm --force .qmake.stash
