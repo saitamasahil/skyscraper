@@ -35,13 +35,6 @@ And now for the questions (with answers)...
 
     Did you remember to quit EmulationStation before running Skyscraper? EmulationStation writes its current gamelists back to disk when it is closed. If you run Skyscraper while EmulationStation is also running, it will overwrite any gamelists you just generated. You need to quit EmulationStation before generating the gamelists with Skyscraper to avoid this. You can quit EmulationStation by pressing F4 on a connected keyboard, or by selecting quit from the menus.
 
-??? Question "I installed Skyscraper from the RetroPie optional packages and want to run it from the terminal. But when I type `Skyscraper` it says `Skyscraper: command not found`. Why is that?"
-
-    The RetroPie-Setup script installs the Skyscraper executable in a non-default location that is not searched by the OS. You can fix this by creating a symbolic link to the executable in a location that the OS is aware of by running `sudo ln -s /opt/retropie/supplementary/skyscraper/Skyscraper /usr/local/bin/Skyscraper`. You might be asked for your sudo password, for RetroPie default is `raspberry`. If that command was succesful you should now be able to run Skyscraper simply with `Skyscraper` followed by any options you need.
-    !!! warning
-
-        Some people tend to run Skyscraper with `sudo Skyscraper ...`. Do _not_ do this! `sudo` is _not_ needed for running Skyscraper and will mess up your file permissions.
-
 ??? Question "I want to set up different options for different platforms. It's really tiresome setting it all on command-line. Can this be done easier?"
 
     YES! Absolutely. In addition to taking options from the command-line, Skyscraper also reads the `/home/<USER>/.skyscraper/config.ini` file, which is where you should set everything up. This file allows you to configure things both globally, per-platform, per-frontend and per-scraping module. Read more about the available options and option priorities [here](CONFIGINI.md).

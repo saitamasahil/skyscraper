@@ -6,10 +6,6 @@ Also consider that almost all of these options are set at a useful default (and 
 
 Most of the options can also be set in the `/home/<USER>/.skyscraper/config.ini` file thus removing the need to type them on command line all the time. Check the config.ini doc [here](CONFIGINI.md) for more info on this.
 
-!!! tip "For RetroPie users"
-
-    If you've installed Skyscraper through the RetroPie-Setup script, it is recommended to create a symbolic link to the executable. Do this by running `sudo ln -s /opt/retropie/supplementary/skyscraper/Skyscraper /usr/local/bin/Skyscraper`. This will allow you to just type `Skyscraper` when running it from command line.
-
 ### Programmable Completion
 
 From version 3.9.3 onwards Skyscraper provides Bash ++tab++ completion (aka
@@ -18,9 +14,9 @@ programmable completion).
 On RetroPie the
 [scriptmodule](https://github.com/RetroPie/RetroPie-Setup/blob/master/scriptmodules/supplementary/skyscraper.sh)
 will handle the installation. For the curious: It lands in
-`~/.bash_completion.d/`. 
+`/etc/bash_completion.d/`.
 
-On non-RetroPie Linux put the file
+On non RaspiOS-based RetroPie-Installments put the file
 `supplementary/bash-completion/Skyscraper.bash` into
 `$XDG_DATA_HOME/bash-completion/completions/` respective to
 `$HOME/.local/share/bash-completion/completions/`. 
