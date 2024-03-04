@@ -27,6 +27,7 @@
 #include "nametools.h"
 #include "strtools.h"
 
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 
@@ -64,8 +65,17 @@ void XmlReader::addEntries(const QDomNodeList &nodes,
                            const QString &inputFolder, bool isFolder) {
     for (int a = 0; a < nodes.length(); ++a) {
         GameEntry entry;
-        entry.path = makeAbsolute(nodes.at(a).firstChildElement("path").text(),
-                                  inputFolder);
+        QString p = nodes.at(a).firstChildElement("path").text();
+        if (isFolder) {
+            // Workaround for EmulationStation 2.11.2rp and earlier:
+            // Relative <folder><path> is saved from ES without trailing "./"
+            QFileInfo pi(p);
+            if (pi.isRelative() && !p.startsWith("./")) {
+                // qDebug() << "added ./ to " << p;
+                p = "./" + p;
+            }
+        }
+        entry.path = makeAbsolute(p, inputFolder);
         // Do NOT get sqr and par notes here. They are not used by skipExisting
         entry.title = nodes.at(a).firstChildElement("name").text();
         entry.coverFile = makeAbsolute(
@@ -100,7 +110,7 @@ void XmlReader::addEntries(const QDomNodeList &nodes,
 }
 
 QString XmlReader::makeAbsolute(QString filePath, const QString &inputFolder) {
-    if (filePath.left(1) == ".") {
+    if (filePath.startsWith("./")) {
         filePath.remove(0, 1);
         filePath.prepend(inputFolder);
     }

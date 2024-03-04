@@ -51,8 +51,9 @@ struct Settings {
     QString inputFolder = "";
     QString gameListFolder = "";
     QString mediaFolder = "";
-    // Only relevant for EmulationStation
+    // Next two only relevant for EmulationStation
     bool mediaFolderHidden = false;
+    bool addFolders = false;
     QString screenshotsFolder = "";
     QString coversFolder = "";
     QString wheelsFolder = "";
@@ -175,6 +176,7 @@ private:
     QMap<QString, QPair<QString, int>> params = {
         // clang-format off
         {"addExtensions",         QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},
+        {"addFolders",            QPair<QString, int>("bool",                                     CfgType::FRONTEND                    )},
         {"artworkXml",            QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM | CfgType::FRONTEND                    )},
         {"brackets",              QPair<QString, int>("bool", CfgType::MAIN | CfgType::PLATFORM | CfgType::FRONTEND                    )},
         {"cacheCovers",           QPair<QString, int>("bool", CfgType::MAIN | CfgType::PLATFORM |                     CfgType::SCRAPER )},

@@ -4,7 +4,7 @@
 
 -   Feature: Preserve existing `<folder/>` nodes in gamelist or create skeleton
     `<folder/>` nodes when ROMs are stored in subfolders within a system folder,
-    see [frontend documentation](FRONTENDS.md#metadata-preservation) and the [Gamelist
+    see [frontend documentation](FRONTENDS.md#metadata-preservation) and the [gamelist
     specification](https://github.com/RetroPie/EmulationStation/blob/master/GAMELISTS.md#folder).
 -   Feature: [Bash Completion on Linux
     installations](CLIHELP.md#programmable-completion). Use ++tab++ twice for

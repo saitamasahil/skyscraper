@@ -91,9 +91,8 @@ bool EmulationStation::skipExisting(QList<GameEntry> &gameEntries,
 }
 
 void EmulationStation::preserveFromOld(GameEntry &entry) {
-    QString fn = getFilename(entry.path);
     for (const auto &oldEntry : oldEntries) {
-        if (getFilename(oldEntry.path) == fn) {
+        if (entry.path == oldEntry.path) {
             if (entry.eSFavorite.isEmpty()) {
                 entry.eSFavorite = oldEntry.eSFavorite;
             }
@@ -145,6 +144,19 @@ void EmulationStation::preserveFromOld(GameEntry &entry) {
             break;
         }
     }
+}
+
+bool EmulationStation::existingInGamelist(GameEntry &entry) {
+    for (const auto &oldEntry : oldEntries) {
+        if (entry.path.contains("ddddd") && oldEntry.path.contains("ddddd")) {
+            qDebug() << "entry: " << entry.path;
+            qDebug() << "old  : " << oldEntry.path;
+        }
+        if (entry.path == oldEntry.path) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void EmulationStation::assembleList(QString &finalOutput,
@@ -208,7 +220,7 @@ void EmulationStation::assembleList(QString &finalOutput,
         QString subPath = inputDir.relativeFilePath(entryDir);
         if (subPath != ".") {
             // <folder> element(s) are needed
-            addFolder(config->inputFolder, subPath, gameEntries, added);
+            addFolder(config->inputFolder, subPath, added);
         }
     }
 
@@ -225,8 +237,14 @@ void EmulationStation::assembleList(QString &finalOutput,
             printf(".");
             fflush(stdout);
         }
-        // Preserve certain data from old game list entry, but only for empty
-        // data
+
+        if (entry.isFolder && !config->addFolders &&
+            !existingInGamelist(entry)) {
+            qDebug() << "addFolders is false, directory not added: "
+                     << entry.path;
+            continue;
+        }
+
         preserveFromOld(entry);
 
         if (config->relativePaths) {
@@ -238,7 +256,6 @@ void EmulationStation::assembleList(QString &finalOutput,
 }
 
 void EmulationStation::addFolder(QString &base, QString sub,
-                                 QList<GameEntry> &gameEntries,
                                  QList<GameEntry> &added) {
     bool found = false;
     QString absPath = base % "/" % sub;
@@ -251,21 +268,12 @@ void EmulationStation::addFolder(QString &base, QString sub,
      RetroPie/roms/scummvm/blarf.svm/yadda/blarf.svm -> yadda as
        <folder/>, blarf.svm (fs-file and fs-folder) both as <game/>
     */
+
     for (auto &entry : added) {
         // check the to-be-added folder entries
         if (entry.path == absPath) {
             found = true;
             break;
-        }
-    }
-
-    if (!found) {
-        for (auto &entry : gameEntries) {
-            // check in existing folder entries
-            if (entry.isFolder && entry.path == absPath) {
-                found = true;
-                break;
-            }
         }
     }
 
@@ -282,7 +290,7 @@ void EmulationStation::addFolder(QString &base, QString sub,
     if (sub.contains('/')) {
         // one folder up
         sub = sub.left(sub.lastIndexOf('/'));
-        addFolder(base, sub, gameEntries, added);
+        addFolder(base, sub, added);
     }
 }
 

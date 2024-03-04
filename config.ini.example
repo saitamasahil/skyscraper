@@ -122,6 +122,10 @@
 ;addExtensions="*.zst *.rom"
 ;subdirs="true"
 
+; The following is an example of configs that only affect the 'emulationstation' frontend.
+[emulationstation]
+;addFolders="false"
+
 ; The following is an example of configs that only affect the 'pegasus' frontend.
 ;[pegasus]
 ;excludePattern="*[BIOS]*"
@@ -167,7 +171,5 @@
 
 [esgamelist]
 cacheRefresh="true"
+; https://github.com/RetroPie/RetroPie-Setup/pull/3704
 cacheScreenshots="false"
-
-[import]
-cacheRefresh="true"

@@ -120,8 +120,8 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
         default:;
         }
         qInfo() << "Section type" << type << "[" << section << "]"
-                << "has\n";
-        qInfo() << "surplus keys (=ignored): " << invalid << "\n";
+                << "has";
+        qInfo() << "surplus key(s) (=ignored): " << invalid;
     }
 
     for (auto k : retained) {
@@ -310,6 +310,18 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
             }
             if (k == "cropBlack") {
                 config->cropBlack = v;
+                continue;
+            }
+            if (k == "addFolders") {
+                QStringList allowedFe({"emulationstation", "retrobat"});
+                if (allowedFe.contains(config->frontend)) {
+                    config->addFolders = v;
+                } else {
+                    printf("\033[1;33mParameter %s is ignored. Only applicable "
+                           "with frontend %s.\n\033[0m",
+                           k.toUtf8().constData(),
+                           allowedFe.join(" or ").toUtf8().constData());
+                }
                 continue;
             }
             if (k == "forceFilename") {

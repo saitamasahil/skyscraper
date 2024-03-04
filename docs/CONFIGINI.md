@@ -62,6 +62,7 @@ This is an alphabetical index of all configuration options including the section
 | Parameter                                                   | `[main]` | `[<PLATFORM>]` | `[<FRONTEND>]` | `[<SCRAPER>]` |
 | ----------------------------------------------------------- | :------: | :------------: | :------------: | :-----------: |
 | [addExtensions](CONFIGINI.md#addextensions)                 |    Y     |       Y        |                |               |
+| [addFolders](CONFIGINI.md#addfolders)                       |          |                |       Y        |               |
 | [artworkXml](CONFIGINI.md#artworkxml)                       |    Y     |       Y        |       Y        |               |
 | [brackets](CONFIGINI.md#brackets)                           |    Y     |       Y        |       Y        |               |
 | [cacheCovers](CONFIGINI.md#cachecovers)                     |    Y     |       Y        |                |       Y       |
@@ -923,3 +924,34 @@ Allows you to set a platform, which is applied when no command line switch `-p` 
 
 Default value: unset  
 Allowed in sections: `[main]`
+
+---
+
+#### addFolders
+
+If you arrange your ROMs in directories below a platform directory, this flag
+comes into play. The [gamelist
+specification](https://github.com/RetroPie/EmulationStation/blob/master/GAMELISTS.md#folder)
+allows you to define also metadata for directories. This metadata is held in
+`<folder/>` elements in the gamelist XML file. In minimum a `<folder/>` has a
+`<path/>` and a `<name/>` inner element. If no `<name/>` is given, the last
+subdirectory of the path element is taken as name. Which additionally
+subelements are interpreted and rendered is dependent on the frontend, for
+example EmulationStation for RetroPie supports [these
+elements](https://github.com/RetroPie/EmulationStation/blob/95ba1582356cf51734a6505525bc8c67a072d16d/es-app/src/MetaData.cpp#L37-L50)
+to be used inside a folder element.
+
+If this flag set to true, Skyscraper will create generic folder elements in the
+gamelist file, containing path and name for each directory found. If false, no
+folder elements will be created for the directories with ROM(s) ([example](FRONTENDS.md#metadata-preservation)).
+
+In both cases the existing `<folder/>` elements of a gamelist will be preserved.
+However, folder data is not cached by Skyscraper, which means if you delete your
+`gamelist.xml` Skyscraper can not restore the edited folder elements.
+
+!!! bug "EmulationStation 2.11.2rp and earlier"
+
+    EmulationStation 2.11.2 (RetroPie) and earlier have a bug that adds a `<folder/>` element everytime you edit and save metadata for the _same_ folder within EmulationStation. The last edit will be the latest folder element in the gamelist file. Skyscraper in contrast expects in maximum one `<folder/>` element per each path. If you regenerate a gamelist with Skyscraper, you will lose the latest edit of the folder metadata. This bug is [described here](https://retropie.org.uk/forum/post/295367) and fixed in the next release of EmulationStation respective is fixed already in the EmulationStation-dev version.
+
+Default value: false  
+Allowed in sections: Only for frontends `[emulationstation]` or `[retrobat]`

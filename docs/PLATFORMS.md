@@ -226,7 +226,7 @@ additional information on this.
 1. Scrape and generate the `satellaview/gamelist.xml` as in the [introductive
    use case](USECASE.md) using `Skyscraper -p
    satellaview -s screenscraper` and `Skyscraper -p satellaview`
-2. Restart EmulationStation, respective trigger reload of the Gamelist in your
+2. Restart EmulationStation, respective trigger reload of the gamelist in your
    frontend.
 3. Smile :)
 
