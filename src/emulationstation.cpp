@@ -148,10 +148,6 @@ void EmulationStation::preserveFromOld(GameEntry &entry) {
 
 bool EmulationStation::existingInGamelist(GameEntry &entry) {
     for (const auto &oldEntry : oldEntries) {
-        if (entry.path.contains("ddddd") && oldEntry.path.contains("ddddd")) {
-            qDebug() << "entry: " << entry.path;
-            qDebug() << "old  : " << oldEntry.path;
-        }
         if (entry.path == oldEntry.path) {
             return true;
         }

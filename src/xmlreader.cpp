@@ -71,7 +71,6 @@ void XmlReader::addEntries(const QDomNodeList &nodes,
             // Relative <folder><path> is saved from ES without trailing "./"
             QFileInfo pi(p);
             if (pi.isRelative() && !p.startsWith("./")) {
-                // qDebug() << "added ./ to " << p;
                 p = "./" + p;
             }
         }
