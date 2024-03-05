@@ -196,7 +196,7 @@ The main goal of this fork is to allow users to easily configurate and add platf
 
 This feature is achieved by adding new config files:
 - [peas.json](peas.json): Describes now the supported platforms by Skyscraper. See all details [here](https://gemba.github.io/skyscraper/PLATFORMS/).
-- [platforms_idmap.csv]platforms_idmap.csv): Maps the local platform name to the platform ID of screenscraper.fr, Mobygames or The Games DB web API.
+- [platforms_idmap.csv](platforms_idmap.csv): Maps the local platform name to the platform ID of screenscraper.fr, Mobygames or The Games DB web API.
 
 These files are copied in the folder `/home/pi/.skyscraper` on RetroPie (or `/usr/local/etc/skyscraper/` in general) at the first run of the program if you want to edit them after an installation.  
 
