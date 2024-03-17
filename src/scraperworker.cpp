@@ -184,6 +184,8 @@ void ScraperWorker::run() {
 
         int lowestDistance = 666;
         if (gameEntries.isEmpty()) {
+            // no hits, not even in cache.
+            // prepare expected title iff skipped is set true
             if (config.brackets) {
                 // fix for issue #47
                 game.title = info.completeBaseName();
@@ -213,12 +215,13 @@ void ScraperWorker::run() {
         game.sqrNotes = NameTools::getUniqueNotes(game.sqrNotes, '[');
         game.parNotes = NameTools::getUniqueNotes(game.parNotes, '(');
 
-        if (game.found == false) {
+        if (!game.found) {
             output.append("\033[1;33m---- Game '" + info.completeBaseName() +
                           "' not found :( ----\033[0m\n\n");
             game.resetMedia();
-            if (!forceEnd)
+            if (!forceEnd) {
                 forceEnd = limitReached(output);
+            }
             emit entryReady(game, output, debug);
             if (forceEnd) {
                 break;
@@ -235,8 +238,9 @@ void ScraperWorker::run() {
                           "' match too low :| ----\033[0m\n\n");
             game.found = false;
             game.resetMedia();
-            if (!forceEnd)
+            if (!forceEnd) {
                 forceEnd = limitReached(output);
+            }
             emit entryReady(game, output, debug);
             if (forceEnd) {
                 break;

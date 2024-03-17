@@ -797,21 +797,21 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
         config.scraper = parser.value("s");
     }
 
-    // 3. Frontend specific configs, overrides main, platform, module and
+    // 3. Frontend specific configs, overrides platform, main and
     // defaults
     settings.beginGroup(config.frontend);
     rtConf->applyConfigIni(RuntimeCfg::CfgType::FRONTEND, &settings,
                            inputFolderSet, gameListFolderSet, mediaFolderSet);
     settings.endGroup();
 
-    // 4. Scraping module specific configs, overrides main, platform and
-    // defaults
+    // 4. Scraping module specific configs, overrides frontend, platform,
+    // main and defaults
     settings.beginGroup(config.scraper);
     rtConf->applyConfigIni(RuntimeCfg::CfgType::SCRAPER, &settings,
                            inputFolderSet, gameListFolderSet, mediaFolderSet);
     settings.endGroup();
 
-    // 5. Command line configs, overrides main, platform, module and defaults
+    // 5. Command line configs, overrides all
     rtConf->applyCli(inputFolderSet, gameListFolderSet, mediaFolderSet);
 
     frontend->checkReqs();
