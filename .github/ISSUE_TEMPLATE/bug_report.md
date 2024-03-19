@@ -26,7 +26,7 @@ Please remove the text down to this point before proceeding.
 [A clear and concise description of what you expected to happen.]
 
 **Special circumstances**
-[Replace this text with any special circumstances you might have set up on your system that could interfere with how Skyscraper works.]
+[Replace this text with any special circumstances you might have set up on your system that could interfere with how Skyscraper works. For example: Is the detected behaviour identical or different between running Skyscraper from commandline and running from RetroPie's scriptmodule / dialog based?]
 
 **Terminal output**
 [Replace this text with any useful Skyscraper terminal output that might help clarify your issue. For longer output use pastebin.com, ix.io or similiar.]
