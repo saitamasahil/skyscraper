@@ -32,7 +32,7 @@
 #include <QJsonArray>
 
 TheGamesDb::TheGamesDb(Settings *config, QSharedPointer<NetManager> manager)
-    : AbstractScraper(config, manager) {
+    : AbstractScraper(config, manager, MatchType::MATCH_MANY) {
     loadMaps();
 
     baseUrl = "https://api.thegamesdb.net/v1";
@@ -111,7 +111,8 @@ void TheGamesDb::getSearchResults(QList<GameEntry> &gameEntries,
         bool matchPlafId = gamePlafId == platformId;
         if (platformMatch(game.platform, platform) || matchPlafId) {
             if (matchPlafId) {
-                qDebug() << "platforms_id match " << QString::number(gamePlafId);
+                qDebug() << "platforms_id match "
+                         << QString::number(gamePlafId);
             }
             gameEntries.append(game);
         }

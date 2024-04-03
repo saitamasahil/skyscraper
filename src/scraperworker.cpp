@@ -105,7 +105,9 @@ void ScraperWorker::run() {
             cache->addQuickId(info, cacheId);
         }
 
-        // compareTitle is what SkyScraper uses as the title internally and with cache, distinctly separate from search query and/or result from a scraping module
+        // compareTitle is what SkyScraper uses as the title internally and with
+        // cache, distinctly separate from search query and/or result from a
+        // scraping module
         QString compareTitle = scraper->getCompareTitle(info);
         debug.append("Compare title: '" + compareTitle + "'\n");
 
@@ -541,8 +543,9 @@ GameEntry ScraperWorker::getBestEntry(const QList<GameEntry> &gameEntries,
                                       int &lowestDistance) {
     GameEntry game;
 
-    // If scraper isn't filename/hash search based, always return first entry
-    if (directMatchScrapers.contains(config.scraper) ||
+    // If scraper provides only one match, always return that match
+    if (scraper->getType() == scraper->MatchType::MATCH_ONE ||
+        config.scraper == "cache" ||
         (config.scraper == "openretro" && gameEntries.first().url.isEmpty())) {
         lowestDistance = 0;
         game = gameEntries.first();
@@ -568,12 +571,10 @@ GameEntry ScraperWorker::getBestEntry(const QList<GameEntry> &gameEntries,
                 continue;
             }
         }
-        // Remove all brackets from name, since we pretty much NEVER want these
         if (config.scraper != "openretro") {
-            entry.title =
-                entry.title.left(entry.title.indexOf("(")).simplified();
-            entry.title =
-                entry.title.left(entry.title.indexOf("[")).simplified();
+            // Remove all brackets from name, since we pretty much NEVER want
+            // these
+            entry.title = StrTools::stripBrackets(entry.title);
         }
 
         potentials.append(entry);

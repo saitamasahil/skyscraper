@@ -34,8 +34,9 @@
 #include <QRegularExpression>
 
 AbstractScraper::AbstractScraper(Settings *config,
-                                 QSharedPointer<NetManager> manager)
-    : config(config) {
+                                 QSharedPointer<NetManager> manager,
+                                 MatchType type)
+    : config(config), type(type) {
     netComm = new NetComm(manager);
     connect(netComm, &NetComm::dataReady, &q, &QEventLoop::quit);
 }
@@ -457,51 +458,62 @@ bool AbstractScraper::checkNom(const QString nom) {
     return false;
 }
 
-QList<QString> AbstractScraper::getSearchNames(const QFileInfo &info, QString &debug) {
-    QString baseName = info.completeBaseName();
+QString AbstractScraper::lookupArcadeTitle(const QString &baseName) {
+    if (config->arcadePlatform) {
+        return config->mameMap[baseName];
+    }
+    return "";
+}
+
+QString AbstractScraper::lookupSearchName(const QFileInfo &info,
+                                          const QString &baseName,
+                                          QString &debug) {
+    QString searchName = baseName;
+    if (!config->aliasMap[baseName].isEmpty()) {
+        debug.append("'aliasMap.csv' entry found\n");
+        QString aliasName = config->aliasMap[baseName];
+        debug.append("Alias name: '" + aliasName + "'\n");
+        searchName = aliasName;
+    } else if (info.suffix() == "lha") {
+        if (QString whdTitle = config->whdLoadMap[baseName].first;
+            !whdTitle.isEmpty()) {
+            debug.append("'whdload_db.xml' entry found\n");
+            searchName = whdTitle;
+            debug.append("Entry name: '" + searchName + "'\n");
+        } else {
+            searchName = NameTools::getNameWithSpaces(baseName);
+        }
+    } else if (config->platform == "scummvm") {
+        searchName = NameTools::getScummName(baseName, config->scummIni);
+    } else if (QString romTitle = lookupArcadeTitle(baseName);
+               !romTitle.isEmpty()) {
+        debug.append("'mameMap.csv' entry found\n");
+        searchName = romTitle;
+        debug.append("Entry name: '" + searchName + "'\n");
+    }
+    return searchName;
+}
+
+QList<QString> AbstractScraper::getSearchNames(const QFileInfo &info,
+                                               QString &debug) {
+    const QString baseName = info.completeBaseName();
     QList<QString> searchNames;
     QString searchName = baseName;
 
     debug.append("Base name: '" + baseName + "'\n");
 
     if (config->scraper != "import") {
-        if (!config->aliasMap[baseName].isEmpty()) {
-            debug.append("'aliasMap.csv' entry found\n");
-            QString aliasName = config->aliasMap[baseName];
-            debug.append("Alias name: '" + aliasName + "'\n");
-            searchName = aliasName;
-        } else if (info.suffix() == "lha") {
-            QString nameWithSpaces = config->whdLoadMap[baseName].first;
-            if (nameWithSpaces.isEmpty()) {
-                searchName = NameTools::getNameWithSpaces(baseName);
-            } else {
-                debug.append("'whdload_db.xml' entry found\n");
-                searchName = nameWithSpaces;
-                debug.append("Entry name: '" + searchName + "'\n");
-            }
-        } else if (config->platform == "scummvm") {
-            searchName = NameTools::getScummName(baseName, config->scummIni);
-        } else if ((config->platform == "neogeo" ||
-                    config->platform == "arcade" ||
-                    config->platform == "mame-advmame" ||
-                    config->platform == "mame-libretro" ||
-                    config->platform == "mame-mame4all" ||
-                    config->platform == "fba") &&
-                    !config->mameMap[baseName].isEmpty()) {
-            debug.append("'mameMap.csv' entry found\n");
-            searchName = config->mameMap[baseName];
-            debug.append("Entry name: '" + searchName + "'\n");
-        }
+        searchName = lookupSearchName(info, baseName, debug);
     }
 
-    if (searchName.isEmpty())
-        return searchNames;
+    Q_ASSERT(!searchName.isEmpty());
 
     searchNames.append(NameTools::getUrlQueryName(searchName));
 
     // If search name has a subtitle, also search without subtitle
     if (searchName.contains(":") || searchName.contains(" - ")) {
-        QString noSubtitle = searchName.left(searchName.indexOf(":")).simplified();
+        QString noSubtitle =
+            searchName.left(searchName.indexOf(":")).simplified();
         noSubtitle = noSubtitle.left(noSubtitle.indexOf(" - ")).simplified();
         // Only add if longer than 3. We don't want to search for "the" for
         // instance
@@ -509,12 +521,13 @@ QList<QString> AbstractScraper::getSearchNames(const QFileInfo &info, QString &d
             searchNames.append(NameTools::getUrlQueryName(noSubtitle));
     }
 
-    // If the search name has a Roman numeral, also search for an integer numeral version, vice-versa
+    // If the search name has a Roman numeral, also search for an integer
+    // numeral version, vice-versa
     if (NameTools::hasRomanNumeral(searchName) ||
         NameTools::hasIntegerNumeral(searchName)) {
         if (NameTools::hasRomanNumeral(searchName)) {
             searchName = NameTools::convertToIntegerNumeral(searchName);
-        } else if (NameTools::hasIntegerNumeral(searchName)) {
+        } else {
             searchName = NameTools::convertToRomanNumeral(searchName);
         }
         searchNames.append(NameTools::getUrlQueryName(searchName));
@@ -525,10 +538,11 @@ QList<QString> AbstractScraper::getSearchNames(const QFileInfo &info, QString &d
                 searchName.left(searchName.indexOf(":")).simplified();
             noSubtitle =
                 noSubtitle.left(noSubtitle.indexOf(" - ")).simplified();
-            // Only add if longer than 3. We don't want to search for "the" for
-            // instance
-            if (noSubtitle.length() > 3)
+            if (noSubtitle.length() > 3) {
+                // Only add if longer than 3. We don't want to search for "the"
+                // for instance
                 searchNames.append(NameTools::getUrlQueryName(noSubtitle));
+            }
         }
     }
 
@@ -536,37 +550,30 @@ QList<QString> AbstractScraper::getSearchNames(const QFileInfo &info, QString &d
 }
 
 QString AbstractScraper::getCompareTitle(QFileInfo info) {
-    QString baseName = info.baseName();
+    const QString baseName = info.completeBaseName();
     QString compareTitle;
 
-    if (config->scraper != "import") {
-        if (!config->aliasMap[baseName].isEmpty()) {
-            compareTitle = config->aliasMap[baseName];
-        } else if (info.suffix() == "lha") {
-            QString nameWithSpaces = config->whdLoadMap[baseName].first;
-            if (nameWithSpaces.isEmpty()) {
-                compareTitle = NameTools::getNameWithSpaces(baseName);
-            } else {
-                compareTitle = nameWithSpaces;
-            }
-        } else if (config->platform == "scummvm") {
-            compareTitle = NameTools::getScummName(baseName, config->scummIni);
-        } else if ((config->platform == "neogeo" ||
-                    config->platform == "arcade" ||
-                    config->platform == "mame-advmame" ||
-                    config->platform == "mame-libretro" ||
-                    config->platform == "mame-mame4all" ||
-                    config->platform == "fba") &&
-                   !config->mameMap[baseName].isEmpty()) {
-            compareTitle = config->mameMap[baseName];
+    if (!config->aliasMap[baseName].isEmpty()) {
+        compareTitle = config->aliasMap[baseName];
+    } else if (info.suffix() == "lha") {
+        if (QString whdTitle = config->whdLoadMap[baseName].first;
+            !whdTitle.isEmpty()) {
+            compareTitle = whdTitle;
+        } else {
+            compareTitle = NameTools::getNameWithSpaces(baseName);
         }
+    } else if (config->platform == "scummvm") {
+        compareTitle = NameTools::getScummName(baseName, config->scummIni);
+    } else if (QString romTitle = lookupArcadeTitle(baseName);
+                !romTitle.isEmpty()) {
+        compareTitle = romTitle;
+    } else {
+        compareTitle = baseName;
     }
 
     // Now create actual compareTitle
-    compareTitle = compareTitle.replace("_", " ")
-                   .left(compareTitle.indexOf("("))
-                   .left(compareTitle.indexOf("["))
-                   .simplified();
+    compareTitle = compareTitle.replace("_", " ");
+    compareTitle = StrTools::stripBrackets(compareTitle);
 
     QRegularExpressionMatch match;
 
@@ -574,7 +581,7 @@ QString AbstractScraper::getCompareTitle(QFileInfo info) {
     match = QRegularExpression(", [Tt]he").match(compareTitle);
     if (match.hasMatch()) {
         compareTitle = compareTitle.replace(match.captured(0), "")
-                       .prepend(match.captured(0).right(3) + " ");
+                           .prepend(match.captured(0).right(3) + " ");
     }
 
     // Remove "vX.XXX" versioning string if one is found
@@ -665,16 +672,22 @@ void AbstractScraper::runPasses(QList<GameEntry> &gameEntries,
         return;
     }
 
-    for (int i = 0; i < searchNames.size(); i++) {
-        debug.append(QString("Search name #%1: '" + searchNames.at(i) + "'\n").arg(i+1));
+    if (config->verbosity >= 3) {
+        int i = 0;
+        for (const auto &sn : searchNames) {
+            debug.append(QString("Search name #%1: '%2'\n")
+                             .arg(QString::number(++i), sn));
+        }
     }
 
-    for (int pass = 1; pass <= searchNames.size(); ++pass) {
-        output.append("\033[1;35mPass " + QString::number(pass) + "\033[0m ");
-        getSearchResults(gameEntries, searchNames.at(pass - 1),
-                         config->platform);
-        debug.append("Tried with: '" + searchNames.at(pass - 1) + "'\n");
-        debug.append("Platform: " + config->platform + "\n");
+    int pass = 0;
+    for (const auto &sn : searchNames) {
+        output.append("\033[1;35mPass " + QString::number(++pass) + "\033[0m ");
+        getSearchResults(gameEntries, sn, config->platform);
+        if (config->verbosity >= 3) {
+            debug.append("Tried with: '" + sn + "'\n");
+            debug.append("Platform: " + config->platform + "\n");
+        }
         if (!gameEntries.isEmpty()) {
             break;
         }

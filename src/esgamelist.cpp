@@ -30,7 +30,7 @@
 #include <QDir>
 
 ESGameList::ESGameList(Settings *config, QSharedPointer<NetManager> manager)
-    : AbstractScraper(config, manager) {
+    : AbstractScraper(config, manager, MatchType::MATCH_ONE) {
     baseUrl = config->gameListFolder +
               (config->gameListFolder.right(1) != "/" ? "/" : "");
     QString gameListXml = baseUrl + "gamelist.xml";
@@ -132,7 +132,8 @@ QString ESGameList::getAbsoluteFileName(QString fileName) {
     return "";
 }
 
-QList<QString> ESGameList::getSearchNames(const QFileInfo &info, QString &debug) {
+QList<QString> ESGameList::getSearchNames(const QFileInfo &info,
+                                          QString &debug) {
     QList<QString> searchNames;
     QString fileName = info.fileName();
     debug.append("Filename: '" + fileName + "'\n");
