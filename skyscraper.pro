@@ -6,9 +6,16 @@ CONFIG += release
 QT += core network xml
 QMAKE_CXXFLAGS += -std=c++17
 
-# Installation prefix folder for bin/Skyscraper and etc/skyscraper/*
+# Installation prefix path for bin/Skyscraper and etc/skyscraper/*
 PREFIX=$$(PREFIX)
+# One time set with "PREFIX=/path/to qmake"?
 isEmpty(PREFIX) {
+  # No. Try qmake persistent property $$[PREFIX].
+  PREFIX = $$[PREFIX]
+}
+# Check if persistent property has been set with "qmake -set PREFIX /path/to"?
+isEmpty(PREFIX) {
+  # No. Use default.
   PREFIX = /usr/local
 }
 
