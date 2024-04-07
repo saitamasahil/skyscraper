@@ -352,15 +352,25 @@ QString StrTools::getVersionBanner() {
     QStringList g = {"62", "60", "95", "132", "131", "167", "203"};
     int idx = 0;
     QString ver = VERSION;
+    QString pad;
+    const int fieldSize = 12;
+    const int ps = ver.length() - fieldSize;
+    bool padded = false;
+    while (ps > 0 && pad.length() < ps &&
+           pad.length() < 80 - 69 /* width - longest line unpadded */) {
+        pad += " ";
+        padded = true;
+    }
+    pad.chop(1);
     QStringList b = {
         // clang-format off
-         g[idx++] % "m _______ __                                                     ___",
-         g[idx++] % "m|   _   |  |--.--.--.-----.----.----.---.-.-----.-----.----.   |\"\"\"|",
-         g[idx++] % "m|   1___|    <|  |  |__ --|  __|   _|  _  |  _  |  -__|   _|   |\"\"\"|",
-         g[idx++] % "m|____   |__|__|___  |_____|____|__| |___._|   __|_____|__|     |\"\"\"|",
-        (g[idx++] + "m|:  1   |     |_____|                     |__| %1   %2|\"\"\"|").arg(ver, 12).arg(ver.contains("-") ? "" : " "),
-         g[idx++] % "m|::.. . |                                                      |\"\"\"|",
-         g[idx++] % "m`-------' by Lars Muldjord and contributors                   \"\"''''\"",
+         g[idx++] % "m _______ __                                                   "%pad%" ___",
+         g[idx++] % "m|   _   |  |--.--.--.-----.----.----.---.-.-----.-----.----.  "%pad%"|\"\"\"|",
+         g[idx++] % "m|   1___|    <|  |  |__ --|  __|   _|  _  |  _  |  -__|   _|  "%pad%"|\"\"\"|",
+         g[idx++] % "m|____   |__|__|___  |_____|____|__| |___._|   __|_____|__|    "%pad%"|\"\"\"|",
+        (g[idx++] + "m|:  1   |     |_____|                     |__| %1  %2|\"\"\"|").arg(ver, fieldSize).arg(padded ? "" : " "),
+         g[idx++] % "m|::.. . |                                                     "%pad%"|\"\"\"|",
+         g[idx++] % "m`-------' by Lars Muldjord and contributors                  "%pad%"\"\"''''\"",
         // clang-format on
     };
     QString bs = "\b\b\b\b\b\b\b\b\b\b\b";
