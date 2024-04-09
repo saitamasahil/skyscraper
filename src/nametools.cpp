@@ -34,7 +34,7 @@
 #include <QRegularExpression>
 #include <QSettings>
 
-QString NameTools::getScummName(const QString baseName,
+QString NameTools::getScummName(const QFileInfo &info, const QString baseName,
                                 const QString scummIni) {
 
     QStringList paths = {scummIni, QDir::homePath() + "/.scummvmrc",
@@ -48,9 +48,22 @@ QString NameTools::getScummName(const QString baseName,
     }
     if (!scummIniPath.isEmpty()) {
         QSettings *settings = new QSettings(scummIniPath, QSettings::IniFormat);
+        // test if ROM name is game id
         settings->beginGroup(baseName);
         if (settings->contains("description")) {
             return settings->value("description").toString();
+        }
+        // test the other way around: ROM name is custom but may contain
+        // game id
+        if (info.isFile()) {
+            QFile romFile = QFile(info.absoluteFilePath());
+            if (romFile.open(QIODevice::ReadOnly) && !romFile.atEnd()) {
+                QString gameId = romFile.readLine();
+                settings->beginGroup(gameId.trimmed());
+                if (settings->contains("description")) {
+                    return settings->value("description").toString();
+                }
+            }
         }
     }
     return baseName;

@@ -484,7 +484,7 @@ QString AbstractScraper::lookupSearchName(const QFileInfo &info,
             searchName = NameTools::getNameWithSpaces(baseName);
         }
     } else if (config->platform == "scummvm") {
-        searchName = NameTools::getScummName(baseName, config->scummIni);
+        searchName = NameTools::getScummName(info, baseName, config->scummIni);
     } else if (QString romTitle = lookupArcadeTitle(baseName);
                !romTitle.isEmpty()) {
         debug.append("'mameMap.csv' entry found\n");
@@ -549,7 +549,7 @@ QList<QString> AbstractScraper::getSearchNames(const QFileInfo &info,
     return searchNames;
 }
 
-QString AbstractScraper::getCompareTitle(QFileInfo info) {
+QString AbstractScraper::getCompareTitle(const QFileInfo &info) {
     const QString baseName = info.completeBaseName();
     QString compareTitle;
 
@@ -563,9 +563,10 @@ QString AbstractScraper::getCompareTitle(QFileInfo info) {
             compareTitle = NameTools::getNameWithSpaces(baseName);
         }
     } else if (config->platform == "scummvm") {
-        compareTitle = NameTools::getScummName(baseName, config->scummIni);
+        compareTitle =
+            NameTools::getScummName(info, baseName, config->scummIni);
     } else if (QString romTitle = lookupArcadeTitle(baseName);
-                !romTitle.isEmpty()) {
+               !romTitle.isEmpty()) {
         compareTitle = romTitle;
     } else {
         compareTitle = baseName;
