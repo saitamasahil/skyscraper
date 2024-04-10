@@ -120,7 +120,6 @@ void AbstractScraper::populateGameEntry(GameEntry &game) {
             getReleaseDate(game);
             break;
         case COVER:
-            // in adb
             if (config->cacheCovers) {
                 getCover(game);
             }
@@ -596,69 +595,35 @@ QString AbstractScraper::getCompareTitle(const QFileInfo &info) {
     return compareTitle;
 }
 
+void AbstractScraper::detectRegionFromFilename(const QFileInfo &info) {
+    // Autodetect region and append to region priorities
+    if (int leftParPos = info.fileName().indexOf("("); leftParPos != -1) {
+        QString regionString =
+            info.fileName().mid(leftParPos, info.fileName().length());
+        QListIterator<QPair<QString, QString>> iter(regionMap());
+        while (iter.hasNext()) {
+            QPair<QString, QString> e = iter.next();
+            QStringList keys = e.first.split("|");
+            for (const auto &k : keys) {
+                if (regionString.contains(k, Qt::CaseInsensitive)) {
+                    regionPrios.prepend(e.second);
+                    if (keys.size() > 1) {
+                        // append only one: "europe" or "(e)"
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void AbstractScraper::runPasses(QList<GameEntry> &gameEntries,
                                 const QFileInfo &info, QString &output,
                                 QString &debug) {
     // Reset region priorities to original list from Settings
     regionPrios = config->regionPrios;
-    // Autodetect region and append to region priorities
-    if (info.fileName().indexOf("(") != -1 && config->region.isEmpty()) {
-        QString regionString = info.fileName().toLower().mid(
-            info.fileName().indexOf("("), info.fileName().length());
-        if (regionString.contains("europe") || regionString.contains("(e)")) {
-            regionPrios.prepend("eu");
-        }
-        if (regionString.contains("usa") || regionString.contains("(u)")) {
-            regionPrios.prepend("us");
-        }
-        if (regionString.contains("world")) {
-            regionPrios.prepend("wor");
-        }
-        if (regionString.contains("japan") || regionString.contains("(j)")) {
-            regionPrios.prepend("jp");
-        }
-        if (regionString.contains("brazil")) {
-            regionPrios.prepend("br");
-        }
-        if (regionString.contains("korea")) {
-            regionPrios.prepend("kr");
-        }
-        if (regionString.contains("taiwan")) {
-            regionPrios.prepend("tw");
-        }
-        if (regionString.contains("france")) {
-            regionPrios.prepend("fr");
-        }
-        if (regionString.contains("germany")) {
-            regionPrios.prepend("de");
-        }
-        if (regionString.contains("italy")) {
-            regionPrios.prepend("it");
-        }
-        if (regionString.contains("spain")) {
-            regionPrios.prepend("sp");
-        }
-        if (regionString.contains("china")) {
-            regionPrios.prepend("cn");
-        }
-        if (regionString.contains("australia")) {
-            regionPrios.prepend("au");
-        }
-        if (regionString.contains("sweden")) {
-            regionPrios.prepend("se");
-        }
-        if (regionString.contains("canada")) {
-            regionPrios.prepend("ca");
-        }
-        if (regionString.contains("netherlands")) {
-            regionPrios.prepend("nl");
-        }
-        if (regionString.contains("denmark")) {
-            regionPrios.prepend("dk");
-        }
-        if (regionString.contains("asia")) {
-            regionPrios.prepend("asi");
-        }
+    if (config->region.isEmpty()) {
+        detectRegionFromFilename(info);
     }
 
     QList<QString> searchNames;

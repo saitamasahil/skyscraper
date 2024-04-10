@@ -34,6 +34,7 @@
 #include <QEventLoop>
 #include <QFileInfo>
 #include <QImage>
+#include <QList>
 #include <QSettings>
 
 class AbstractScraper : public QObject {
@@ -52,10 +53,13 @@ public:
     virtual void runPasses(QList<GameEntry> &gameEntries, const QFileInfo &info,
                            QString &output, QString &debug);
 
-    // void setConfig(Settings *config);
-
     int reqRemaining = -1;
     MatchType getType() const { return type; };
+
+#ifdef TESTING
+    QList<QString> getRegionPrios() { return regionPrios; }
+    void detectRegionFromFilename(const QFileInfo &info);
+#endif
 
 protected:
     Settings *config;
@@ -145,6 +149,22 @@ protected:
 
 private:
     QString lookupArcadeTitle(const QString &baseName);
+#ifndef TESTING
+    void detectRegionFromFilename(const QFileInfo &info);
+#endif
+    const inline QList<QPair<QString, QString>> regionMap() {
+        // use list of pairs to maintain order
+        return QList<QPair<QString, QString>>{
+            QPair("europe|(e)", "eu"), QPair("usa|(u)", "us"),
+            QPair("world", "wor"),     QPair("japan|(j)", "jp"),
+            QPair("brazil", "br"),     QPair("korea", "kr"),
+            QPair("taiwan", "tw"),     QPair("france", "fr"),
+            QPair("germany", "de"),    QPair("italy", "it"),
+            QPair("spain", "sp"),      QPair("china", "cn"),
+            QPair("australia", "au"),  QPair("sweden", "se"),
+            QPair("canada", "ca"),     QPair("netherlands", "nl"),
+            QPair("denmark", "dk"),    QPair("asia", "asi")};
+    }
 };
 
 #endif // ABSTRACTSCRAPER_H
