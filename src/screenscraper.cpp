@@ -29,6 +29,7 @@
 #include "platform.h"
 #include "strtools.h"
 
+#include <QDebug>
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QProcess>
@@ -426,7 +427,7 @@ void ScreenScraper::getVideo(GameEntry &game) {
 
 QList<QString> ScreenScraper::getSearchNames(const QFileInfo &info,
                                              QString &debug) {
-    const QString baseName = info.baseName();
+    const QString baseName = info.completeBaseName();
     QList<QString> searchNames;
     QString searchName = baseName;
 
