@@ -69,6 +69,16 @@ private:
     QString getJsonText(QJsonArray array, int attr,
                         QList<QString> types = QList<QString>());
 
+    QString getUrlOrTextPropertyValue(const QJsonObject &jsonVal,
+                                      const QString &key,
+                                      const QString &matchValue);
+    QString getLocalizedValue(const QJsonArray &jsonArr,
+                              const QList<QString> &prios, const QString &key,
+                              const QList<QString> &types);
+    QString getPropertyValue(const QJsonArray &jsonArr,
+                             const QList<QString> &locPrios,
+                             const QString &locationKey,
+                             const QString &type = "");
     int getPlatformId(const QString platform) override;
 
     QString region;

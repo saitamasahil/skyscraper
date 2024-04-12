@@ -596,10 +596,10 @@ QString AbstractScraper::getCompareTitle(const QFileInfo &info) {
 }
 
 void AbstractScraper::detectRegionFromFilename(const QFileInfo &info) {
-    // Autodetect region and append to region priorities
-    if (int leftParPos = info.fileName().indexOf("("); leftParPos != -1) {
-        QString regionString =
-            info.fileName().mid(leftParPos, info.fileName().length());
+    const QString fn = info.fileName();
+    if (int leftParPos = fn.indexOf("("); leftParPos != -1) {
+        // Autodetect region and append to region priorities
+        QString regionString = fn.mid(leftParPos, fn.length());
         QListIterator<QPair<QString, QString>> iter(regionMap());
         while (iter.hasNext()) {
             QPair<QString, QString> e = iter.next();

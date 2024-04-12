@@ -342,6 +342,8 @@ void ScreenScraper::getCover(GameEntry &game) {
         url = getJsonText(jsonObj["medias"].toArray(), REGION,
                           QList<QString>({"box-2D"}));
     }
+    // TODO: This part is repeated five times
+    // only difference is game.coverData ... line
     if (!url.isEmpty()) {
         bool moveOn = true;
         for (int retries = 0; retries < RETRIESMAX; ++retries) {
@@ -624,78 +626,84 @@ QList<QString> ScreenScraper::getSearchNames(const QFileInfo &info,
     return searchNames;
 }
 
+QString ScreenScraper::getUrlOrTextPropertyValue(const QJsonObject &jsonObj,
+                                                 const QString &locationKey,
+                                                 const QString &locationValue) {
+    QString ret;
+    if (jsonObj[locationKey].toString() == locationValue) {
+        qDebug() << "Found localized in" << locationKey << ":" << locationValue;
+        if (jsonObj["url"].isString()) {
+            ret = jsonObj["url"].toString();
+            qDebug() << "Found URL" << ret << "\n";
+        } else {
+            ret = jsonObj["text"].toString();
+            qDebug() << "Found TXT" << ret << "\n";
+        }
+    }
+    return ret;
+}
+
+QString ScreenScraper::getPropertyValue(const QJsonArray &jsonArr,
+                                        const QList<QString> &locPrios,
+                                        const QString &locationKey,
+                                        const QString &type) {
+    for (const auto &location : locPrios) {
+        for (const auto &jsonVal : jsonArr) {
+            QJsonObject jsonObj = jsonVal.toObject();
+            if (type.isEmpty() || jsonObj["type"].toString() == type) {
+                if (QString ret = getUrlOrTextPropertyValue(
+                        jsonObj, locationKey, location);
+                    !ret.isEmpty()) {
+                    return ret;
+                }
+            }
+        }
+    }
+    return QString();
+}
+
+QString ScreenScraper::getLocalizedValue(const QJsonArray &jsonArr,
+                                         const QList<QString> &locPrios,
+                                         const QString &locationKey,
+                                         const QList<QString> &types) {
+    qDebug() << "Types:" << types;
+    QString ret;
+    if (types.isEmpty()) {
+        ret = getPropertyValue(jsonArr, locPrios, locationKey);
+    } else {
+        for (const auto &type : types) {
+            ret = getPropertyValue(jsonArr, locPrios, locationKey, type);
+            if (!ret.isEmpty()) {
+                return ret;
+            }
+        }
+    }
+    return ret;
+}
+
 QString ScreenScraper::getJsonText(QJsonArray jsonArr, int attr,
                                    QList<QString> types) {
-    if (attr == NONE && !types.isEmpty()) {
+    QString ret;
+    if (attr == NONE) {
         for (const auto &type : types) {
             for (const auto &jsonVal : jsonArr) {
-                if (jsonVal.toObject()["type"].toString() == type) {
-                    if (jsonVal.toObject()["url"].isString()) {
-                        return jsonVal.toObject()["url"].toString();
-                    } else {
-                        return jsonVal.toObject()["text"].toString();
-                    }
+                if (ret = getUrlOrTextPropertyValue(jsonVal.toObject(), "type",
+                                                    type);
+                    !ret.isEmpty()) {
+                    return ret;
                 }
             }
         }
     } else if (attr == REGION) {
         // Not using the config->regionPrios since they might have changed due
         // to region autodetection. So using temporary internal one instead.
-        for (const auto &region : regionPrios) {
-            if (types.isEmpty()) {
-                for (const auto &jsonVal : jsonArr) {
-                    if (jsonVal.toObject()["region"].toString() == region) {
-                        if (jsonVal.toObject()["url"].isString()) {
-                            return jsonVal.toObject()["url"].toString();
-                        } else {
-                            return jsonVal.toObject()["text"].toString();
-                        }
-                    }
-                }
-            } else {
-                for (const auto &type : types) {
-                    for (const auto &jsonVal : jsonArr) {
-                        if (jsonVal.toObject()["region"].toString() == region &&
-                            jsonVal.toObject()["type"].toString() == type) {
-                            if (jsonVal.toObject()["url"].isString()) {
-                                return jsonVal.toObject()["url"].toString();
-                            } else {
-                                return jsonVal.toObject()["text"].toString();
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        qDebug() << "Regioprios" << regionPrios;
+        ret = getLocalizedValue(jsonArr, regionPrios, "region", types);
     } else if (attr == LANGUE) {
-        for (const auto &lang : config->langPrios) {
-            if (types.isEmpty()) {
-                for (const auto &jsonVal : jsonArr) {
-                    if (jsonVal.toObject()["langue"].toString() == lang) {
-                        if (jsonVal.toObject()["url"].isString()) {
-                            return jsonVal.toObject()["url"].toString();
-                        } else {
-                            return jsonVal.toObject()["text"].toString();
-                        }
-                    }
-                }
-            } else {
-                for (const auto &type : types) {
-                    for (const auto &jsonVal : jsonArr) {
-                        if (jsonVal.toObject()["langue"].toString() == lang &&
-                            jsonVal.toObject()["type"].toString() == type) {
-                            if (jsonVal.toObject()["url"].isString()) {
-                                return jsonVal.toObject()["url"].toString();
-                            } else {
-                                return jsonVal.toObject()["text"].toString();
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        qDebug() << "Langprios" << config->langPrios;
+        ret = getLocalizedValue(jsonArr, config->langPrios, "langue", types);
     }
-    return QString();
+    return ret;
 }
 
 int ScreenScraper::getPlatformId(const QString platform) {

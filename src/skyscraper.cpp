@@ -23,7 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 
-#include <iostream>
 #include <QDebug>
 #include <QDirIterator>
 #include <QDomDocument>
@@ -36,6 +35,7 @@
 #include <QStringBuilder>
 #include <QThread>
 #include <QTimer>
+#include <iostream>
 
 #if QT_VERSION >= 0x050400
 #include <QStorageInfo>
@@ -803,7 +803,7 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
     if (!gameListFolderSet) {
         config.gameListFolder = frontend->getGameListFolder();
     }
-        if (!mediaFolderSet) {
+    if (!mediaFolderSet) {
         if (config.frontend == "esde") {
             config.mediaFolder = frontend->getMediaFolder();
         } else {
@@ -1314,13 +1314,18 @@ void Skyscraper::setRegionPrios() {
     // Load custom region prioritizations
     if (!config.regionPriosStr.isEmpty()) {
         for (const auto &region : config.regionPriosStr.split(",")) {
-            config.regionPrios.append(region.trimmed());
+            QString r = region.trimmed();
+            if (!config.regionPrios.contains(r)) {
+                config.regionPrios.append(r);
+            }
         }
     } else {
         QString regions("eu us ss uk wor jp au ame de cus cn kr asi br sp fr "
                         "gr it no dk nz nl pl ru se tw ca");
-        for (auto r : regions.split(" ")) {
-            config.regionPrios.append(r);
+        for (const auto &r : regions.split(" ")) {
+            if (!config.regionPrios.contains(r)) {
+                config.regionPrios.append(r);
+            }
         }
     }
 }
@@ -1334,13 +1339,18 @@ void Skyscraper::setLangPrios() {
     // Load custom lang prioritizations
     if (!config.langPriosStr.isEmpty()) {
         for (const auto &lang : config.langPriosStr.split(",")) {
-            config.langPrios.append(lang.trimmed());
+            QString l = lang.trimmed();
+            if (!config.langPrios.contains(l)) {
+                config.langPrios.append(l);
+            }
         }
     } else {
-        config.langPrios.append("en");
-        config.langPrios.append("de");
-        config.langPrios.append("fr");
-        config.langPrios.append("es");
+        QStringList dfltLangs = {"en", "de", "fr", "es"};
+        for (const auto &l : dfltLangs) {
+            if (!config.langPrios.contains(l)) {
+                config.langPrios.append(l);
+            }
+        }
     }
 }
 
