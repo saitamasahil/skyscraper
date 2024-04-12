@@ -255,8 +255,9 @@ void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
 
     // Only check if platform is empty, it's always correct when using
     // ScreenScraper
-    if (!game.platform.isEmpty())
+    if (!game.platform.isEmpty()) {
         gameEntries.append(game);
+    }
 }
 
 void ScreenScraper::getGameData(GameEntry &game) { populateGameEntry(game); }
@@ -287,8 +288,9 @@ void ScreenScraper::getAges(GameEntry &game) {
     ageBoards.append("ESRB");
     ageBoards.append("SS");
 
-    if (!jsonObj["classifications"].isArray())
+    if (!jsonObj["classifications"].isArray()) {
         return;
+    }
 
     QJsonArray jsonAges = jsonObj["classifications"].toArray();
 
@@ -314,8 +316,9 @@ void ScreenScraper::getRating(GameEntry &game) {
 }
 
 void ScreenScraper::getTags(GameEntry &game) {
-    if (!jsonObj["genres"].isArray())
+    if (!jsonObj["genres"].isArray()) {
         return;
+    }
 
     QJsonArray jsonTags = jsonObj["genres"].toArray();
 
@@ -330,6 +333,24 @@ void ScreenScraper::getTags(GameEntry &game) {
     game.tags.chop(2);
 }
 
+QByteArray ScreenScraper::downloadMedia(const QString &url) {
+    if (!url.isEmpty()) {
+        for (int retries = 0; retries < RETRIESMAX; ++retries) {
+            limiter.exec();
+            netComm->request(url);
+            q.exec();
+            QImage image;
+            if (netComm->getError(config->verbosity) ==
+                    QNetworkReply::NoError &&
+                netComm->getData().size() >= MINARTSIZE &&
+                image.loadFromData(netComm->getData())) {
+                return netComm->getData();
+            }
+        }
+    }
+    return QByteArray();
+}
+
 void ScreenScraper::getCover(GameEntry &game) {
     QString url = "";
     if (config->platform == "arcade" || config->platform == "fba" ||
@@ -342,124 +363,32 @@ void ScreenScraper::getCover(GameEntry &game) {
         url = getJsonText(jsonObj["medias"].toArray(), REGION,
                           QList<QString>({"box-2D"}));
     }
-    // TODO: This part is repeated five times
-    // only difference is game.coverData ... line
-    if (!url.isEmpty()) {
-        bool moveOn = true;
-        for (int retries = 0; retries < RETRIESMAX; ++retries) {
-            limiter.exec();
-            netComm->request(url);
-            q.exec();
-            QImage image;
-            if (netComm->getError(config->verbosity) ==
-                    QNetworkReply::NoError &&
-                netComm->getData().size() >= MINARTSIZE &&
-                image.loadFromData(netComm->getData())) {
-                game.coverData = netComm->getData();
-            } else {
-                moveOn = false;
-            }
-            if (moveOn)
-                break;
-        }
-    }
+    game.coverData = downloadMedia(url);
 }
 
 void ScreenScraper::getScreenshot(GameEntry &game) {
     QString url = getJsonText(jsonObj["medias"].toArray(), REGION,
                               QList<QString>({"ss", "sstitle"}));
-    if (!url.isEmpty()) {
-        bool moveOn = true;
-        for (int retries = 0; retries < RETRIESMAX; ++retries) {
-            limiter.exec();
-            netComm->request(url);
-            q.exec();
-            QImage image;
-            if (netComm->getError(config->verbosity) ==
-                    QNetworkReply::NoError &&
-                netComm->getData().size() >= MINARTSIZE &&
-                image.loadFromData(netComm->getData())) {
-                game.screenshotData = netComm->getData();
-            } else {
-                moveOn = false;
-            }
-            if (moveOn)
-                break;
-        }
-    }
+    game.screenshotData = downloadMedia(url);
 }
 
 void ScreenScraper::getWheel(GameEntry &game) {
     QString url = getJsonText(jsonObj["medias"].toArray(), REGION,
                               QList<QString>({"wheel", "wheel-hd"}));
-    if (!url.isEmpty()) {
-        bool moveOn = true;
-        for (int retries = 0; retries < RETRIESMAX; ++retries) {
-            limiter.exec();
-            netComm->request(url);
-            q.exec();
-            QImage image;
-            if (netComm->getError(config->verbosity) ==
-                    QNetworkReply::NoError &&
-                netComm->getData().size() >= MINARTSIZE &&
-                image.loadFromData(netComm->getData())) {
-                game.wheelData = netComm->getData();
-            } else {
-                moveOn = false;
-            }
-            if (moveOn)
-                break;
-        }
-    }
+    game.wheelData = downloadMedia(url);
 }
 
 void ScreenScraper::getMarquee(GameEntry &game) {
     QString url = getJsonText(jsonObj["medias"].toArray(), REGION,
                               QList<QString>({"screenmarquee"}));
-    if (!url.isEmpty()) {
-        bool moveOn = true;
-        for (int retries = 0; retries < RETRIESMAX; ++retries) {
-            limiter.exec();
-            netComm->request(url);
-            q.exec();
-            QImage image;
-            if (netComm->getError(config->verbosity) ==
-                    QNetworkReply::NoError &&
-                netComm->getData().size() >= MINARTSIZE &&
-                image.loadFromData(netComm->getData())) {
-                game.marqueeData = netComm->getData();
-            } else {
-                moveOn = false;
-            }
-            if (moveOn)
-                break;
-        }
-    }
+    game.marqueeData = downloadMedia(url);
 }
 
 void ScreenScraper::getTexture(GameEntry &game) {
     QString url = getJsonText(
         jsonObj["medias"].toArray(), REGION,
         QList<QString>({"support-2D", "support-2d", "support-texture"}));
-    if (!url.isEmpty()) {
-        bool moveOn = true;
-        for (int retries = 0; retries < RETRIESMAX; ++retries) {
-            limiter.exec();
-            netComm->request(url);
-            q.exec();
-            QImage image;
-            if (netComm->getError(config->verbosity) ==
-                    QNetworkReply::NoError &&
-                netComm->getData().size() >= MINARTSIZE &&
-                image.loadFromData(netComm->getData())) {
-                game.textureData = netComm->getData();
-            } else {
-                moveOn = false;
-            }
-            if (moveOn)
-                break;
-        }
-    }
+    game.textureData = downloadMedia(url);
 }
 
 void ScreenScraper::getVideo(GameEntry &game) {

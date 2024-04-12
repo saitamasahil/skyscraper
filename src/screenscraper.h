@@ -68,7 +68,7 @@ private:
 
     QString getJsonText(QJsonArray array, int attr,
                         QList<QString> types = QList<QString>());
-
+    QByteArray downloadMedia(const QString &url);
     QString getUrlOrTextPropertyValue(const QJsonObject &jsonVal,
                                       const QString &key,
                                       const QString &matchValue);
