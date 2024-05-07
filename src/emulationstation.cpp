@@ -389,7 +389,9 @@ QStringList EmulationStation::createEsVariantXml(const GameEntry &entry) {
     }
     l.append(elem("video", vidFile, addEmptyElem, true));
 
-    if (config->manuals && config->gameListVariants.contains("enable-manuals") && !entry.manualSrc.isEmpty()) {
+    if (config->manuals &&
+        config->gameListVariants.contains("enable-manuals") &&
+        !entry.manualSrc.isEmpty()) {
         l.append(elem("manual", entry.manualFile, false, true));
     }
     return l;

@@ -95,16 +95,12 @@ void ImportScraper::runPasses(QList<GameEntry> &gameEntries,
     videoFile = "";
     manualFile = "";
     GameEntry game;
-    bool any =
-        checkType(info.completeBaseName(), textual, textualFile);
-    any |=
-        checkType(info.completeBaseName(), screenshots, screenshotFile);
+    bool any = checkType(info.completeBaseName(), textual, textualFile);
+    any |= checkType(info.completeBaseName(), screenshots, screenshotFile);
     any |= checkType(info.completeBaseName(), covers, coverFile);
     any |= checkType(info.completeBaseName(), wheels, wheelFile);
-    any |=
-        checkType(info.completeBaseName(), marquees, marqueeFile);
-    any |=
-        checkType(info.completeBaseName(), textures, textureFile);
+    any |= checkType(info.completeBaseName(), marquees, marqueeFile);
+    any |= checkType(info.completeBaseName(), textures, textureFile);
     any |= checkType(info.completeBaseName(), videos, videoFile);
     any |= checkType(info.completeBaseName(), manuals, manualFile);
     if (any) {

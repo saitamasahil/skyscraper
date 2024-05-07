@@ -1615,8 +1615,7 @@ void Cache::addResources(GameEntry &entry, const Settings &config,
         }
         if (!entry.manualData.isEmpty()) {
             resource.type = "manual";
-            resource.value =
-                "manuals/" + entry.source + "/" + entry.cacheId;
+            resource.value = "manuals/" + entry.source + "/" + entry.cacheId;
             addResource(resource, entry, cacheAbsolutePath, config, output);
         }
         if (!entry.coverData.isNull() && config.cacheCovers) {

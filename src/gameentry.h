@@ -57,7 +57,8 @@ public:
 
     GameEntry();
 
-    void calculateCompleteness(bool videoEnabled = false, bool manualEnabled = false);
+    void calculateCompleteness(bool videoEnabled = false,
+                               bool manualEnabled = false);
     int getCompleteness() const;
     void resetMedia();
 
