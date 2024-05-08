@@ -44,6 +44,7 @@
 ;frontend="emulationstation"
 ;emulator=""
 ;launch=""
+;manuals="false"
 ;videos="false"
 ;videoSizeLimit="42"
 ;videoConvertCommand="ffmpeg -i %i -y -pix_fmt yuv420p -t 00:00:10 -c:v libx264 -crf 23 -c:a aac -b:a 64k -vf scale=640:480:force_original_aspect_ratio=decrease,pad=640:480:(ow-iw)/2:(oh-ih)/2,setsar=1 %o"
@@ -125,6 +126,7 @@
 ; The following is an example of configs that only affect the 'emulationstation' frontend.
 [emulationstation]
 ;addFolders="false"
+;gameListVariants="enable-manuals"
 
 ; The following is an example of configs that only affect the 'pegasus' frontend.
 ;[pegasus]
