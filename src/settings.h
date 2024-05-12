@@ -35,6 +35,11 @@
 #include <QSettings>
 
 struct Settings {
+    bool isMatchOneScraper() {
+        const QStringList matchOneScraper = QStringList(
+            {"cache", "screenscraper", "arcadedb", "esgamelist", "import"});
+        return matchOneScraper.contains(scraper);
+    }
     QString currentDir = "";
 
     QString cacheFolder = "";
@@ -112,9 +117,9 @@ struct Settings {
 
     int romLimit = -1;
 
-    bool videos = false;
     bool manuals = false;
     QString gameListVariants = "";
+    bool videos = false;
     bool videoPreferNormalized = true;
     int videoSizeLimit = 100 * 1000 * 1000;
     QString videoConvertCommand = "";
@@ -224,6 +229,7 @@ private:
         {"mediaFolderHidden",     QPair<QString, int>("bool",                                     CfgType::FRONTEND                    )},
         {"minMatch",              QPair<QString, int>("int",  CfgType::MAIN | CfgType::PLATFORM |                     CfgType::SCRAPER )},
         {"nameTemplate",          QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},
+        {"onlyMissing",           QPair<QString, int>("bool", CfgType::MAIN | CfgType::PLATFORM |                     CfgType::SCRAPER )},
         {"platform",              QPair<QString, int>("str",  CfgType::MAIN                                                            )},
         {"pretend",               QPair<QString, int>("bool", CfgType::MAIN | CfgType::PLATFORM                                        )},
         {"region",                QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},

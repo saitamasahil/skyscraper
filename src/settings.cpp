@@ -51,10 +51,10 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
 
     // Check for command line platform here, since we need it for 'platform'
     // config.ini entries
-    // '_' is seen as a subcategory of the selected platform
     if (config->platform.isEmpty()) {
         QStringList plafs = Platform::get().getPlatforms();
         if (parser->isSet("p") &&
+            // '_' is seen as a subcategory of the selected platform
             plafs.contains(parser->value("p").split('_').first())) {
             config->platform = parser->value("p");
         } else if (type == CfgType::MAIN && settings->contains("platform") &&
@@ -66,6 +66,10 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
                 parser->isSet("cache") && parser->value("cache") == "help";
             QStringList flags = parseFlags();
             if (!cacheHelp && !flags.contains("help")) {
+                if (parser->isSet("p")) {
+                    printf("\033[1;31mUnknown platform '%s' provided. \033[0m",
+                           parser->value("p").toUtf8().constData());
+                }
                 printf("\033[1;31mPlease set a valid platform with '-p "
                        "<PLATFORM>'\nCheck '--help' for a list of supported "
                        "platforms. Qutting.\n\033[0m");
@@ -135,8 +139,7 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
         default:;
         }
         qInfo() << "Section type" << type << "[" << section << "]"
-                << "has";
-        qInfo() << "surplus key(s) (=ignored): " << invalid;
+                << "has surplus key(s) (=ignored): " << invalid;
     }
 
     for (auto k : retained) {
@@ -379,6 +382,10 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
                            k.toUtf8().constData(),
                            allowedFe.join(" or ").toUtf8().constData());
                 }
+                continue;
+            }
+            if (k == "onlyMissing") {
+                config->onlyMissing = v;
                 continue;
             }
             if (k == "pretend") {
