@@ -78,6 +78,8 @@ Skyscraper needs Qt5.3 or later to compile. For a Retropie, Ubuntu or other Debi
 ```
 $ sudo apt update
 $ sudo apt install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools p7zip-full
+# You may need these too, if they are not installed already
+$ sudo apt install make g++ gcc git
 ```
 You might be asked for your sudo password. On RetroPie the default password is `raspberry`. To install Qt5 on other Linux distributions, please refer to their documentation.
 

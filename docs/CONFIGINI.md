@@ -135,7 +135,7 @@ Sets the rom input folder. By default Skyscraper will look for roms in the `/hom
 
     If this is set in the `[main]` section it will automatically add `/<PLATFORM>` to the end of the path. If you want better control consider adding it to a `[<PLATFORM>]` section instead where it will be used as is.
 
-Default value: `/home/pi/RetroPie/roms/<PLATFORM>`  
+Default value: `/home/<USER>/RetroPie/roms/<PLATFORM>`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`
 
 ---
@@ -148,7 +148,7 @@ Sets the game list export folder. By default Skyscraper exports the game list to
 
     If this is set in the `[main]` section it will automatically add `/<PLATFORM>` to the end of the path. If you want better control consider adding it to a `[<PLATFORM>]` section instead where it will be used as is.
 
-Default value: `/home/pi/RetroPie/roms/<PLATFORM>`  
+Default value: `/home/<USER>/RetroPie/roms/<PLATFORM>`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<FRONTEND>]`
 
 ---
@@ -172,7 +172,7 @@ Read more about the artwork compositing [here](ARTWORK.md).
 
     If this is set in the `[main]` section it will automatically add `/<PLATFORM>` to the end of the path. If you want better control consider adding it to a `[<PLAFORM>]` section instead where it will be used as is.
 
-Default value: `/home/pi/RetroPie/roms/<PLATFORM>/media`  
+Default value: `/home/<USER>/RetroPie/roms/<PLATFORM>/media`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<FRONTEND>]`
 
 ---
@@ -200,7 +200,7 @@ Sets a non-default location for the storing and loading of cached game resources
 
     If this is set in the `[main]` section (recommended) it will automatically add `/<PLATFORM>` to the end of the path. If you want better control consider adding it to a `[<PLAFORM>]` section instead where it will be used as is.
 
-Default value: `/home/pi/.skyscraper/cache/<PLATFORM>`  
+Default value: `/home/<USER>/.skyscraper/cache/<PLATFORM>`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`
 
 ---
@@ -354,7 +354,7 @@ Allowed in sections: `[main]`, `[<PLATFORM>]`, `[<SCRAPER>]`
 
 Sets a non-default folder when scraping using the `-s import` module. By default this is set to `/home/<USER>/.skyscraper/import` and will also look for a `/<PLATFORM>` inside of the chosen folder. Read more about the `-s import` module [here](IMPORT.md).
 
-Default value: `/home/pi/.skyscraper/import/<PLATFORM>`  
+Default value: `/home/<USER>/.skyscraper/import/<PLATFORM>`  
 Allowed in sections: `[main]`, `[<PLATFORM>]`
 
 ---
