@@ -910,7 +910,7 @@ void Cache::assembleReport(const Settings &config, const QString filter) {
         } else if (missingOption == "textual") {
             resTypeList += txtTypes(false);
         } else if (missingOption == "artwork") {
-            resTypeList += binTypes(false, false); // w/o 'video' or 'manual'
+            resTypeList += binTypes(false, false); // w/o 'video' and 'manual'
         } else if (missingOption == "media") {
             resTypeList += binTypes();
         } else {
@@ -931,9 +931,10 @@ void Cache::assembleReport(const Settings &config, const QString filter) {
             printf("  \033[1;32mtextual\033[0m: Creates reports for all "
                    "textual resource types\n");
             printf("  \033[1;32martwork\033[0m: Creates reports for all "
-                   "artwork related resource types excluding 'video'\n");
+                   "artwork related resource types excluding 'video' and "
+                   "'manual'\n");
             printf("  \033[1;32mmedia\033[0m: Creates reports for all media "
-                   "resource types including 'video'\n");
+                   "resource types including 'video' and 'manual'\n");
             printf(
                 "  \033[1;32mtype1,type2,type3,...\033[0m: Creates reports for "
                 "selected types. Example: 'developer,screenshot,rating'\n");

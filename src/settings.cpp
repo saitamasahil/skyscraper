@@ -32,10 +32,10 @@
 #endif
 
 static inline bool isArcadePlatform(const QString &platform) {
-    const QStringList arcadePlaforms = {"arcade",        "fba",
+    const QStringList arcadePlatforms = {"arcade",        "fba",
                                         "mame-advmame",  "mame-libretro",
                                         "mame-mame4all", "neogeo"};
-    return arcadePlaforms.contains(platform);
+    return arcadePlatforms.contains(platform);
 }
 
 RuntimeCfg::RuntimeCfg(Settings *config, const QCommandLineParser *parser) {
