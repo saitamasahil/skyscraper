@@ -36,7 +36,9 @@ public:
 protected:
     QStringList createEsVariantXml(const GameEntry &entry) override;
     QStringList extraGamelistTags(bool isFolder) override;
-    GameEntry::Format gamelistFormat() override { return GameEntry::Format::ESDE; };
+    GameEntry::Format gamelistFormat() override {
+        return GameEntry::Format::ESDE;
+    };
 };
 
 #endif // ESDE_H
