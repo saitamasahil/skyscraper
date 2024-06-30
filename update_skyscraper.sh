@@ -18,74 +18,60 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 
 {
-	LATEST=$(wget -q -O - "https://api.github.com/repos/Gemba/skyscraper/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    LATEST=$(wget -q -O - "https://api.github.com/repos/Gemba/skyscraper/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    [[ -z "$LATEST" ]] && printf '%s\n' "--- Remote server unreachable. Check internet connectivity. Exiting. ---" && exit 1
 
-	if [ ! -f VERSION ]; then
-		echo "VERSION=0.0.0" >VERSION
-	fi
-	source VERSION
+    handle_error() {
+        local EXITCODE=$?
+        local ACTION=$1
+        rm -f VERSION VERSION.txt
+        printf '%s\n' "--- Failed to $ACTION Skyscraper v${LATEST}, exiting with code $EXITCODE ---"
+        exit $EXITCODE
+    }
 
-	handle_error() {
-		local EXITCODE=$?
-		local ACTION=$1
-		rm -f VERSION VERSION.txt
-		echo "--- Failed to $ACTION Skyscraper v${LATEST}, exiting with code $EXITCODE ---"
-		exit $EXITCODE
-	}
+    source VERSION 2>/dev/null || VERSION=""
+    if [ "$LATEST" != "$VERSION" ]; then
+        printf '\n%s\n' "--- Fetching Skyscraper v$LATEST ---"
+        tarball="${LATEST}.tar.gz"
+        wget -nv https://github.com/Gemba/skyscraper/archive/"$tarball" || handle_error "fetch"
 
-	if [ "$LATEST" != "$VERSION" ]; then
-		echo
-		echo "--- Fetching Skyscraper v$LATEST ---"
-		tarball="${LATEST}.tar.gz"
-		wget -nv https://github.com/Gemba/skyscraper/archive/"$tarball" || handle_error "fetch"
+        printf '\n%s\n' "--- Unpacking ---"
+        tar_bin='tar'
+        [[ "$OSTYPE" == "darwin"* ]] && tar_bin='gtar'
+          $tar_bin xzf "$tarball" --strip-components 1 --overwrite || handle_error "unpack"
+        rm -f "$tarball"
 
-		echo
-		echo "--- Unpacking ---"
-		tar_bin='tar'
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			tar_bin='gtar'
-		fi
-  		$tar_bin xzf "$tarball" --strip-components 1 --overwrite || handle_error "unpack"
-		rm -f "$tarball"
+        printf '\n%s\n' "--- Cleaning out old build if one exists ---"
+        make --ignore-errors clean
+        rm -f .qmake.stash
+        QT_SELECT=5 qmake || handle_error "clean old"
 
-		echo
-		echo "--- Cleaning out old build if one exists ---"
-		make --ignore-errors clean
-		rm -f .qmake.stash
-		QT_SELECT=5 qmake || handle_error "clean old"
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            printf '\n%s\n' "--- MacOS : Pre-building adjustment ---"
+            mv VERSION VERSION.txt
+            sed -i '' "s|CC *= .*|CC             = /usr/bin/gcc|" Makefile
+            sed -i '' "s|CXX *= .*|CXX           = /usr/bin/g++|" Makefile
+        fi
 
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			echo
-			echo "--- MacOS : Pre-building adjustment ---"
-			mv VERSION VERSION.txt
-			sed -i '' "s|CC *= .*|CC             = /usr/bin/gcc|" Makefile
-			sed -i '' "s|CXX *= .*|CXX           = /usr/bin/g++|" Makefile
-		fi
+        printf '\n%s\n' "--- Building Skyscraper v$LATEST ---"
+        jobs=$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)
+        make -j "$jobs" || handle_error "build"
 
-		echo
-		echo "--- Building Skyscraper v$LATEST ---"
-		jobs=$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)
-		make -j "$jobs" || handle_error "build"
+        printf '\n%s\n' "--- Installing Skyscraper v$LATEST ---"
+        sudo make install || handle_error "install"
 
-		echo
-		echo "--- Installing Skyscraper v$LATEST ---"
-		sudo make install || handle_error "install"
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            printf '\n%s\n' "--- MacOS : extract binary ---"
+            mv Skyscraper.app/Contents/MacOS/Skyscraper Skyscraper
+            rm -rf Skyscraper.app
+            mv VERSION.txt VERSION
+        fi
 
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			echo
-			echo "--- MacOS : extract binary ---"
-			mv Skyscraper.app/Contents/MacOS/Skyscraper Skyscraper
-			rm -rf Skyscraper.app
-			mv VERSION.txt VERSION
-		fi
-
-		echo
-		echo "--- Skyscraper has been updated to v$LATEST ---"
-	else
-		echo
-		echo "--- Skyscraper is already the latest version, exiting ---"
-		echo "Hint: You can force a reinstall by removing the VERSION file by"
-		echo "running 'rm VERSION'. Then run ./update_skyscraper.sh again."
-	fi
-	exit
+        printf '\n%s\n' "--- Skyscraper has been updated to v$LATEST ---"
+    else
+        printf '\n%s\n' "--- Skyscraper is already the latest version, exiting ---"
+        printf '%s\n' "Hint: You can force a reinstall by removing the VERSION file by"
+        printf '%s\n' "running 'rm VERSION'. Then run $0 again."
+    fi
+    exit
 }
