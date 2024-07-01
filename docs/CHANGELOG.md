@@ -1,22 +1,36 @@
 ## Changes
 
-### Version 3.12.0 (TBA)
+This page summarizes the changes per Skyscraper release [for
+humans](https://keepachangelog.com).
 
-- Added: Support for scraping of PDF manuals (Modules screenscraper, import and
-  esgamelist) and gamelist output with these manuals for frontends (ES-DE
-  Frontend, some EmulationStation variants). See configurations options
-  [`manuals=true`](CONFIGINI.md#manuals) and
+### Version 3.12.0 (2024-07-01)
+
+- Added: Support for scraping of PDF manuals (for scrape modules screenscraper,
+  import and esgamelist) and gamelist output with these manuals for frontends
+  (ES-DE Frontend and some EmulationStation variants). See configurations
+  options [`manuals=true`](CONFIGINI.md#manuals) and
   [`gameListVariants=enable-manuals`](CONFIGINI.md#gamelistvariants). Thanks for
   the initial PR, @pandino
-- Added: Present also release year as hint. This is useful when in interactive
-  mode and more than one game with the same name is found. Skyscraper can be
-  guided to prefer a specific game when the release year is added in parenthesis
-  as part of the ROM name (or alias in `aliasMap.csv`). Thanks @mjkaye
-- Changed: Persistent config option for counting and scraping only games which
-  have no game data in the cache. This is a commodity to the already existing
-  flag with the same name. If you use a scraper with a scraping limit for games
-  to be scraped at once (e.g. MobyGames). Documentation
-  [here](CONFIGINI.md#onlymissing). Thanks for the suggestion, @sleve_mcdichael
+- Added: For frontend ES-DE, evaluate environment variable `ESDE_APPDATA_DIR` if
+  present. Thanks for the hint, @ASHGOLDOFFICIAL
+- Added: Use also release year as hint on user interaction. This is useful when
+  in interactive mode and more than one game with the same name is found.
+  Skyscraper can be guided to prefer a specific game when the release year is
+  added in parenthesis as part of the ROM name (or alias in `aliasMap.csv`).
+  Verbose info in [#59](https://github.com/Gemba/skyscraper/pull/59). Thanks,
+  @mjkaye
+- Changed: Persistent config option `onlymissing` for counting and scraping only
+  games which do not have any game data in the cache. This is a commodity config
+  option to the already existing flag with the same name. Plus: If you use a
+  scraper with a scraping limit for games to be scraped at once (e.g. MobyGames)
+  you may stay below that limit. Documentation [here](CONFIGINI.md#onlymissing).
+  Thanks for the suggestion, @sleve_mcdichael
+- Update: Valid extensions (= `formats` in Skyscraper's `peas.json` file) with
+  info from RetroPie's `platform.cfg` (commit
+  [`5e0ab1f`](https://github.com/RetroPie/RetroPie-Setup/blob/5e0ab1f85994cbb51eb5539d2a7592a3578c15b8/platforms.cfg))
+- Fixed: The [update
+  script](https://github.com/Gemba/skyscraper/blob/master/update_skyscraper.sh)
+  for recent MacOS versions. Thanks, @calumbrodie 
 
 ### Version 3.11.0 (2024-04-15)
 
@@ -143,7 +157,7 @@
 - Mobygames platform information refactored from hardwired `mobygames.cpp`.to
   `mobygames.json`
 
-#### Included Pull Requests
+#### Included Pull Requests from Parent Skyscraper Repos
 
 These pull requests from other repos have been merged into this fork.
 
