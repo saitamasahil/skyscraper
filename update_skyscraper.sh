@@ -26,9 +26,11 @@
         local ACTION=$1
         rm -f VERSION VERSION.txt
         printf '%s\n' "--- Failed to $ACTION Skyscraper v${LATEST}, exiting with code $EXITCODE ---"
+        popd >/dev/null 2>&1
         exit $EXITCODE
     }
 
+    pushd "$(dirname -- "$(readlink -f -- "$0")")" >/dev/null 2>&1 || exit
     source VERSION 2>/dev/null || VERSION=""
     if [ "$LATEST" != "$VERSION" ]; then
         printf '\n%s\n' "--- Fetching Skyscraper v$LATEST ---"
@@ -73,5 +75,5 @@
         printf '%s\n' "Hint: You can force a reinstall by removing the VERSION file by"
         printf '%s\n' "running 'rm VERSION'. Then run $0 again."
     fi
-    exit
+    popd >/dev/null 2>&1 || exit
 }
