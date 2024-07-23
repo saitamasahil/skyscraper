@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 
 {
-    LATEST=$(wget -q -O - "https://api.github.com/repos/Gemba/skyscraper/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    LATEST=$(wget -q -O - "https://api.github.com/repos/Gemba/skyscraper/releases/latest" | python3 -c 'import sys; import json; print(json.loads(sys.stdin.read())["tag_name"])')
     [[ -z "$LATEST" ]] && printf '%s\n' "--- Remote server unreachable. Check internet connectivity. Exiting. ---" && exit 1
 
     handle_error() {
