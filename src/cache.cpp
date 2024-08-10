@@ -36,6 +36,7 @@
 #include <QFile>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QSet>
 #include <QStringBuilder>
 #include <QXmlStreamAttributes>
 #include <QXmlStreamReader>
@@ -84,7 +85,7 @@ bool Cache::createFolders(const QString &scraper) {
 }
 
 bool Cache::read() {
-    QFile quickIdFile(cacheDir.absolutePath() + "/quickid.xml");
+    QFile quickIdFile(cacheDir.absolutePath() % "/quickid.xml");
     if (quickIdFile.open(QIODevice::ReadOnly)) {
         printf("Reading and parsing quick id xml, please wait... ");
         fflush(stdout);
@@ -111,8 +112,7 @@ bool Cache::read() {
         printf("\033[1;32mDone!\033[0m\n");
     }
 
-
-    QFile cacheFile(cacheDir.absolutePath() + "/db.xml");
+    QFile cacheFile(cacheDir.absolutePath() % "/db.xml");
     if (cacheFile.open(QIODevice::ReadOnly)) {
         printf("Building file lookup cache, please wait... ");
         fflush(stdout);
@@ -179,7 +179,7 @@ bool Cache::read() {
             }
             resource.value = xml.readElementText();
             if (binTypes().contains(resource.type) &&
-                !fileEntries.contains(cacheDir.absolutePath() + "/" +
+                !fileEntries.contains(cacheDir.absolutePath() % "/" %
                                    resource.value)) {
                 printf("Source file '%s' missing, skipping entry...\n",
                        resource.value.toStdString().c_str());
