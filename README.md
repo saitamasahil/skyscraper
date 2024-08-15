@@ -94,6 +94,10 @@ $ brew link qt@5 --force
 ```
 If that went well, proceed to the default installation instructions in the next section. It should work and give you a working installation of Skyscraper.
 
+#### Docker 
+
+Two Docker setups exist: One general in the `docker/` folder. The other resides in the `.devcontainer/` and its use is for [MS Dev Containers](https://microsoft.github.io/code-with-engineering-playbook/developer-experience/devcontainers/).
+
 ### Download, compile and install
 When you've installed the prerequisites as described above for Linux or macOS, you can install Skyscraper by typing in the following commands:
 ```
