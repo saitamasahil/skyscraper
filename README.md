@@ -53,6 +53,7 @@ Check the full list of platforms [here](https://gemba.github.io/skyscraper/PLATF
 
 ## 🕹Frontends Supported (set with '-f'):
 * EmulationStation
+* ES-DE (EmulationStation Desktop Edition)
 * AttractMode
 * Pegasus
 * RetroBat
@@ -69,8 +70,7 @@ Follow the steps below to install the latest version of Skyscraper. Lines beginn
 NOTE! If you are using the RetroPie distribution, you have the option to install Skyscraper directly from the RetroPie-Setup script (*you need to update the script before installing it!*). Read more about all of that [here](https://retropie.org.uk/docs/Scraper/#skyscraper). If not, read on.
 
 ### Installation of Skyscraper Enhanced on RetroPie
-
-This goes in the usual RetroPie stanza: Either run `sudo RetroPie-Setup/retropie_setup.sh` and folow the menus (_Manage packages_ -> _Manage optional packages_ -> then look for _Skyscraper_) or run `sudo RetroPie-Setup/retropie_packages.sh skyscraper`.
+This goes in the usual RetroPie stanza: Either run `sudo RetroPie-Setup/retropie_setup.sh` and folow the menus (_Manage packages_ -> _Manage optional packages_ -> then look for _Skyscraper_) or run `sudo RetroPie-Setup/retropie_packages.sh skyscraper`. This will also automagically install programmable completion (aka. bash completion) for the Skyscraper command line.
 
 ### Installation Prerequisites on Other Systems or Architectures
 #### Linux
@@ -95,7 +95,6 @@ $ brew link qt@5 --force
 If that went well, proceed to the default installation instructions in the next section. It should work and give you a working installation of Skyscraper.
 
 #### Docker 
-
 Two Docker setups exist: One general in the `docker/` folder. The other resides in the `.devcontainer/` and its use is for [MS Dev Containers](https://microsoft.github.io/code-with-engineering-playbook/developer-experience/devcontainers/).
 
 ### Download, compile and install
@@ -107,6 +106,8 @@ $ cd skysource
 $ wget -q -O - https://raw.githubusercontent.com/Gemba/skyscraper/master/update_skyscraper.sh | bash
 ```
 The last command will download and run the latest update script from Github. The script installs the latest release of Skyscraper. During the installation you might be asked for your sudo password. On RetroPie the default password is `raspberry`.
+
+If you want also bash completion, then copy the [Skyscraper.bash](https://github.com/Gemba/skyscraper/blob/master/supplementary/bash-completion/Skyscraper.bash) to the folder of bash completion scripts according to your distribution. 
 
 When the script has completed you are ready to run Skyscraper!
 
@@ -147,7 +148,7 @@ You might be asked for your sudo password during the processs. On RetroPie the d
 Windows is not officially supported at this time! However, you [may roll your own](win32/README.md) Windows 64-bit version that works just fine. And just to be clear: You are on your own if you use this version - please don't ask me questions about it. Use the sources.
 
 ## How to use Skyscraper
-IMPORTANT!!! In order for Skyscraper to work properly, it is necessary to quit your frontend before running it! If you're running EmulationStation, you can quit it by pressing F4.
+_IMPORTANT_: In order for Skyscraper to work properly, it is necessary to quit your frontend before running it! If you're running EmulationStation, you can quit it by pressing F4.
 
 Remember, you can completely customize the artwork Skyscraper exports. Check out the documentation [here](https://gemba.github.io/skyscraper/ARTWORK/). If you just want to use the default (pretty cool looking) artwork Skyscraper provides, read on.
 
@@ -197,7 +198,6 @@ To read more about any of the features described above, please check out all of 
 Check the full artwork documentation [here](https://gemba.github.io/skyscraper/ARTWORK/)
 
 ## Skyscraper Configurable Platforms Enhancement
-
 The main goal of this fork is to allow users to easily configurate and add platforms without having the needs to edit the code source directly.
 
 This feature is achieved by adding new config files:
@@ -207,5 +207,4 @@ This feature is achieved by adding new config files:
 These files are copied in the folder `/home/pi/.skyscraper` on RetroPie (or `/usr/local/etc/skyscraper/` in general) at the first run of the program if you want to edit them after an installation.  
 
 ## Previous Release Notes
-
 Release notes for older releases which this fork builds on can be found [here](docs/OLDERRELEASES.md).
