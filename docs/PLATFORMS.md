@@ -44,6 +44,14 @@ Take this example from the `peas.json` file:
 
 !!! tip
 
+    Since Skyscraper 3.13.0 you may also maintain local changes to the `peas.json`
+    in a separate file called `peas_local.json` alongside to the `peas.json`. The
+    format is identical to the `peas.json`. Precedence: Any platform entry from
+    `peas_local.json` with the same platform name as in `peas.json` overwrites
+    the one from `peas.json`.
+
+!!! tip
+
     If you need a specific folder name for a platform (on your setup or due to an
     EmulationStation theme) use a symbolic link (see `megadrive` (=folder) and
     `genesis` (=symlink) for example on RetroPie or `plus4` (=folder) and `c16`
