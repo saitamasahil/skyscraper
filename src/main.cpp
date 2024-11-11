@@ -148,6 +148,7 @@ int main(int argc, char *argv[]) {
     // Install the custom debug message handler used by qDebug()
     qInstallMessageHandler(customMessageHandler);
 
+    Config::initSkyFolders();
     Config::setupUserConfig();
     Config::checkLegacyFiles();
 

@@ -26,8 +26,74 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QProcessEnvironment>
 #include <QStringBuilder>
 #include <QStringList>
+
+Config::SkyFolders skyFolders;
+
+void Config::initSkyFolders() {
+#ifndef XDG
+    // genuine Skyscraper folders
+    skyFolders[SkyFolderType::CONFIG] = QDir::homePath() % "/.skyscraper";
+    skyFolders[SkyFolderType::CACHE] =
+        skyFolders[SkyFolderType::CONFIG] % "/cache";
+    skyFolders[SkyFolderType::IMPORT] =
+        skyFolders[SkyFolderType::CONFIG] % "/import";
+    skyFolders[SkyFolderType::RESOURCE] =
+        skyFolders[SkyFolderType::CONFIG] % "/resources";
+    skyFolders[SkyFolderType::REPORT] =
+        skyFolders[SkyFolderType::CONFIG] % "/reports";
+    skyFolders[SkyFolderType::LOG] = skyFolders[SkyFolderType::CONFIG];
+#else
+    // XDG Spec
+    QMap<QString, QString> xdgEnvs = {
+        {"XDG_CONFIG_HOME", QDir::homePath() % "/.config"},
+        {"XDG_CACHE_HOME", QDir::homePath() % "/.cache"},
+        {"XDG_DATA_HOME", QDir::homePath() % "/.local/share"},
+        {"XDG_STATE_HOME", QDir::homePath() % "/.local/state"}};
+
+    for (const auto &e : xdgEnvs.keys()) {
+        QString xdgDir =
+            QProcessEnvironment::systemEnvironment().value(e, xdgEnvs.value(e));
+        if (QFileInfo(xdgDir).isAbsolute()) {
+            xdgEnvs[e] = xdgDir;
+            QDir d(xdgDir + "/skyscraper");
+            if (!d.exists() && !d.mkpath(".")) {
+                printf("Couldn't create folder '%s'. Please check permissions, "
+                       "now exiting...\n",
+                       d.absolutePath().toStdString().c_str());
+                exit(1);
+            }
+        }
+    }
+
+    skyFolders[SkyFolderType::CONFIG] =
+        xdgEnvs["XDG_CONFIG_HOME"] % "/skyscraper";
+    skyFolders[SkyFolderType::CACHE] =
+        xdgEnvs["XDG_CACHE_HOME"] % "/skyscraper";
+    skyFolders[SkyFolderType::IMPORT] =
+        xdgEnvs["XDG_DATA_HOME"] % "/skyscraper/import";
+    skyFolders[SkyFolderType::RESOURCE] =
+        xdgEnvs["XDG_DATA_HOME"] % "/skyscraper/resources";
+    skyFolders[SkyFolderType::REPORT] =
+        xdgEnvs["XDG_STATE_HOME"] % "/skyscraper/reports";
+    skyFolders[SkyFolderType::LOG] = xdgEnvs["XDG_STATE_HOME"] % "/skyscraper";
+
+    QDir(skyFolders[SkyFolderType::IMPORT]).mkpath(".");
+    QDir(skyFolders[SkyFolderType::RESOURCE]).mkpath(".");
+    QDir(skyFolders[SkyFolderType::REPORT]).mkpath(".");
+#endif // XDG
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    qDebug("Skyscraper folder config:");
+    for (auto it : skyFolders.toStdMap()) {
+        qDebug() << static_cast<int>(it.first) << it.second;
+    }
+#endif
+}
+
+QString Config::getSkyFolder(SkyFolderType type) { return skyFolders[type]; }
 
 void Config::copyFile(const QString &src, const QString &dest, FileOp fileOp) {
     if (QFileInfo::exists(src)) {
@@ -155,8 +221,7 @@ void Config::setupUserConfig() {
 }
 
 void Config::checkLegacyFiles() {
-    QStringList legacyJsons =
-        QString("mobygames platforms screenscraper").split(" ");
+    QStringList legacyJsons = {"mobygames", "platforms", "screenscraper"};
     for (auto bn : legacyJsons) {
         QString fn = bn + ".json";
         if (QFileInfo::exists(fn)) {
