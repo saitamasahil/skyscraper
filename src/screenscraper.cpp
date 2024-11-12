@@ -25,6 +25,7 @@
 
 #include "screenscraper.h"
 
+#include "config.h"
 #include "crc32.h"
 #include "platform.h"
 #include "strtools.h"
@@ -136,7 +137,8 @@ void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
                 "and contribute to gain more threads. Then use the credentials "
                 "with Skyscraper using the '-u user:pass' command line option "
                 "or by setting 'userCreds=\"user:pass\"' in "
-                "'/home/<USER>/.skyscraper/config.ini'.\033[0m\n\n");
+                "'%s/config.ini'.\033[0m\n\n",
+                Config::getSkyFolder().toStdString().c_str());
             if (retries == RETRIESMAX - 1) {
                 reqRemaining = 0;
                 return;
@@ -165,13 +167,15 @@ void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
             if (jsonErrorFile.open(QIODevice::WriteOnly)) {
                 if (data.length() > 64) {
                     jsonErrorFile.write(data);
-                    printf(
-                        "The erroneous answer was written to "
-                        "'/home/<USER>/.skyscraper/screenscraper_error.json'. "
-                        "If this file contains game data, please consider "
-                        "filing a bug report at "
-                        "'https://github.com/Gemba/skyscraper/issues' and "
-                        "attach that file.\n");
+                    printf("The erroneous answer was written to "
+                           "'%s/screenscraper_error.json'. "
+                           "If this file contains game data, please consider "
+                           "filing a bug report at "
+                           "'https://github.com/Gemba/skyscraper/issues' and "
+                           "attach that file.\n",
+                           Config::getSkyFolder(Config::SkyFolderType::LOG)
+                               .toStdString()
+                               .c_str());
                 }
                 jsonErrorFile.close();
             }

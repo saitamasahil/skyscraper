@@ -27,8 +27,6 @@
 
 #include "nametools.h"
 
-#include <QDir>
-
 ESGameList::ESGameList(Settings *config, QSharedPointer<NetManager> manager)
     : AbstractScraper(config, manager, MatchType::MATCH_ONE) {
     baseUrl = config->gameListFolder +

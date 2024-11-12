@@ -27,7 +27,6 @@
 #define SETTINGS_H
 
 #include <QCommandLineParser>
-#include <QDir>
 #include <QImage>
 #include <QMap>
 #include <QObject>

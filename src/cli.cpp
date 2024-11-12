@@ -21,10 +21,12 @@
 #include "cli.h"
 
 #include "cache.h"
+#include "config.h"
 #include "strtools.h"
 
 #include <QCommandLineOption>
 #include <QMapIterator>
+#include <QStringBuilder>
 
 void Cli::createParser(QCommandLineParser *parser, QString platforms) {
 
@@ -36,14 +38,18 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
         "frontends by combining all previously cached resources ('game list "
         "generation mode' is initiated by simply leaving out the '-s' option). "
         "While doing so it also composites game art for all files by following "
-        "the recipe at '/home/<USER>/.skyscraper/artwork.xml'.\n\nIn addition "
+        "the recipe at '" %
+        Config::getSkyFolder() %
+        "/artwork.xml'.\n\nIn addition "
         "to the command line options Skyscraper also provides a lot of "
         "customizable options for configuration, artwork, game name aliases, "
         "resource priorities and much more. Please check the full "
         "documentation at 'https://gemba.github.io/skyscraper/' for a "
         "detailed explanation of all features.\n\nRemember that most of the "
         "following options can also be set in the "
-        "'/home/<USER>/.skyscraper/config.ini' file. All command line options "
+        "'" %
+        Config::getSkyFolder() %
+        "/config.ini' file. All command line options "
         "and config.ini options are thoroughly documented at the above link.";
 
     QString ht = "";
@@ -74,7 +80,7 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
         "f",
         "The frontend you wish to generate a gamelist for. Remember to leave "
         "out the '-s' option when using this in order to enable Skyscraper's "
-        "gamelist generation mode.\n(Currently supports 'emulationstation', "
+        "gamelist generation mode.\nCurrently supports 'emulationstation', "
         "'esde', 'retrobat', 'attractmode' and 'pegasus'. Default: "
         "'emulationstation'",
         "FRONTEND", "");
@@ -87,7 +93,8 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     QCommandLineOption iOption(
         "i",
         "Folder which contains the game/rom files. Default: "
-        "'/home/<USER>/RetroPie/roms/PLATFORM'",
+        "'" %
+            QDir::homePath() % "/RetroPie/roms/PLATFORM'",
         "PATH", "");
     QCommandLineOption gOption(
         "g", "Game list export folder.\n(default depends on frontend)", "PATH",
@@ -126,18 +133,22 @@ void Cli::createParser(QCommandLineParser *parser, QString platforms) {
     QCommandLineOption cOption(
         "c",
         "Use this config file to set up Skyscraper. Default: "
-        "'/home/<USER>/.skyscraper/config.ini'",
+        "'" %
+            Config::getSkyFolder() % "/config.ini'",
         "FILENAME", "");
     QCommandLineOption aOption(
         "a",
         "Specify a non-default artwork.xml file to use when setting up the "
         "artwork compositing when in gamelist generation mode. Default: "
-        "'/home/<USER>/.skyscraper/artwork.xml'",
+        "'" %
+            Config::getSkyFolder() % "/artwork.xml'",
         "FILENAME", "");
-    QCommandLineOption dOption("d",
-                               "Set custom resource cache folder. Default: "
-                               "'/home/<USER>/.skyscraper/cache/PLATFORM'",
-                               "FOLDER", "");
+    QCommandLineOption dOption(
+        "d",
+        "Set custom resource cache folder. Default: "
+        "'" %
+            Config::getSkyFolder(Config::SkyFolderType::CACHE) % "/PLATFORM'",
+        "FOLDER", "");
     QCommandLineOption addextOption(
         "addext",
         "Add this or these file extension(s) to accepted file extensions "

@@ -33,9 +33,10 @@
 Config::SkyFolders skyFolders;
 
 void Config::initSkyFolders() {
+    const QString appFolder = "skyscraper";
 #ifndef XDG
     // genuine Skyscraper folders
-    skyFolders[SkyFolderType::CONFIG] = QDir::homePath() % "/.skyscraper";
+    skyFolders[SkyFolderType::CONFIG] = QDir::homePath() % "/." % appFolder;
     skyFolders[SkyFolderType::CACHE] =
         skyFolders[SkyFolderType::CONFIG] % "/cache";
     skyFolders[SkyFolderType::IMPORT] =
@@ -58,7 +59,7 @@ void Config::initSkyFolders() {
             QProcessEnvironment::systemEnvironment().value(e, xdgEnvs.value(e));
         if (QFileInfo(xdgDir).isAbsolute()) {
             xdgEnvs[e] = xdgDir;
-            QDir d(xdgDir + "/skyscraper");
+            QDir d(xdgDir % "/" % appFolder);
             if (!d.exists() && !d.mkpath(".")) {
                 printf("Couldn't create folder '%s'. Please check permissions, "
                        "now exiting...\n",
@@ -69,16 +70,17 @@ void Config::initSkyFolders() {
     }
 
     skyFolders[SkyFolderType::CONFIG] =
-        xdgEnvs["XDG_CONFIG_HOME"] % "/skyscraper";
+        xdgEnvs["XDG_CONFIG_HOME"] % "/" % appFolder;
     skyFolders[SkyFolderType::CACHE] =
-        xdgEnvs["XDG_CACHE_HOME"] % "/skyscraper";
+        xdgEnvs["XDG_CACHE_HOME"] % "/" % appFolder;
     skyFolders[SkyFolderType::IMPORT] =
-        xdgEnvs["XDG_DATA_HOME"] % "/skyscraper/import";
+        xdgEnvs["XDG_DATA_HOME"] % "/" % appFolder % "/import";
     skyFolders[SkyFolderType::RESOURCE] =
-        xdgEnvs["XDG_DATA_HOME"] % "/skyscraper/resources";
+        xdgEnvs["XDG_DATA_HOME"] % "/" % appFolder % "/resources";
     skyFolders[SkyFolderType::REPORT] =
-        xdgEnvs["XDG_STATE_HOME"] % "/skyscraper/reports";
-    skyFolders[SkyFolderType::LOG] = xdgEnvs["XDG_STATE_HOME"] % "/skyscraper";
+        xdgEnvs["XDG_STATE_HOME"] % "/" % appFolder % "/reports";
+    skyFolders[SkyFolderType::LOG] =
+        xdgEnvs["XDG_STATE_HOME"] % "/" % appFolder;
 
     QDir(skyFolders[SkyFolderType::IMPORT]).mkpath(".");
     QDir(skyFolders[SkyFolderType::RESOURCE]).mkpath(".");
@@ -123,7 +125,7 @@ void Config::copyFile(const QString &src, const QString &dest, FileOp fileOp) {
 
 void Config::setupUserConfig() {
     // Set the working directory to the applications own path
-    QDir skyDir(QDir::homePath() + "/.skyscraper");
+    QDir skyDir(getSkyFolder());
     if (!skyDir.exists()) {
         if (!skyDir.mkpath(".")) {
             printf("Couldn't create folder '%s'. Please check permissions, "
@@ -137,20 +139,16 @@ void Config::setupUserConfig() {
     QStringList paths = {"covers",  "manuals",  "marquees", "screenshots",
                          "textual", "textures", "videos",   "wheels"};
     for (auto p : paths) {
-        skyDir.mkpath("import/" % p);
+        QDir(getSkyFolder(SkyFolderType::IMPORT) % "/" % p).mkpath(".");
     }
 
     // Create resources folder
-    skyDir.mkpath("resources");
-
-    // Rename 'dbs' folder to migrate 2.x users to 3.x
-    skyDir.rename(skyDir.absolutePath() + "/dbs",
-                  skyDir.absolutePath() + "/cache");
+    QDir(getSkyFolder(SkyFolderType::RESOURCE)).mkpath(".");
 
     // Create cache folder
-    skyDir.mkpath("cache");
+    QDir(getSkyFolder(SkyFolderType::CACHE)).mkpath(".");
 
-    QDir::setCurrent(skyDir.absolutePath());
+    QDir::setCurrent(getSkyFolder()); // FIXME: Attn!
 
     // copy configs
     QString localEtcPath = QString(PREFIX "/etc/skyscraper/");
@@ -193,7 +191,7 @@ void Config::setupUserConfig() {
         {"tgdb_genres.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
         {"tgdb_platforms.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
         {"tgdb_publishers.json", QPair<QString, FileOp>("", FileOp::OVERWRITE)},
-
+        // do not overwrite
         {"config.ini.example",
          QPair<QString, FileOp>("config.ini", FileOp::KEEP)},
         {"import/definitions.dat.example2",
@@ -215,15 +213,26 @@ void Config::setupUserConfig() {
         if (dest.isEmpty()) {
             dest = src;
         }
-        copyFile(localEtcPath % src, skyDir.absolutePath() % "/" % dest,
-                 configFiles.value(src).second);
+        QString tgtDir = getSkyFolder();
+        if (src.startsWith("cache/") || src == "CACHE.md") {
+            tgtDir = getSkyFolder(SkyFolderType::CACHE);
+            dest = dest.replace("cache/", "");
+        } else if (src.startsWith("import/")) {
+            tgtDir = getSkyFolder(SkyFolderType::IMPORT);
+            dest = dest.replace("import/", "");
+        } else if (src.startsWith("resources/")) {
+            tgtDir = getSkyFolder(SkyFolderType::RESOURCE);
+            dest = dest.replace("resources/", "");
+        }
+        QString tgt = tgtDir % "/" % dest;
+        copyFile(localEtcPath % src, tgt, configFiles.value(src).second);
     }
 }
 
 void Config::checkLegacyFiles() {
     QStringList legacyJsons = {"mobygames", "platforms", "screenscraper"};
     for (auto bn : legacyJsons) {
-        QString fn = bn + ".json";
+        QString fn = getSkyFolder() % bn % ".json";
         if (QFileInfo::exists(fn)) {
             printf(
                 "\033[1;33mFile '%s' found, which is no longer used in this "

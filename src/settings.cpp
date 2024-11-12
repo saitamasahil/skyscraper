@@ -23,7 +23,6 @@
 #include "platform.h"
 
 #include <QDebug>
-#include <QDir>
 #include <QStringBuilder>
 #ifdef __MINGW32__
 #include <experimental/filesystem>
