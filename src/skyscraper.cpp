@@ -512,30 +512,7 @@ void Skyscraper::prepareFileQueue() {
 
     // Remove files from excludeFrom, if any
     if (!config.excludeFrom.isEmpty()) {
-        QFileInfo excludeFromInfo(config.excludeFrom);
-        if (!excludeFromInfo.exists()) {
-            excludeFromInfo.setFile(config.currentDir + "/" +
-                                    config.excludeFrom);
-        }
-        if (excludeFromInfo.exists()) {
-            QFile excludeFrom(excludeFromInfo.absoluteFilePath());
-            if (excludeFrom.open(QIODevice::ReadOnly)) {
-                QList<QString> excludes;
-                while (!excludeFrom.atEnd()) {
-                    excludes.append(
-                        QString(excludeFrom.readLine().simplified()));
-                }
-                excludeFrom.close();
-                if (!excludes.isEmpty()) {
-                    queue->removeFiles(excludes);
-                }
-            }
-        } else {
-            printf("File: '\033[1;32m%s\033[0m' does not exist.\n\nPlease "
-                   "verify the filename and try again...\n",
-                   excludeFromInfo.absoluteFilePath().toStdString().c_str());
-            exit(1);
-        }
+        queue->removeFiles(readFileListFrom(config.excludeFrom));
     }
 }
 
@@ -741,6 +718,29 @@ void Skyscraper::checkThreads() {
     emit finished();
 }
 
+QList<QString> Skyscraper::readFileListFrom(const QString &filename) {
+    QList<QString> fileList;
+    QFileInfo fnInfo(filename);
+    if (!fnInfo.exists()) {
+        fnInfo.setFile(config.currentDir + "/" + filename);
+    }
+    if (fnInfo.exists()) {
+        QFile f(fnInfo.absoluteFilePath());
+        if (f.open(QIODevice::ReadOnly)) {
+            while (!f.atEnd()) {
+                fileList.append(QString(f.readLine().simplified()));
+            }
+            f.close();
+        }
+    } else {
+        printf("File: '\033[1;32m%s\033[0m' does not exist.\n\nPlease "
+               "verify the filename and try again...\n",
+               fnInfo.absoluteFilePath().toStdString().c_str());
+        exit(1);
+    }
+    return fileList;
+}
+
 void Skyscraper::loadConfig(const QCommandLineParser &parser) {
     QSettings settings(parser.isSet("c") ? parser.value("c") : "config.ini",
                        QSettings::IniFormat);
@@ -867,26 +867,7 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
 
     // Add files from '--includefrom', if any
     if (!config.includeFrom.isEmpty()) {
-        QFileInfo includeFromInfo(config.includeFrom);
-        if (!includeFromInfo.exists()) {
-            includeFromInfo.setFile(config.currentDir + "/" +
-                                    config.includeFrom);
-        }
-        if (includeFromInfo.exists()) {
-            QFile includeFrom(includeFromInfo.absoluteFilePath());
-            if (includeFrom.open(QIODevice::ReadOnly)) {
-                while (!includeFrom.atEnd()) {
-                    requestedFiles.append(
-                        QString(includeFrom.readLine().simplified()));
-                }
-                includeFrom.close();
-            }
-        } else {
-            printf("File: '\033[1;32m%s\033[0m' does not exist.\n\nPlease "
-                   "verify the filename and try again...\n",
-                   includeFromInfo.absoluteFilePath().toStdString().c_str());
-            exit(1);
-        }
+        requestedFiles += readFileListFrom(config.includeFrom);
     }
 
     // Verify requested files and add the ones that exist
