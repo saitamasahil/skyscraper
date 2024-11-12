@@ -327,6 +327,7 @@ bool ImportScraper::loadDefinitions() {
     // Check for textual resource file
     QFile defFile;
     if (QFile::exists(config->importFolder + "/definitions.dat")) {
+        // check for per-platform folder definitions file
         defFile.setFileName(config->importFolder + "/definitions.dat");
     } else {
         defFile.setFileName(config->importFolder + "/../definitions.dat");

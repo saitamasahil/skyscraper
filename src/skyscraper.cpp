@@ -394,8 +394,9 @@ void Skyscraper::run() {
 
 void Skyscraper::prepareFileQueue() {
     QDir::Filters filter = QDir::Files;
-    // special case scummvm: users can use .svm in folder name to work around the
-    // limitation of the ScummVM / lr-scummvm launch integration in ES/RetroPie
+    // special case scummvm: users can use .svm in folder name to work around
+    // the limitation of the ScummVM / lr-scummvm launch integration in
+    // ES/RetroPie
     if (config.platform == "scummvm") {
         filter |= QDir::Dirs;
     }
@@ -727,12 +728,15 @@ void Skyscraper::checkThreads() {
     }
     printf("\033[1;34mTotal number of games: %d\033[0m\n", totalFiles);
     printf("\033[1;32mSuccessfully processed games: %d\033[0m\n", found);
-    printf(
-        "\033[1;33mSkipped games: %d\033[0m (Filenames saved to "
-        "'\033[1;33m%s/%s\033[0m')\n\n",
-        notFound,
-        Config::getSkyFolder(Config::SkyFolderType::LOG).toStdString().c_str(),
-        skippedFileString.toStdString().c_str());
+    printf("\033[1;33mSkipped games: %d\033[0m", notFound);
+    if (notFound) {
+        printf(" (Filenames saved to '\033[1;33m%s/%s\033[0m')",
+               Config::getSkyFolder(Config::SkyFolderType::LOG)
+                   .toStdString()
+                   .c_str(),
+               skippedFileString.toStdString().c_str());
+    }
+    printf("\n\n");
 
     // All done, now clean up and exit to terminal
     emit finished();
@@ -979,11 +983,12 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
     QDirIterator resDirIt(resDir.absolutePath(),
                           QDir::Files | QDir::NoDotAndDotDot,
                           QDirIterator::Subdirectories);
-    const QString resFolder = "resources/";                       
+    const QString resFolder = "resources/";
     while (resDirIt.hasNext()) {
         QString resFile = resDirIt.next();
-        // revert to relative filepath
-        resFile = resFile.remove(0, resFile.indexOf(resFolder) + resFolder.length());
+        // reduce key to relative filepath
+        resFile =
+            resFile.remove(0, resFile.indexOf(resFolder) + resFolder.length());
         config.resources[resFile] = QImage(resFolder % resFile);
     }
 }
@@ -1014,13 +1019,15 @@ QString Skyscraper::normalizePath(QFileInfo fileInfo) {
 void Skyscraper::showHint() {
     QFile hintsFile("hints.xml");
     QDomDocument hintsXml;
-    if (!hintsFile.open(QIODevice::ReadOnly) || !hintsXml.setContent(&hintsFile)) {
+    if (!hintsFile.open(QIODevice::ReadOnly) ||
+        !hintsXml.setContent(&hintsFile)) {
         return;
     }
     hintsFile.close();
     QDomNodeList hintNodes = hintsXml.elementsByTagName("hint");
     printf("\033[1;33mDID YOU KNOW:\033[0m %s\n\n",
-           hintsXml.elementsByTagName("hint")
+           hintsXml
+               .elementsByTagName("hint")
 #if QT_VERSION >= 0x050a00
                .at(QRandomGenerator::global()->generate() % hintNodes.length())
 #else
@@ -1098,7 +1105,8 @@ void Skyscraper::prepareIgdb(NetComm &netComm, QEventLoop &q) {
         // Don't change! This limit was set by request from IGDB
         config.threads = 4;
         printf("\033[1;33mAdjusting to %d threads to accomodate limits in "
-               "the IGDB API\033[0m\n\n", config.threads);
+               "the IGDB API\033[0m\n\n",
+               config.threads);
         printf("\033[1;32mTHIS MODULE IS POWERED BY IGDB.COM\033[0m\n");
     }
     if (config.user.isEmpty() || config.password.isEmpty()) {
@@ -1171,18 +1179,18 @@ void Skyscraper::prepareIgdb(NetComm &netComm, QEventLoop &q) {
 
 void Skyscraper::prepareScreenscraper(NetComm &netComm, QEventLoop &q) {
     const int threadsFailsafe = 1; // Don't change! This limit was set by
-                            // request from ScreenScraper
+                                   // request from ScreenScraper
     if ((config.user.isEmpty() || config.password.isEmpty()) &&
         config.threads > 1) {
-        config.threads = threadsFailsafe; 
+        config.threads = threadsFailsafe;
         printf("\033[1;33mForcing %d thread as this is the anonymous "
                "limit in the ScreenScraper scraping module. Sign up for "
                "an account at https://www.screenscraper.fr and support "
                "them to gain more threads. Then use the credentials with "
                "Skyscraper using the '-u user:password' command line "
                "option or by setting 'userCreds=\"user:password\"' in "
-               "'%s/config.ini'.\033[0m\n\n", config.threads,
-               Config::getSkyFolder().toStdString().c_str());
+               "'%s/config.ini'.\033[0m\n\n",
+               config.threads, Config::getSkyFolder().toStdString().c_str());
     } else {
         printf("Fetching limits for user '\033[1;33m%s\033[0m', just a "
                "sec...\n",
@@ -1207,7 +1215,8 @@ void Skyscraper::prepareScreenscraper(NetComm &netComm, QEventLoop &q) {
                        "PASS:\033[0m\n\033[1;33m[screenscraper]\nuserCreds="
                        "\"USER:PASS\"\033[0m\033[0;31m\nContinuing with "
                        "unregistered user, forcing %d thread...\033[0m\n\n",
-                       Config::getSkyFolder().toStdString().c_str(), config.threads);
+                       Config::getSkyFolder().toStdString().c_str(),
+                       config.threads);
             } else {
                 printf("\033[1;33mReceived invalid / empty ScreenScraper "
                        "server response, maybe their server is busy / "

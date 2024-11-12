@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
     app.setApplicationVersion(StrTools::getVersionBanner());
 
-    // Get current dir. If user has specified file(s) on command line we
+    // Get working directory. If user has specified file(s) on command line we
     // need this.
     QString currentDir = QDir::currentPath();
 

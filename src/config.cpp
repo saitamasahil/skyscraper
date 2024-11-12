@@ -148,8 +148,9 @@ void Config::setupUserConfig() {
     // Create cache folder
     QDir(getSkyFolder(SkyFolderType::CACHE)).mkpath(".");
 
-    // defaults to config.ini, artwork.xml, hints.xml, ... folder
-    // any file outside this folder shall use Config::getSkyFolder(type ...)
+    // defaults to the folder containing config.ini, artwork.xml, hints.xml, ...
+    // any file outside this folder or subfolders to this folder shall use
+    // Config::getSkyFolder(type ...)
     QDir::setCurrent(getSkyFolder());
 
     // copy configs
