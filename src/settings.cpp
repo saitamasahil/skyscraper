@@ -540,6 +540,13 @@ void RuntimeCfg::applyCli(bool &inputFolderSet, bool &gameListFolderSet,
     }
     if (parser->isSet("a")) {
         config->artworkConfig = parser->value("a");
+        if (QFileInfo(config->artworkConfig).isRelative()) {
+            config->artworkConfig =
+                config->currentDir % "/" % config->artworkConfig;
+        }
+    } else if (config->artworkConfig.isEmpty()) {
+        // failsafe: no CLI and no config.ini artworkConfig provided
+        config->artworkConfig = Config::getSkyFolder() % "/artwork.xml";
     }
     if (parser->isSet("m") && parser->value("m").toInt() >= 0 &&
         parser->value("m").toInt() <= 100) {
