@@ -32,6 +32,7 @@
 
 #include <QBuffer>
 #include <QDateTime>
+#include <QDebug>
 #include <QDir>
 #include <QDomDocument>
 #include <QFile>
@@ -68,12 +69,16 @@ const QStringList Cache::getAllResourceTypes() {
     return txtTypes() + binTypes();
 }
 
-Cache::Cache(const QString &cacheFolder) { cacheDir = QDir(cacheFolder); }
+Cache::Cache(const QString &cacheFolder) {
+    cacheDir.setPath(cacheFolder);
+    cacheDir.makeAbsolute();
+    qDebug() << "Cache folder:" << cacheDir;
+}
 
 bool Cache::createFolders(const QString &scraper) {
     for (auto const &btype : binTypes()) {
         if (!cacheDir.mkpath(QString("%1/%2s/%3") // keep the plural 's'
-                                 .arg(cacheDir.absolutePath(), btype, scraper))) {
+                                 .arg(cacheDir.path(), btype, scraper))) {
             return false;
         }
     }
@@ -81,12 +86,12 @@ bool Cache::createFolders(const QString &scraper) {
     // Copy priorities.xml example file to cache folder if it doesn't already
     // exist
     QFile::copy("cache/priorities.xml.example",
-                cacheDir.absolutePath() + "/priorities.xml");
+                cacheDir.path() + "/priorities.xml");
     return true;
 }
 
 bool Cache::read() {
-    QFile quickIdFile(cacheDir.absolutePath() % "/quickid.xml");
+    QFile quickIdFile(cacheDir.path() % "/quickid.xml");
     if (quickIdFile.open(QIODevice::ReadOnly)) {
         printf("Reading and parsing quick id xml, please wait... ");
         fflush(stdout);
@@ -113,14 +118,14 @@ bool Cache::read() {
         printf("\033[1;32mDone!\033[0m\n");
     }
 
-    QFile cacheFile(cacheDir.absolutePath() % "/db.xml");
+    QFile cacheFile(cacheDir.path() % "/db.xml");
     if (cacheFile.open(QIODevice::ReadOnly)) {
         printf("Building file lookup cache, please wait... ");
         fflush(stdout);
 
         QSet<QString> fileEntries;
         for (auto const &t : binTypes()) {
-            QDir dir(cacheDir.absolutePath() % "/" % t % "s", "*.*", QDir::Name,
+            QDir dir(cacheDir.path() % "/" % t % "s", "*.*", QDir::Name,
                      QDir::Files);
             QDirIterator it(dir.absolutePath(),
                             QDir::Files | QDir::NoDotAndDotDot,
@@ -180,8 +185,7 @@ bool Cache::read() {
             }
             resource.value = xml.readElementText();
             if (binTypes().contains(resource.type) &&
-                !fileEntries.contains(cacheDir.absolutePath() % "/" %
-                                      resource.value)) {
+                !fileEntries.contains(cacheDir.path() % "/" % resource.value)) {
                 printf("Source file '%s' missing, skipping entry...\n",
                        resource.value.toStdString().c_str());
                 continue;
@@ -1263,7 +1267,7 @@ void Cache::addToResCounts(const QString source, const QString type) {
 
 void Cache::readPriorities() {
     QDomDocument prioDoc;
-    QFile prioFile(cacheDir.absolutePath() + "/priorities.xml");
+    QFile prioFile(cacheDir.path() + "/priorities.xml");
     printf("Looking for optional '\033[1;33mpriorities.xml\033[0m' file in "
            "cache folder... ");
     if (prioFile.open(QIODevice::ReadOnly)) {
@@ -1315,7 +1319,7 @@ void Cache::readPriorities() {
 bool Cache::write(const bool onlyQuickId) {
     QMutexLocker locker(&cacheMutex);
 
-    QFile quickIdFile(cacheDir.absolutePath() + "/quickid.xml");
+    QFile quickIdFile(cacheDir.path() + "/quickid.xml");
     if (quickIdFile.open(QIODevice::WriteOnly)) {
         printf("Writing quick id xml, please wait... ");
         fflush(stdout);
@@ -1341,7 +1345,7 @@ bool Cache::write(const bool onlyQuickId) {
     }
 
     bool result = false;
-    QFile cacheFile(cacheDir.absolutePath() + "/db.xml");
+    QFile cacheFile(cacheDir.path() + "/db.xml");
     if (cacheFile.open(QIODevice::WriteOnly)) {
         printf("Writing %d (%d new) resources to cache, please wait... ",
                resources.length(), resources.length() - resAtLoad);
@@ -1377,7 +1381,7 @@ void Cache::validate() {
 
     printf("Starting resource cache validation run, please wait...\n");
 
-    if (!QFileInfo::exists(cacheDir.absolutePath() + "/db.xml")) {
+    if (!QFileInfo::exists(cacheDir.path() + "/db.xml")) {
         printf("'db.xml' not found, cache cleaning cancelled...\n");
         return;
     }
@@ -1386,7 +1390,7 @@ void Cache::validate() {
     int filesNoDelete = 0;
 
     for (auto const &t : binTypes()) {
-        QDir dir(cacheDir.absolutePath() % "/" % t % "s", "*.*", QDir::Name,
+        QDir dir(cacheDir.path() % "/" % t % "s", "*.*", QDir::Name,
                  QDir::Files);
         QDirIterator iter(dir.absolutePath(),
                           QDir::Files | QDir::NoDotAndDotDot,
@@ -1413,7 +1417,7 @@ void Cache::verifyFiles(QDirIterator &dirIt, int &filesDeleted,
     QList<QString> resFileNames;
     for (const auto &resource : resources) {
         if (resource.type == resType) {
-            QFileInfo resInfo(cacheDir.absolutePath() + "/" + resource.value);
+            QFileInfo resInfo(cacheDir.path() + "/" + resource.value);
             resFileNames.append(resInfo.absoluteFilePath());
         }
     }
@@ -1440,6 +1444,7 @@ void Cache::merge(Cache &mergeCache, bool overwrite,
     QList<Resource> mergeResources = mergeCache.getResources();
 
     QDir mergeCacheDir(mergeCacheFolder);
+    mergeCacheDir.makeAbsolute();
 
     int resUpdated = 0;
     int resMerged = 0;
@@ -1468,13 +1473,11 @@ void Cache::merge(Cache &mergeCache, bool overwrite,
         }
         if (!resExists) {
             if (binTypes().contains(mergeResource.type)) {
-                cacheDir.mkpath(QFileInfo(cacheDir.absolutePath() + "/" +
-                                          mergeResource.value)
-                                    .absolutePath());
-                if (!QFile::copy(mergeCacheDir.absolutePath() + "/" +
+                cacheDir.mkpath(
+                    QFileInfo(cacheDir.path() + "/" + mergeResource.value));
+                if (!QFile::copy(mergeCacheDir.path() + "/" +
                                      mergeResource.value,
-                                 cacheDir.absolutePath() + "/" +
-                                     mergeResource.value)) {
+                                 cacheDir.path() + "/" + mergeResource.value)) {
                     printf("Couldn't copy media file '%s', skipping...\n",
                            mergeResource.value.toStdString().c_str());
                     continue;
@@ -1496,7 +1499,6 @@ QList<Resource> Cache::getResources() { return resources; }
 
 void Cache::addResources(GameEntry &entry, const Settings &config,
                          QString &output) {
-    QString cacheAbsolutePath = cacheDir.absolutePath();
 
     if (entry.source.isEmpty()) {
         printf("Something is wrong, resource with cache id '%s' has no source, "
@@ -1506,6 +1508,7 @@ void Cache::addResources(GameEntry &entry, const Settings &config,
     }
 
     if (entry.cacheId != "") {
+        const QString cacheAbsolutePath = cacheDir.path();
         Resource resource;
         resource.cacheId = entry.cacheId;
         resource.source = entry.source;
@@ -1918,7 +1921,7 @@ void Cache::fillBlanks(GameEntry &entry, const QString scraper) {
         QString source = "";
         QByteArray data;
         if (fillType(type, matchingResources, result, source)) {
-            QFile f(cacheDir.absolutePath() + "/" + result);
+            QFile f(cacheDir.path() + "/" + result);
             if (f.open(QIODevice::ReadOnly)) {
                 data = f.readAll();
                 f.close();
@@ -1993,7 +1996,7 @@ bool Cache::fillType(const QString &type, QList<Resource> &matchingResources,
 
 bool Cache::removeMediaFile(Resource &res, const char *msg) {
     if (binTypes().contains(res.type) &&
-        !QFile::remove(cacheDir.absolutePath() + "/" + res.value)) {
+        !QFile::remove(cacheDir.path() + "/" + res.value)) {
         printf(msg, res.value.toStdString().c_str());
         printf(", skipping...\n");
         return false;

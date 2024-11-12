@@ -203,10 +203,9 @@ void Skyscraper::run() {
     if (config.cacheOptions.contains("merge:")) {
         QFileInfo mergeCacheInfo(config.cacheOptions.replace("merge:", ""));
         if (mergeCacheInfo.exists()) {
-            Cache mergeCache(mergeCacheInfo.absoluteFilePath());
+            Cache mergeCache(mergeCacheInfo.path());
             mergeCache.read();
-            cache->merge(mergeCache, config.refresh,
-                         mergeCacheInfo.absoluteFilePath());
+            cache->merge(mergeCache, config.refresh, mergeCacheInfo.path());
             state = NO_INTR; // Ignore ctrl+c
             cache->write();
             state = SINGLE;

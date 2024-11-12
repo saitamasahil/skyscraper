@@ -20,9 +20,11 @@
 #include "settings.h"
 
 #include "cli.h"
+#include "config.h"
 #include "platform.h"
 
 #include <QDebug>
+#include <QFileInfo>
 #include <QStringBuilder>
 #ifdef __MINGW32__
 #include <experimental/filesystem>
@@ -549,8 +551,15 @@ void RuntimeCfg::applyCli(bool &inputFolderSet, bool &gameListFolderSet,
     }
     if (parser->isSet("d")) {
         config->cacheFolder = parser->value("d");
+        if (QFileInfo(config->cacheFolder).isRelative()) {
+            config->cacheFolder =
+                config->currentDir % "/" % config->cacheFolder;
+        }
     } else if (config->cacheFolder.isEmpty()) {
-        config->cacheFolder = "cache/" + config->platform;
+        // failsafe: no CLI and no config.ini cacheFolder provided
+        config->cacheFolder =
+            Config::getSkyFolder(Config::SkyFolderType::CACHE) % "/" %
+            config->platform;
     }
     QStringList flags = parseFlags();
     if (flags.contains("help")) {
