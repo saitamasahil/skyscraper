@@ -71,9 +71,9 @@ const QStringList Cache::getAllResourceTypes() {
 Cache::Cache(const QString &cacheFolder) { cacheDir = QDir(cacheFolder); }
 
 bool Cache::createFolders(const QString &scraper) {
-    for (auto const &f : binTypes()) {
-        if (!cacheDir.mkpath(QString("%1/%2s/%3") // plural 's'
-                                 .arg(cacheDir.absolutePath(), f, scraper))) {
+    for (auto const &btype : binTypes()) {
+        if (!cacheDir.mkpath(QString("%1/%2s/%3") // keep the plural 's'
+                                 .arg(cacheDir.absolutePath(), btype, scraper))) {
             return false;
         }
     }
@@ -963,7 +963,7 @@ void Cache::assembleReport(const Settings &config, const QString filter) {
     }
 
     // Create the reports folder
-    QDir reportsDir(QDir::currentPath() + "/reports");
+    QDir reportsDir(Config::getSkyFolder(Config::SkyFolderType::REPORT));
     if (!reportsDir.exists()) {
         if (!reportsDir.mkpath(".")) {
             printf("Couldn't create reports folder '%s'. Please check "

@@ -46,6 +46,7 @@
 #include "strtools.h"
 
 #include <QDebug>
+#include <QDir>
 #include <QDomDocument>
 #include <QFileInfo>
 #include <QPainter>

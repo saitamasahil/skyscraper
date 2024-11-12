@@ -148,7 +148,9 @@ void Config::setupUserConfig() {
     // Create cache folder
     QDir(getSkyFolder(SkyFolderType::CACHE)).mkpath(".");
 
-    QDir::setCurrent(getSkyFolder()); // FIXME: Attn!
+    // defaults to config.ini, artwork.xml, hints.xml, ... folder
+    // any file outside this folder shall use Config::getSkyFolder(type ...)
+    QDir::setCurrent(getSkyFolder());
 
     // copy configs
     QString localEtcPath = QString(PREFIX "/etc/skyscraper/");
