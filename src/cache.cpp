@@ -85,13 +85,12 @@ bool Cache::createFolders(const QString &scraper) {
 
     // Copy priorities.xml example file to cache folder if it doesn't already
     // exist
-    QFile::copy("cache/priorities.xml.example",
-                cacheDir.path() + "/priorities.xml");
+    QFile::copy("cache/priorities.xml.example", prioFilePath());
     return true;
 }
 
 bool Cache::read() {
-    QFile quickIdFile(cacheDir.path() % "/quickid.xml");
+    QFile quickIdFile(quickIdFilePath());
     if (quickIdFile.open(QIODevice::ReadOnly)) {
         printf("Reading and parsing quick id xml, please wait... ");
         fflush(stdout);
@@ -118,7 +117,7 @@ bool Cache::read() {
         printf("\033[1;32mDone!\033[0m\n");
     }
 
-    QFile cacheFile(cacheDir.path() % "/db.xml");
+    QFile cacheFile(dbFilePath());
     if (cacheFile.open(QIODevice::ReadOnly)) {
         printf("Building file lookup cache, please wait... ");
         fflush(stdout);
@@ -363,25 +362,31 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                    info.fileName().toStdString().c_str());
             std::string userInput = "";
             if (command.isEmpty()) {
-                printf("\033[1;34mWhat would you like to do?\033[0m (Press "
-                       "enter to continue to next rom in queue)\n");
-                printf("\033[1;33ms\033[0m) Show current resource priorities "
+                printf("\033[1;34mWhat would you like to do?\033[0m\n "
+                       "Press Enter to continue to next rom in queue\n");
+                printf("\033[1;33m  s\033[0m) Show current resource priorities "
                        "for this rom\n");
-                printf("\033[1;33mS\033[0m) Show all cached resources for this "
-                       "rom\n");
-                printf("\033[1;33mn\033[0m) Create new prioritized resource "
-                       "for this rom\n");
-                printf("\033[1;33md\033[0m) Remove specific resource connected "
-                       "to this rom\n");
-                printf("\033[1;33mD\033[0m) Remove ALL resources connected to "
-                       "this rom\n");
-                printf("\033[1;33mm\033[0m) Remove ALL resources connected to "
-                       "this rom from a specific module\n");
-                printf("\033[1;33mt\033[0m) Remove ALL resources connected to "
-                       "this rom of a specific type\n");
                 printf(
-                    "\033[1;33mc\033[0m) Cancel all cache changes and exit\n");
-                printf("\033[1;33mq\033[0m) Save all cache changes and exit\n");
+                    "\033[1;33m  S\033[0m) Show all cached resources for this "
+                    "rom\n");
+                printf("\033[1;33m  n\033[0m) Create new prioritized resource "
+                       "for this rom\n");
+                printf(
+                    "\033[1;33m  d\033[0m) Remove specific resource connected "
+                    "to this rom\n");
+                printf(
+                    "\033[1;33m  D\033[0m) Remove ALL resources connected to "
+                    "this rom\n");
+                printf(
+                    "\033[1;33m  m\033[0m) Remove ALL resources connected to "
+                    "this rom from a specific module\n");
+                printf(
+                    "\033[1;33m  t\033[0m) Remove ALL resources connected to "
+                    "this rom of a specific type\n");
+                printf("\033[1;33m  c\033[0m) Cancel all cache changes and "
+                       "exit\n");
+                printf(
+                    "\033[1;33m  q\033[0m) Save all cache changes and exit\n");
                 printf("> ");
                 getline(std::cin, userInput);
                 printf("\n");
@@ -422,61 +427,61 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                 if (type.isEmpty()) {
                     printf("\033[1;34mWhich resource type would you like to "
                            "create?\033[0m (Enter to cancel)\n");
-                    printf("\033[1;33m0\033[0m) Title %s\n",
+                    printf("\033[1;33m   0\033[0m) Title %s\n",
                            QString((game.titleSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m1\033[0m) Platform %s\n",
+                    printf("\033[1;33m   1\033[0m) Platform %s\n",
                            QString((game.platformSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m2\033[0m) Release date %s\n",
+                    printf("\033[1;33m   2\033[0m) Release date %s\n",
                            QString((game.releaseDateSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m3\033[0m) Developer %s\n",
+                    printf("\033[1;33m   3\033[0m) Developer %s\n",
                            QString((game.developerSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m4\033[0m) Publisher %s\n",
+                    printf("\033[1;33m   4\033[0m) Publisher %s\n",
                            QString((game.publisherSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m5\033[0m) Number of players %s\n",
+                    printf("\033[1;33m   5\033[0m) Number of players %s\n",
                            QString((game.playersSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m6\033[0m) Age rating %s\n",
+                    printf("\033[1;33m   6\033[0m) Age rating %s\n",
                            QString((game.agesSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m7\033[0m) Genres %s\n",
+                    printf("\033[1;33m   7\033[0m) Genres %s\n",
                            QString((game.tagsSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m8\033[0m) Game rating %s\n",
+                    printf("\033[1;33m   8\033[0m) Game rating %s\n",
                            QString((game.ratingSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
                                .toStdString()
                                .c_str());
-                    printf("\033[1;33m9\033[0m) Description %s\n",
+                    printf("\033[1;33m   9\033[0m) Description %s\n",
                            QString((game.descriptionSrc.isEmpty()
                                         ? "(\033[1;31mmissing\033[0m)"
                                         : ""))
@@ -630,11 +635,12 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                 for (auto res : resources) {
                     if (res.cacheId == cacheId &&
                         !binTypes().contains(res.type)) {
-                        printf("\033[1;33m%d\033[0m) \033[1;33m%s\033[0m (%s): "
-                               "'\033[1;32m%s\033[0m'\n",
-                               ++b, res.type.toStdString().c_str(),
-                               res.source.toStdString().c_str(),
-                               res.value.toStdString().c_str());
+                        printf(
+                            "\033[1;33m%4d\033[0m) \033[1;33m%s\033[0m (%s): "
+                            "'\033[1;32m%s\033[0m'\n",
+                            ++b, res.type.toStdString().c_str(),
+                            res.source.toStdString().c_str(),
+                            res.value.toStdString().c_str());
                         resIds.append(b - 1);
                     }
                 }
@@ -1267,7 +1273,7 @@ void Cache::addToResCounts(const QString source, const QString type) {
 
 void Cache::readPriorities() {
     QDomDocument prioDoc;
-    QFile prioFile(cacheDir.path() + "/priorities.xml");
+    QFile prioFile(prioFilePath());
     printf("Looking for optional '\033[1;33mpriorities.xml\033[0m' file in "
            "cache folder... ");
     if (prioFile.open(QIODevice::ReadOnly)) {
@@ -1319,7 +1325,7 @@ void Cache::readPriorities() {
 bool Cache::write(const bool onlyQuickId) {
     QMutexLocker locker(&cacheMutex);
 
-    QFile quickIdFile(cacheDir.path() + "/quickid.xml");
+    QFile quickIdFile(quickIdFilePath());
     if (quickIdFile.open(QIODevice::WriteOnly)) {
         printf("Writing quick id xml, please wait... ");
         fflush(stdout);
@@ -1345,7 +1351,7 @@ bool Cache::write(const bool onlyQuickId) {
     }
 
     bool result = false;
-    QFile cacheFile(cacheDir.path() + "/db.xml");
+    QFile cacheFile(dbFilePath());
     if (cacheFile.open(QIODevice::WriteOnly)) {
         printf("Writing %d (%d new) resources to cache, please wait... ",
                resources.length(), resources.length() - resAtLoad);
@@ -1381,7 +1387,7 @@ void Cache::validate() {
 
     printf("Starting resource cache validation run, please wait...\n");
 
-    if (!QFileInfo::exists(cacheDir.path() + "/db.xml")) {
+    if (!QFileInfo::exists(dbFilePath())) {
         printf("'db.xml' not found, cache cleaning cancelled...\n");
         return;
     }
@@ -1473,11 +1479,12 @@ void Cache::merge(Cache &mergeCache, bool overwrite,
         }
         if (!resExists) {
             if (binTypes().contains(mergeResource.type)) {
-                cacheDir.mkpath(
-                    QFileInfo(cacheDir.path() + "/" + mergeResource.value));
+                const QString absTgtFile =
+                    cacheDir.path() + "/" + mergeResource.value;
+                cacheDir.mkpath(absTgtFile);
                 if (!QFile::copy(mergeCacheDir.path() + "/" +
                                      mergeResource.value,
-                                 cacheDir.path() + "/" + mergeResource.value)) {
+                                 absTgtFile)) {
                     printf("Couldn't copy media file '%s', skipping...\n",
                            mergeResource.value.toStdString().c_str());
                     continue;
