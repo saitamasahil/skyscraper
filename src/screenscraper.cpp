@@ -163,7 +163,9 @@ void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
                                            "191;167;200;198;192;228;169;156"),
                          "****");
             data.replace(config->password.toUtf8(), "****");
-            QFile jsonErrorFile("./screenscraper_error.json");
+            QFile jsonErrorFile(
+                Config::getSkyFolder(Config::SkyFolderType::LOG) +
+                "/screenscraper_error.json");
             if (jsonErrorFile.open(QIODevice::WriteOnly)) {
                 if (data.length() > 64) {
                     jsonErrorFile.write(data);
@@ -173,7 +175,8 @@ void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
                            "filing a bug report at "
                            "'https://github.com/Gemba/skyscraper/issues' and "
                            "attach that file.\n",
-                           Config::getSkyFolder(Config::SkyFolderType::LOG)
+                           QFileInfo(jsonErrorFile)
+                               .absoluteFilePath()
                                .toStdString()
                                .c_str());
                 }
