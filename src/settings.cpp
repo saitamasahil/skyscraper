@@ -154,7 +154,12 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
                 continue;
             }
             if (k == "artworkXml") {
-                config->artworkConfig = v;
+                if (!v.isEmpty() && QFileInfo(v).isRelative()) {
+                    config->artworkConfig =
+                        concatPath(Config::getSkyFolder(), v);
+                } else {
+                    config->artworkConfig = v;
+                }
                 continue;
             }
             if (k == "cacheFolder") {
