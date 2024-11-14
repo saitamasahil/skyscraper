@@ -202,16 +202,24 @@ void Skyscraper::run() {
     }
     if (config.cacheOptions.contains("merge:")) {
         QFileInfo mergeCacheInfo(config.cacheOptions.replace("merge:", ""));
-        if (mergeCacheInfo.exists()) {
-            Cache mergeCache(mergeCacheInfo.path());
+
+        if (mergeCacheInfo.isRelative()) {
+            mergeCacheInfo =
+                QFileInfo(config.currentDir + "/" + mergeCacheInfo.filePath());
+        }
+
+        const QString absMergeCacheFilePath = mergeCacheInfo.absoluteFilePath();
+        if (mergeCacheInfo.isDir()) {
+            Cache mergeCache(absMergeCacheFilePath);
             mergeCache.read();
-            cache->merge(mergeCache, config.refresh, mergeCacheInfo.path());
+            cache->merge(mergeCache, config.refresh, absMergeCacheFilePath);
             state = NO_INTR; // Ignore ctrl+c
             cache->write();
             state = SINGLE;
         } else {
-            printf("Folder to merge from doesn't seem to exist, can't "
-                   "continue...\n");
+            printf("Path to merge from '%s' does not exist or is not a path, "
+                   "can't continue...\n",
+                   absMergeCacheFilePath.toStdString().c_str());
         }
         exit(0);
     }
