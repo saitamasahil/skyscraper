@@ -360,13 +360,20 @@ void Skyscraper::run() {
         }
     }
     printf("\n");
-    if (totalFiles > 0) {
-        printf("Starting scraping run on \033[1;32m%d\033[0m files using "
-               "\033[1;32m%d\033[0m threads.\nSit back, relax and let me do "
-               "the work! :)\n\n",
-               totalFiles, config.threads);
+    if (!doCacheScraping) {
+        if (totalFiles > 0) {
+            printf(
+                "Starting scraping run on \033[1;32m%d\033[0m files using "
+                "\033[1;32m%d\033[0m threads.\nSit back, relax and let me do "
+                "the work! :)\n\n",
+                totalFiles, config.threads);
+        } else {
+            printf("\nNo entries to scrape...\n\n");
+        }
     } else {
-        printf("\nNo entries to scrape...\n\n");
+        if (totalFiles == 0) {
+            printf("\nAll games found in cache.\n\n");
+        }
     }
 
     timer.start();
@@ -701,26 +708,32 @@ void Skyscraper::checkThreads() {
         }
     }
 
-    printf("\033[1;34m---- And here are some neat stats :) ----\033[0m\n");
-    printf("Total completion time: \033[1;33m%s\033[0m\n\n",
-           secsToString(timer.elapsed()).toStdString().c_str());
-    if (found > 0) {
-        printf("Average search match: \033[1;33m%d%%\033[0m\n",
-               (int)((double)avgSearchMatch / (double)found));
-        printf("Average entry completeness: \033[1;33m%d%%\033[0m\n\n",
-               (int)((double)avgCompleteness / (double)found));
+    if (!doCacheScraping || totalFiles > 0) {
+        printf("\033[1;34m---- And here are some neat stats :) ----\033[0m\n");
     }
-    printf("\033[1;34mTotal number of games: %d\033[0m\n", totalFiles);
-    printf("\033[1;32mSuccessfully processed games: %d\033[0m\n", found);
-    printf("\033[1;33mSkipped games: %d\033[0m", notFound);
-    if (notFound) {
-        printf(" (Filenames saved to '\033[1;33m%s/%s\033[0m')",
-               Config::getSkyFolder(Config::SkyFolderType::LOG)
-                   .toStdString()
-                   .c_str(),
-               skippedFileString.toStdString().c_str());
+    if (!doCacheScraping) {
+        printf("Total completion time: \033[1;33m%s\033[0m\n\n",
+               secsToString(timer.elapsed()).toStdString().c_str());
     }
-    printf("\n\n");
+    if (totalFiles > 0) {
+        if (found > 0) {
+            printf("Average search match: \033[1;33m%d%%\033[0m\n",
+                   (int)((double)avgSearchMatch / (double)found));
+            printf("Average entry completeness: \033[1;33m%d%%\033[0m\n\n",
+                   (int)((double)avgCompleteness / (double)found));
+        }
+        printf("\033[1;34mTotal number of games: %d\033[0m\n", totalFiles);
+        printf("\033[1;32mSuccessfully processed games: %d\033[0m\n", found);
+        printf("\033[1;33mSkipped games: %d\033[0m", notFound);
+        if (notFound > 0) {
+            printf(" (Filenames saved to '\033[1;33m%s/%s\033[0m')",
+                   Config::getSkyFolder(Config::SkyFolderType::LOG)
+                       .toStdString()
+                       .c_str(),
+                   skippedFileString.toStdString().c_str());
+        }
+        printf("\n\n");
+    }
 
     // All done, now clean up and exit to terminal
     emit finished();
