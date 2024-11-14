@@ -16,12 +16,12 @@ On RetroPie the
 will handle the installation. For the curious: It lands in
 `/etc/bash_completion.d/`.
 
-On non RaspiOS-based RetroPie-Installments put the file
-`supplementary/bash-completion/Skyscraper.bash` into
-`$XDG_DATA_HOME/bash-completion/completions/` respective to
-`$HOME/.local/share/bash-completion/completions/`. 
+On non RaspiOS-based RetroPie-Installments put the file from
+`supplementary/bash-completion/Skyscraper.bash` to
+`$XDG_DATA_HOME/bash-completion/completions/` (respective to
+`$HOME/.local/share/bash-completion/completions/`). 
   
-In any case: Open a new bash and press ++tab++ twice to use it in action.
+In either case: Open a new bash and press ++tab++ twice to see it in action.
 
 ## Short Options
 
