@@ -235,7 +235,7 @@ void Config::setupUserConfig() {
 void Config::checkLegacyFiles() {
     QStringList legacyJsons = {"mobygames", "platforms", "screenscraper"};
     for (auto bn : legacyJsons) {
-        QString fn = getSkyFolder() % bn % ".json";
+        QString fn = getSkyFolder() % "/" % bn % ".json";
         if (QFileInfo::exists(fn)) {
             printf(
                 "\033[1;33mFile '%s' found, which is no longer used in this "
