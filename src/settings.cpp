@@ -547,11 +547,12 @@ void RuntimeCfg::applyCli(bool &inputFolderSet, bool &gameListFolderSet,
         config->artworkConfig = parser->value("a");
         if (QFileInfo(config->artworkConfig).isRelative()) {
             config->artworkConfig =
-                config->currentDir % "/" % config->artworkConfig;
+                concatPath(config->currentDir, config->artworkConfig);
         }
     } else if (config->artworkConfig.isEmpty()) {
         // failsafe: no CLI and no config.ini artworkConfig provided
-        config->artworkConfig = Config::getSkyFolder() % "/artwork.xml";
+        config->artworkConfig =
+            concatPath(Config::getSkyFolder(), "artwork.xml");
     }
     if (parser->isSet("m") && parser->value("m").toInt() >= 0 &&
         parser->value("m").toInt() <= 100) {
@@ -565,13 +566,13 @@ void RuntimeCfg::applyCli(bool &inputFolderSet, bool &gameListFolderSet,
         config->cacheFolder = parser->value("d");
         if (QFileInfo(config->cacheFolder).isRelative()) {
             config->cacheFolder =
-                config->currentDir % "/" % config->cacheFolder;
+                concatPath(config->currentDir, config->cacheFolder);
         }
     } else if (config->cacheFolder.isEmpty()) {
         // failsafe: no CLI and no config.ini cacheFolder provided
         config->cacheFolder =
-            Config::getSkyFolder(Config::SkyFolderType::CACHE) % "/" %
-            config->platform;
+            concatPath(Config::getSkyFolder(Config::SkyFolderType::CACHE),
+                       config->platform);
     }
     QStringList flags = parseFlags();
     if (flags.contains("help")) {
