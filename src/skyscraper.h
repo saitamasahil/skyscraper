@@ -37,6 +37,7 @@
 #include <QCommandLineParser>
 #include <QElapsedTimer>
 #include <QFile>
+#include <QList>
 #include <QObject>
 
 class Skyscraper : public QObject {
@@ -85,6 +86,8 @@ private:
     }
     void setFolder(const bool doCacheScraping, QString &outFolder,
                    const bool createMissingFolder = true);
+
+    QList<QString> readFileListFrom(const QString &filename);
 
     AbstractFrontend *frontend;
 

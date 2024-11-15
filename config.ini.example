@@ -66,7 +66,7 @@
 ;langPrios="en,de,es"
 ;regionPrios="eu,us,ss,uk,wor,jp"
 ;minMatch="0"
-;artworkXml="artwork.xml"
+;artworkXml=""
 ;relativePaths="false"
 ;addExtensions="*.zst"
 ;hints="false"

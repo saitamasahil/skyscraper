@@ -69,6 +69,7 @@ struct ResCounts {
 class Cache {
 public:
     Cache(const QString &cacheFolder);
+
     static const QStringList getAllResourceTypes();
     bool createFolders(const QString &scraper);
     bool read();
@@ -107,6 +108,8 @@ private:
     QMap<QString, QPair<qint64, QString>>
         quickIds; // filePath, timestamp + cacheId for quick lookup
 
+    int resAtLoad = 0;
+
     QList<QFileInfo> getFileInfos(const QString &inputFolder,
                                   const QString &filter,
                                   const bool subdirs = true);
@@ -126,7 +129,14 @@ private:
                         const QString &cacheAbsolutePath,
                         const Settings &config, QString &output);
     bool hasAlpha(const QImage &image);
-    int resAtLoad = 0;
+
+    inline const QString quickIdFilePath() {
+        return cacheDir.path() + "/quickid.xml";
+    }
+    inline const QString dbFilePath() { return cacheDir.path() + "/db.xml"; }
+    inline const QString prioFilePath() {
+        return cacheDir.path() + "/priorities.xml";
+    }
 };
 
 #endif // CACHE_H

@@ -32,7 +32,6 @@
 #include "queue.h"
 #include "settings.h"
 
-#include <QDir>
 #include <QImage>
 #include <QThread>
 

@@ -3,6 +3,11 @@
 This page summarizes the changes of each Skyscraper release, a [changlog for
 humans](https://keepachangelog.com).
 
+### Version 3.14.0 (TBA)
+
+- Added: Support for [XDG Base Directories](XDG.md), thanks for the suggestion
+  @ASHGOLDOFFICIAL. 
+
 ### Version 3.13.0 (2024-11-06)
 
 - Added: Option to provide user file `peas_local.json` (same format as

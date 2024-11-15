@@ -26,8 +26,9 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include "config.h"
+
 #include <QCommandLineParser>
-#include <QDir>
 #include <QImage>
 #include <QMap>
 #include <QObject>
@@ -67,7 +68,7 @@ struct Settings {
     QString texturesFolder = "";
     QString videosFolder = "";
     QString manualsFolder = "";
-    QString importFolder = "import";
+    QString importFolder = Config::getSkyFolder(Config::SkyFolderType::IMPORT);
     QString nameTemplate = "";
     int doneThreads = 0;
     int threads = 4;
@@ -99,7 +100,7 @@ struct Settings {
     int maxFails = 42;
     bool skipped = false;
     bool tidyDesc = true;
-    QString artworkConfig = "artwork.xml";
+    QString artworkConfig = "";
     QByteArray artworkXml = "";
     QString excludePattern = "";
     QString includePattern = "";

@@ -20,16 +20,24 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <QMap>
 #include <QString>
 
 namespace Config {
     enum class FileOp { KEEP, OVERWRITE, CREATE_DIST };
+    enum class SkyFolderType { CONFIG, CACHE, IMPORT, RESOURCE, REPORT, LOG };
+
+    typedef QMap<SkyFolderType, QString> SkyFolders;
+
+    void initSkyFolders();
+    QString getSkyFolder(SkyFolderType type = SkyFolderType::CONFIG);
 
     void copyFile(const QString &src, const QString &dest,
                   FileOp fileOp = FileOp::OVERWRITE);
     void setupUserConfig();
     void checkLegacyFiles();
     QString getSupportedPlatforms();
+
 } // namespace Config
 
 #endif // CONFIG_H

@@ -362,6 +362,11 @@ QString StrTools::getVersionBanner() {
         padded = true;
     }
     pad.chop(1);
+#ifdef XDG
+    QString xdg = "(XDG)";
+#else
+    QString xdg = "     ";
+#endif
     QStringList b = {
         // clang-format off
          g[idx++] % "m _______ __                                                   "%pad%" ___",
@@ -369,7 +374,7 @@ QString StrTools::getVersionBanner() {
          g[idx++] % "m|   1___|    <|  |  |__ --|  __|   _|  _  |  _  |  -__|   _|  "%pad%"|\"\"\"|",
          g[idx++] % "m|____   |__|__|___  |_____|____|__| |___._|   __|_____|__|    "%pad%"|\"\"\"|",
         (g[idx++] + "m|:  1   |     |_____|                     |__| %1  %2|\"\"\"|").arg(ver, fieldSize).arg(padded ? "" : " "),
-         g[idx++] % "m|::.. . |                                                     "%pad%"|\"\"\"|",
+        (g[idx++] + "m|::.. . |                                             %1   "%pad%"|\"\"\"|").arg(xdg),
          g[idx++] % "m`-------' by Lars Muldjord and contributors                  "%pad%"\"\"''''\"",
         // clang-format on
     };

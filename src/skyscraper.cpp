@@ -23,6 +23,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 
+#include "config.h"
+
 #include <QDebug>
 #include <QDirIterator>
 #include <QDomDocument>
@@ -200,17 +202,24 @@ void Skyscraper::run() {
     }
     if (config.cacheOptions.contains("merge:")) {
         QFileInfo mergeCacheInfo(config.cacheOptions.replace("merge:", ""));
-        if (mergeCacheInfo.exists()) {
-            Cache mergeCache(mergeCacheInfo.absoluteFilePath());
+
+        if (mergeCacheInfo.isRelative()) {
+            mergeCacheInfo =
+                QFileInfo(config.currentDir + "/" + mergeCacheInfo.filePath());
+        }
+
+        const QString absMergeCacheFilePath = mergeCacheInfo.absoluteFilePath();
+        if (mergeCacheInfo.isDir()) {
+            Cache mergeCache(absMergeCacheFilePath);
             mergeCache.read();
-            cache->merge(mergeCache, config.refresh,
-                         mergeCacheInfo.absoluteFilePath());
+            cache->merge(mergeCache, config.refresh, absMergeCacheFilePath);
             state = NO_INTR; // Ignore ctrl+c
             cache->write();
             state = SINGLE;
         } else {
-            printf("Folder to merge from doesn't seem to exist, can't "
-                   "continue...\n");
+            printf("Path to merge from '%s' does not exist or is not a path, "
+                   "can't continue...\n",
+                   absMergeCacheFilePath.toStdString().c_str());
         }
         exit(0);
     }
@@ -351,13 +360,20 @@ void Skyscraper::run() {
         }
     }
     printf("\n");
-    if (totalFiles > 0) {
-        printf("Starting scraping run on \033[1;32m%d\033[0m files using "
-               "\033[1;32m%d\033[0m threads.\nSit back, relax and let me do "
-               "the work! :)\n\n",
-               totalFiles, config.threads);
+    if (!doCacheScraping) {
+        if (totalFiles > 0) {
+            printf(
+                "Starting scraping run on \033[1;32m%d\033[0m files using "
+                "\033[1;32m%d\033[0m threads.\nSit back, relax and let me do "
+                "the work! :)\n\n",
+                totalFiles, config.threads);
+        } else {
+            printf("\nNo entries to scrape...\n\n");
+        }
     } else {
-        printf("\nNo entries to scrape...\n\n");
+        if (totalFiles == 0) {
+            printf("\nAll games found in cache.\n\n");
+        }
     }
 
     timer.start();
@@ -392,8 +408,9 @@ void Skyscraper::run() {
 
 void Skyscraper::prepareFileQueue() {
     QDir::Filters filter = QDir::Files;
-    // special case scummvm: user do use .svm in folder name to work around the
-    // limitation of the ScummVM / lr-scummvm launch integration in ES/RetroPie
+    // special case scummvm: users can use .svm in folder name to work around
+    // the limitation of the ScummVM / lr-scummvm launch integration in
+    // ES/RetroPie
     if (config.platform == "scummvm") {
         filter |= QDir::Dirs;
     }
@@ -510,30 +527,7 @@ void Skyscraper::prepareFileQueue() {
 
     // Remove files from excludeFrom, if any
     if (!config.excludeFrom.isEmpty()) {
-        QFileInfo excludeFromInfo(config.excludeFrom);
-        if (!excludeFromInfo.exists()) {
-            excludeFromInfo.setFile(config.currentDir + "/" +
-                                    config.excludeFrom);
-        }
-        if (excludeFromInfo.exists()) {
-            QFile excludeFrom(excludeFromInfo.absoluteFilePath());
-            if (excludeFrom.open(QIODevice::ReadOnly)) {
-                QList<QString> excludes;
-                while (!excludeFrom.atEnd()) {
-                    excludes.append(
-                        QString(excludeFrom.readLine().simplified()));
-                }
-                excludeFrom.close();
-                if (!excludes.isEmpty()) {
-                    queue->removeFiles(excludes);
-                }
-            }
-        } else {
-            printf("File: '\033[1;32m%s\033[0m' does not exist.\n\nPlease "
-                   "verify the filename and try again...\n",
-                   excludeFromInfo.absoluteFilePath().toStdString().c_str());
-            exit(1);
-        }
+        queue->removeFiles(readFileListFrom(config.excludeFrom));
     }
 }
 
@@ -714,23 +708,58 @@ void Skyscraper::checkThreads() {
         }
     }
 
-    printf("\033[1;34m---- And here are some neat stats :) ----\033[0m\n");
-    printf("Total completion time: \033[1;33m%s\033[0m\n\n",
-           secsToString(timer.elapsed()).toStdString().c_str());
-    if (found > 0) {
-        printf("Average search match: \033[1;33m%d%%\033[0m\n",
-               (int)((double)avgSearchMatch / (double)found));
-        printf("Average entry completeness: \033[1;33m%d%%\033[0m\n\n",
-               (int)((double)avgCompleteness / (double)found));
+    if (!doCacheScraping || totalFiles > 0) {
+        printf("\033[1;34m---- And here are some neat stats :) ----\033[0m\n");
     }
-    printf("\033[1;34mTotal number of games: %d\033[0m\n", totalFiles);
-    printf("\033[1;32mSuccessfully processed games: %d\033[0m\n", found);
-    printf("\033[1;33mSkipped games: %d\033[0m (Filenames saved to "
-           "'\033[1;33m/home/<USER>/.skyscraper/%s\033[0m')\n\n",
-           notFound, skippedFileString.toStdString().c_str());
+    if (!doCacheScraping) {
+        printf("Total completion time: \033[1;33m%s\033[0m\n\n",
+               secsToString(timer.elapsed()).toStdString().c_str());
+    }
+    if (totalFiles > 0) {
+        if (found > 0) {
+            printf("Average search match: \033[1;33m%d%%\033[0m\n",
+                   (int)((double)avgSearchMatch / (double)found));
+            printf("Average entry completeness: \033[1;33m%d%%\033[0m\n\n",
+                   (int)((double)avgCompleteness / (double)found));
+        }
+        printf("\033[1;34mTotal number of games: %d\033[0m\n", totalFiles);
+        printf("\033[1;32mSuccessfully processed games: %d\033[0m\n", found);
+        printf("\033[1;33mSkipped games: %d\033[0m", notFound);
+        if (notFound > 0) {
+            printf(" (Filenames saved to '\033[1;33m%s/%s\033[0m')",
+                   Config::getSkyFolder(Config::SkyFolderType::LOG)
+                       .toStdString()
+                       .c_str(),
+                   skippedFileString.toStdString().c_str());
+        }
+        printf("\n\n");
+    }
 
     // All done, now clean up and exit to terminal
     emit finished();
+}
+
+QList<QString> Skyscraper::readFileListFrom(const QString &filename) {
+    QList<QString> fileList;
+    QFileInfo fnInfo(filename);
+    if (!fnInfo.exists()) {
+        fnInfo.setFile(config.currentDir + "/" + filename);
+    }
+    if (fnInfo.exists()) {
+        QFile f(fnInfo.absoluteFilePath());
+        if (f.open(QIODevice::ReadOnly)) {
+            while (!f.atEnd()) {
+                fileList.append(QString(f.readLine().simplified()));
+            }
+            f.close();
+        }
+    } else {
+        printf("File: '\033[1;32m%s\033[0m' does not exist.\n\nPlease "
+               "verify the filename and try again...\n",
+               fnInfo.absoluteFilePath().toStdString().c_str());
+        exit(1);
+    }
+    return fileList;
 }
 
 void Skyscraper::loadConfig(const QCommandLineParser &parser) {
@@ -859,26 +888,7 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
 
     // Add files from '--includefrom', if any
     if (!config.includeFrom.isEmpty()) {
-        QFileInfo includeFromInfo(config.includeFrom);
-        if (!includeFromInfo.exists()) {
-            includeFromInfo.setFile(config.currentDir + "/" +
-                                    config.includeFrom);
-        }
-        if (includeFromInfo.exists()) {
-            QFile includeFrom(includeFromInfo.absoluteFilePath());
-            if (includeFrom.open(QIODevice::ReadOnly)) {
-                while (!includeFrom.atEnd()) {
-                    requestedFiles.append(
-                        QString(includeFrom.readLine().simplified()));
-                }
-                includeFrom.close();
-            }
-        } else {
-            printf("File: '\033[1;32m%s\033[0m' does not exist.\n\nPlease "
-                   "verify the filename and try again...\n",
-                   includeFromInfo.absoluteFilePath().toStdString().c_str());
-            exit(1);
-        }
+        requestedFiles += readFileListFrom(config.includeFrom);
     }
 
     // Verify requested files and add the ones that exist
@@ -970,15 +980,17 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
         exit(1);
     }
 
-    QDir resDir("./resources");
+    QDir resDir(Config::getSkyFolder(Config::SkyFolderType::RESOURCE));
     QDirIterator resDirIt(resDir.absolutePath(),
                           QDir::Files | QDir::NoDotAndDotDot,
                           QDirIterator::Subdirectories);
+    const QString resFolder = "resources/";
     while (resDirIt.hasNext()) {
         QString resFile = resDirIt.next();
-        // Also cut off 'resources/'
-        resFile = resFile.remove(0, resFile.indexOf("resources/") + 10);
-        config.resources[resFile] = QImage("resources/" + resFile);
+        // reduce key to relative filepath
+        resFile =
+            resFile.remove(0, resFile.indexOf(resFolder) + resFolder.length());
+        config.resources[resFile] = QImage(resFolder % resFile);
     }
 }
 
@@ -1008,31 +1020,24 @@ QString Skyscraper::normalizePath(QFileInfo fileInfo) {
 void Skyscraper::showHint() {
     QFile hintsFile("hints.xml");
     QDomDocument hintsXml;
-    if (!hintsFile.open(QIODevice::ReadOnly)) {
-        return;
-    }
-    if (!hintsXml.setContent(&hintsFile)) {
+    if (!hintsFile.open(QIODevice::ReadOnly) ||
+        !hintsXml.setContent(&hintsFile)) {
         return;
     }
     hintsFile.close();
     QDomNodeList hintNodes = hintsXml.elementsByTagName("hint");
+    printf("\033[1;33mDID YOU KNOW:\033[0m %s\n\n",
+           hintsXml
+               .elementsByTagName("hint")
 #if QT_VERSION >= 0x050a00
-    printf("\033[1;33mDID YOU KNOW:\033[0m %s\n\n",
-           hintsXml.elementsByTagName("hint")
                .at(QRandomGenerator::global()->generate() % hintNodes.length())
-               .toElement()
-               .text()
-               .toStdString()
-               .c_str());
 #else
-    printf("\033[1;33mDID YOU KNOW:\033[0m %s\n\n",
-           hintsXml.elementsByTagName("hint")
                .at(qrand() % hintNodes.length())
+#endif
                .toElement()
                .text()
                .toStdString()
                .c_str());
-#endif
 }
 
 void Skyscraper::prepareScraping() {
@@ -1086,7 +1091,7 @@ void Skyscraper::updateWhdloadDb(NetComm &netComm, QEventLoop &q) {
     QByteArray data = netComm.getData();
     QDomDocument tempDoc;
     QFile whdLoadFile("whdload_db.xml");
-    if (data.size() > 1000000 && tempDoc.setContent(data) &&
+    if (data.size() > 1000 * 1000 && tempDoc.setContent(data) &&
         whdLoadFile.open(QIODevice::WriteOnly)) {
         whdLoadFile.write(data);
         whdLoadFile.close();
@@ -1098,11 +1103,12 @@ void Skyscraper::updateWhdloadDb(NetComm &netComm, QEventLoop &q) {
 
 void Skyscraper::prepareIgdb(NetComm &netComm, QEventLoop &q) {
     if (config.threads > 4) {
-        printf("\033[1;33mAdjusting to 4 threads to accomodate limits in "
-               "the IGDB API\033[0m\n\n");
-        printf("\033[1;32mTHIS MODULE IS POWERED BY IGDB.COM\033[0m\n");
         // Don't change! This limit was set by request from IGDB
         config.threads = 4;
+        printf("\033[1;33mAdjusting to %d threads to accomodate limits in "
+               "the IGDB API\033[0m\n\n",
+               config.threads);
+        printf("\033[1;32mTHIS MODULE IS POWERED BY IGDB.COM\033[0m\n");
     }
     if (config.user.isEmpty() || config.password.isEmpty()) {
         printf("The IGDB scraping module requires free user credentials to "
@@ -1173,17 +1179,19 @@ void Skyscraper::prepareIgdb(NetComm &netComm, QEventLoop &q) {
 }
 
 void Skyscraper::prepareScreenscraper(NetComm &netComm, QEventLoop &q) {
+    const int threadsFailsafe = 1; // Don't change! This limit was set by
+                                   // request from ScreenScraper
     if ((config.user.isEmpty() || config.password.isEmpty()) &&
         config.threads > 1) {
-        printf("\033[1;33mForcing 1 threads as this is the anonymous "
+        config.threads = threadsFailsafe;
+        printf("\033[1;33mForcing %d thread as this is the anonymous "
                "limit in the ScreenScraper scraping module. Sign up for "
                "an account at https://www.screenscraper.fr and support "
                "them to gain more threads. Then use the credentials with "
                "Skyscraper using the '-u user:password' command line "
                "option or by setting 'userCreds=\"user:password\"' in "
-               "'/home/<USER>/.skyscraper/config.ini'.\033[0m\n\n");
-        config.threads = 1; // Don't change! This limit was set by
-                            // request from ScreenScraper
+               "'%s/config.ini'.\033[0m\n\n",
+               config.threads, Config::getSkyFolder().toStdString().c_str());
     } else {
         printf("Fetching limits for user '\033[1;33m%s\033[0m', just a "
                "sec...\n",
@@ -1199,21 +1207,22 @@ void Skyscraper::prepareScreenscraper(NetComm &netComm, QEventLoop &q) {
         QJsonObject jsonObj =
             QJsonDocument::fromJson(netComm.getData()).object();
         if (jsonObj.isEmpty()) {
+            config.threads = threadsFailsafe;
             if (netComm.getData().contains("Erreur de login")) {
                 printf("\033[0;31mScreenScraper login error! Please verify "
                        "that you've entered your credentials correctly in "
-                       "'/home/<USER>/.skyscraper/config.ini'. It needs to "
+                       "'%s/config.ini'. It needs to "
                        "look EXACTLY like this, but with your USER and "
                        "PASS:\033[0m\n\033[1;33m[screenscraper]\nuserCreds="
                        "\"USER:PASS\"\033[0m\033[0;31m\nContinuing with "
-                       "unregistered user, forcing 1 thread...\033[0m\n\n");
+                       "unregistered user, forcing %d thread...\033[0m\n\n",
+                       Config::getSkyFolder().toStdString().c_str(),
+                       config.threads);
             } else {
                 printf("\033[1;33mReceived invalid / empty ScreenScraper "
                        "server response, maybe their server is busy / "
                        "overloaded. Forcing 1 thread...\033[0m\n\n");
             }
-            config.threads = 1; // Don't change! This limit was set by
-                                // request from ScreenScraper
         } else {
             int allowedThreads = jsonObj["response"]
                                      .toObject()["ssuser"]

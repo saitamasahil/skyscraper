@@ -25,6 +25,6 @@
   <hint>If you are having trouble scraping a game with a long name, consider adding an alias for it to the "/home/USER/.skyscraper/aliasMap.csv" file. Open the file in an editor to read more on how to this works.</hint>
   <hint>You can create reports for all files missing certain resources in the cache using the '--cache report:missing=&lt;GROUP or RESOURCE1,RESOURCE2,...&gt; option. Great ways to add missing resources that the online sources are having trouble providing are the '--cache edit' option or the '-s import' module.</hint>
   <hint>Using the '--flags theinfront' flag you can force Skyscraper to always move 'The' to the front of the game titles, regardless of how it was returned from the scraping sources.</hint>
-  <hint>When importing ratings ("-s import") you can use either 5-star like scale (0.5, 1, 1.5, ... ,5) or decimal numbers scale (0.0 to 1.0) for the rating value.</hint>
+  <hint>When importing ratings ("-s import") you can use either 5-star like scale (0.5, 1, 1.5, ... , 5) or decimal numbers scale (0.0 to 1.0) for the rating value.</hint>
   <hint>You can pinpoint a game with the Mobygames scraper with "-s mobygames --query &lt;gameid&gt;"", where the &lt;gameid&gt; is the ID listed on the mobygames site in a game's detail view.</hint>
 </hints>

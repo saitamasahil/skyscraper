@@ -798,6 +798,7 @@ void ScraperWorker::copyMedia(const QString &mediaType,
                               const QString &completeBaseName,
                               const QString &subPath, GameEntry &game) {
 
+    // false means "game manual"
     const bool isVideoType = mediaType == "video";
 
     const QString fmt = isVideoType ? game.videoFormat : "pdf";
