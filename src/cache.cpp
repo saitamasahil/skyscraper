@@ -1533,81 +1533,52 @@ void Cache::addResources(GameEntry &entry, const Settings &config,
         exit(1);
     }
 
-    if (entry.cacheId != "") {
-        const QString cacheAbsolutePath = cacheDir.path();
-        Resource resource;
-        resource.cacheId = entry.cacheId;
-        resource.source = entry.source;
-        resource.timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        if (entry.title != "") {
-            resource.type = "title";
-            resource.value = entry.title;
+    if (entry.cacheId.isEmpty()) {
+        return;
+    }
+    const QString cacheAbsolutePath = cacheDir.path();
+    Resource resource;
+    resource.cacheId = entry.cacheId;
+    resource.source = entry.source;
+    resource.timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    const QMap<QString, QString> txtResources = {
+        {"title", entry.title},
+        {"platform", entry.platform},
+        {"description", entry.description},
+        {"publisher", entry.publisher},
+        {"developer", entry.developer},
+        {"players", entry.players},
+        {"ages", entry.ages},
+        {"tags", entry.tags},
+        {"rating", entry.rating},
+        {"releasedate", entry.releaseDate}};
+        
+    for (auto e = txtResources.cbegin(), end = txtResources.cend(); e != end;
+         ++e) {
+        if (!e.value().isEmpty()) {
+            resource.type = e.key();
+            resource.value = e.value();
             addResource(resource, entry, cacheAbsolutePath, config, output);
         }
-        if (entry.platform != "") {
-            resource.type = "platform";
-            resource.value = entry.platform;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.description != "") {
-            resource.type = "description";
-            resource.value = entry.description;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.publisher != "") {
-            resource.type = "publisher";
-            resource.value = entry.publisher;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.developer != "") {
-            resource.type = "developer";
-            resource.value = entry.developer;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.players != "") {
-            resource.type = "players";
-            resource.value = entry.players;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.ages != "") {
-            resource.type = "ages";
-            resource.value = entry.ages;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.tags != "") {
-            resource.type = "tags";
-            resource.value = entry.tags;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.rating != "") {
-            resource.type = "rating";
-            resource.value = entry.rating;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.releaseDate != "") {
-            resource.type = "releasedate";
-            resource.value = entry.releaseDate;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
+    }
 
-        QMap<QString, bool> cacheTypes = {
-            {"cover", !entry.coverData.isEmpty()},
-            {"screenshot", !entry.screenshotData.isEmpty()},
-            {"wheel", !entry.wheelData.isEmpty()},
-            {"marquee", !entry.marqueeData.isEmpty()},
-            {"texture", !entry.textureData.isEmpty()},
-            {"manual", !entry.manualData.isEmpty()},
-            {"video", !entry.videoData.isEmpty() && entry.videoFormat != ""}};
+    const QMap<QString, bool> binResources = {
+        {"cover", !entry.coverData.isEmpty()},
+        {"screenshot", !entry.screenshotData.isEmpty()},
+        {"wheel", !entry.wheelData.isEmpty()},
+        {"marquee", !entry.marqueeData.isEmpty()},
+        {"texture", !entry.textureData.isEmpty()},
+        {"manual", !entry.manualData.isEmpty()},
+        {"video", !entry.videoData.isEmpty() && entry.videoFormat != ""}};
 
-        for (auto const &t : binTypes()) {
-            if (cacheTypes.value(t)) {
-                resource.type = t;
-                resource.value = t % "s/" % entry.source % "/" % entry.cacheId;
-                if (t == "video") {
-                    resource.value += "." % entry.videoFormat;
-                }
-                addResource(resource, entry, cacheAbsolutePath, config, output);
+    for (auto const &t : binTypes()) {
+        if (binResources.value(t)) {
+            resource.type = t;
+            resource.value = t % "s/" % entry.source % "/" % entry.cacheId;
+            if (t == "video") {
+                resource.value += "." % entry.videoFormat;
             }
+            addResource(resource, entry, cacheAbsolutePath, config, output);
         }
     }
 }
