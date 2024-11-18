@@ -1173,85 +1173,58 @@ bool Cache::vacuumResources(const QString inputFolder, const QString filter,
 
 void Cache::showStats(int verbosity) {
     printf("Resource cache stats for selected platform:\n");
+
     if (verbosity == 1) {
-        int titles = 0;
-        int platforms = 0;
-        int descriptions = 0;
-        int publishers = 0;
-        int developers = 0;
-        int players = 0;
-        int ages = 0;
-        int tags = 0;
-        int ratings = 0;
-        int releaseDates = 0;
-        int covers = 0;
-        int screenshots = 0;
-        int wheels = 0;
-        int marquees = 0;
-        int textures = 0;
-        int videos = 0;
-        int manuals = 0;
-        for (QMap<QString, ResCounts>::iterator it = resCountsMap.begin();
-             it != resCountsMap.end(); ++it) {
-            titles += it.value().titles;
-            platforms += it.value().platforms;
-            descriptions += it.value().descriptions;
-            publishers += it.value().publishers;
-            developers += it.value().developers;
-            players += it.value().players;
-            ages += it.value().ages;
-            tags += it.value().tags;
-            ratings += it.value().ratings;
-            releaseDates += it.value().releaseDates;
-            covers += it.value().covers;
-            screenshots += it.value().screenshots;
-            wheels += it.value().wheels;
-            marquees += it.value().marquees;
-            textures += it.value().textures;
-            videos += it.value().videos;
-            manuals += it.value().manuals;
-        }
-        printf("  Titles       : %d\n", titles);
-        printf("  Platforms    : %d\n", platforms);
-        printf("  Descriptions : %d\n", descriptions);
-        printf("  Publishers   : %d\n", publishers);
-        printf("  Developers   : %d\n", developers);
-        printf("  Players      : %d\n", players);
-        printf("  Ages         : %d\n", ages);
-        printf("  Tags         : %d\n", tags);
-        printf("  Ratings      : %d\n", ratings);
-        printf("  ReleaseDates : %d\n", releaseDates);
-        printf("  Covers       : %d\n", covers);
-        printf("  Screenshots  : %d\n", screenshots);
-        printf("  Wheels       : %d\n", wheels);
-        printf("  Marquees     : %d\n", marquees);
-        printf("  textures     : %d\n", textures);
-        printf("  Videos       : %d\n", videos);
-        printf("  Manuals      : %d\n", manuals);
+        printStats(true);
     } else if (verbosity > 1) {
-        for (QMap<QString, ResCounts>::iterator it = resCountsMap.begin();
-             it != resCountsMap.end(); ++it) {
-            printf("'\033[1;32m%s\033[0m' module\n",
-                   it.key().toStdString().c_str());
-            printf("  Titles       : %d\n", it.value().titles);
-            printf("  Platforms    : %d\n", it.value().platforms);
-            printf("  Descriptions : %d\n", it.value().descriptions);
-            printf("  Publishers   : %d\n", it.value().publishers);
-            printf("  Developers   : %d\n", it.value().developers);
-            printf("  Ages         : %d\n", it.value().ages);
-            printf("  Tags         : %d\n", it.value().tags);
-            printf("  Ratings      : %d\n", it.value().ratings);
-            printf("  ReleaseDates : %d\n", it.value().releaseDates);
-            printf("  Covers       : %d\n", it.value().covers);
-            printf("  Screenshots  : %d\n", it.value().screenshots);
-            printf("  Wheels       : %d\n", it.value().wheels);
-            printf("  Marquees     : %d\n", it.value().marquees);
-            printf("  textures     : %d\n", it.value().textures);
-            printf("  Videos       : %d\n", it.value().videos);
-            printf("  Manuals      : %d\n", it.value().manuals);
-        }
+        printStats(false);
     }
     printf("\n");
+}
+
+void Cache::printStats(bool totals) {
+    QMap<QString, int> resTotals = {
+        {"Titles", 0},       {"Platforms", 0},  {"Descriptions", 0},
+        {"Publishers", 0},   {"Developers", 0}, {"Players", 0},
+        {"Ages", 0},         {"Tags", 0},       {"Ratings", 0},
+        {"ReleaseDates", 0}, {"Covers", 0},     {"Screenshots", 0},
+        {"Wheels", 0},       {"Marquees", 0},   {"Textures", 0},
+        {"Videos", 0},       {"Manuals", 0}};
+    for (auto it = resCountsMap.begin(); it != resCountsMap.end(); ++it) {
+        if (!totals) {
+            printf("'\033[1;32m%s\033[0m' module\n",
+                   it.key().toStdString().c_str());
+        }
+        resTotals["Titles"] += it.value().titles;
+        resTotals["Platforms"] += it.value().platforms;
+        resTotals["Descriptions"] += it.value().descriptions;
+        resTotals["Publishers"] += it.value().publishers;
+        resTotals["Developers"] += it.value().developers;
+        resTotals["Players"] += it.value().players;
+        resTotals["Ages"] += it.value().ages;
+        resTotals["Tags"] += it.value().tags;
+        resTotals["Ratings"] += it.value().ratings;
+        resTotals["ReleaseDates"] += it.value().releaseDates;
+        resTotals["Covers"] += it.value().covers;
+        resTotals["Screenshots"] += it.value().screenshots;
+        resTotals["Wheels"] += it.value().wheels;
+        resTotals["Marquees"] += it.value().marquees;
+        resTotals["Textures"] += it.value().textures;
+        resTotals["Videos"] += it.value().videos;
+        resTotals["Manuals"] += it.value().manuals;
+        if (!totals) {
+            for (auto it = resTotals.begin(); it != resTotals.end(); ++it) {
+                printf("  %12s : %d\n", it.key().toStdString().c_str(),
+                       it.value());
+                it.value() = 0;
+            }
+        }
+    }
+    if (totals) {
+        for (auto it = resTotals.cbegin(); it != resTotals.cend(); ++it) {
+            printf("  %12s : %d\n", it.key().toStdString().c_str(), it.value());
+        }
+    }
 }
 
 void Cache::addToResCounts(const QString source, const QString type) {
@@ -1403,7 +1376,6 @@ bool Cache::write(const bool onlyQuickId) {
 void Cache::validate() {
     // TODO: Add format checks for each resource type, and remove if deemed
     // corrupt
-
     printf("Starting resource cache validation run, please wait...\n");
 
     if (!QFileInfo::exists(dbFilePath())) {
@@ -1525,14 +1497,12 @@ QList<Resource> Cache::getResources() { return resources; }
 
 void Cache::addResources(GameEntry &entry, const Settings &config,
                          QString &output) {
-
     if (entry.source.isEmpty()) {
         printf("Something is wrong, resource with cache id '%s' has no source, "
                "exiting...\n",
                entry.cacheId.toStdString().c_str());
         exit(1);
     }
-
     if (entry.cacheId.isEmpty()) {
         return;
     }
@@ -1552,7 +1522,7 @@ void Cache::addResources(GameEntry &entry, const Settings &config,
         {"tags", entry.tags},
         {"rating", entry.rating},
         {"releasedate", entry.releaseDate}};
-        
+
     for (auto e = txtResources.cbegin(), end = txtResources.cend(); e != end;
          ++e) {
         if (!e.value().isEmpty()) {
@@ -1858,15 +1828,9 @@ void Cache::fillBlanks(GameEntry &entry, const QString scraper) {
     QList<Resource> matchingResources;
     // Find all resources related to this particular rom
     for (const auto &resource : resources) {
-        if (scraper.isEmpty()) {
-            if (entry.cacheId == resource.cacheId) {
-                matchingResources.append(resource);
-            }
-        } else {
-            if (entry.cacheId == resource.cacheId &&
-                resource.source == scraper) {
-                matchingResources.append(resource);
-            }
+        if ((scraper.isEmpty() || resource.source == scraper) &&
+            entry.cacheId == resource.cacheId) {
+            matchingResources.append(resource);
         }
     }
 
