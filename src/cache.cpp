@@ -333,6 +333,26 @@ void Cache::printPriorities(QString cacheId) {
     printf("\n\n");
 }
 
+void Cache::printCacheEditMenu() {
+    printf("\033[1;34mWhat would you like to do?\033[0m\n "
+           "Press Enter to continue to next rom in queue\n");
+    printf("\033[1;33m  s\033[0m) Show current resource priorities for this "
+           "rom\n");
+    printf("\033[1;33m  S\033[0m) Show all cached resources for this rom\n");
+    printf(
+        "\033[1;33m  n\033[0m) Create new prioritized resource for this rom\n");
+    printf("\033[1;33m  d\033[0m) Remove specific resource connected to this "
+           "rom\n");
+    printf(
+        "\033[1;33m  D\033[0m) Remove ALL resources connected to this rom\n");
+    printf("\033[1;33m  m\033[0m) Remove ALL resources connected to this rom "
+           "from a specific module\n");
+    printf("\033[1;33m  t\033[0m) Remove ALL resources connected to this rom "
+           "of a specific type\n");
+    printf("\033[1;33m  c\033[0m) Cancel all cache changes and exit\n");
+    printf("\033[1;33m  q\033[0m) Save all cache changes and exit\n");
+}
+
 void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                           const QString &type) {
     // Check sanity of command and parameters, if any
@@ -377,31 +397,7 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                    info.fileName().toStdString().c_str());
             std::string userInput = "";
             if (command.isEmpty()) {
-                printf("\033[1;34mWhat would you like to do?\033[0m\n "
-                       "Press Enter to continue to next rom in queue\n");
-                printf("\033[1;33m  s\033[0m) Show current resource priorities "
-                       "for this rom\n");
-                printf(
-                    "\033[1;33m  S\033[0m) Show all cached resources for this "
-                    "rom\n");
-                printf("\033[1;33m  n\033[0m) Create new prioritized resource "
-                       "for this rom\n");
-                printf(
-                    "\033[1;33m  d\033[0m) Remove specific resource connected "
-                    "to this rom\n");
-                printf(
-                    "\033[1;33m  D\033[0m) Remove ALL resources connected to "
-                    "this rom\n");
-                printf(
-                    "\033[1;33m  m\033[0m) Remove ALL resources connected to "
-                    "this rom from a specific module\n");
-                printf(
-                    "\033[1;33m  t\033[0m) Remove ALL resources connected to "
-                    "this rom of a specific type\n");
-                printf("\033[1;33m  c\033[0m) Cancel all cache changes and "
-                       "exit\n");
-                printf(
-                    "\033[1;33m  q\033[0m) Save all cache changes and exit\n");
+                printCacheEditMenu();
                 printf("> ");
                 getline(std::cin, userInput);
                 printf("\n");
@@ -442,66 +438,29 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                 if (type.isEmpty()) {
                     printf("\033[1;34mWhich resource type would you like to "
                            "create?\033[0m (Enter to cancel)\n");
-                    printf("\033[1;33m   0\033[0m) Title %s\n",
-                           QString((game.titleSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   1\033[0m) Platform %s\n",
-                           QString((game.platformSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   2\033[0m) Release date %s\n",
-                           QString((game.releaseDateSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   3\033[0m) Developer %s\n",
-                           QString((game.developerSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   4\033[0m) Publisher %s\n",
-                           QString((game.publisherSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   5\033[0m) Number of players %s\n",
-                           QString((game.playersSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   6\033[0m) Age rating %s\n",
-                           QString((game.agesSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   7\033[0m) Genres %s\n",
-                           QString((game.tagsSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   8\033[0m) Game rating %s\n",
-                           QString((game.ratingSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   9\033[0m) Description %s\n",
-                           QString((game.descriptionSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
+                    const QMap<QString, QString> newResMenuItems = {
+                        {"TItle", game.titleSrc},
+                        {"Platform", game.platformSrc},
+                        {"Release Date", game.releaseDateSrc},
+                        {"Developer", game.developerSrc},
+                        {"Publisher", game.publisherSrc},
+                        {"Number of players", game.playersSrc},
+                        {"Age rating", game.agesSrc},
+                        {"Genres", game.tagsSrc},
+                        {"Game rating", game.ratingSrc},
+                        {"Description", game.descriptionSrc}};
+
+                    int idx = 0;
+                    for (auto e = newResMenuItems.cbegin(),
+                              end = newResMenuItems.cend();
+                         e != end; ++e) {
+                        const QString value =
+                            (e.value().isEmpty() ? "(\033[1;31mmissing\033[0m)"
+                                                 : "");
+                        printf("\033[1;33m  %2d\033[0m) %s %s\n", idx++,
+                               e.key().toStdString().c_str(),
+                               value.toStdString().c_str());
+                    }
                     printf("> ");
                     getline(std::cin, typeInput);
                     printf("\n");
@@ -1173,11 +1132,10 @@ bool Cache::vacuumResources(const QString inputFolder, const QString filter,
 
 void Cache::showStats(int verbosity) {
     printf("Resource cache stats for selected platform:\n");
-
     if (verbosity == 1) {
-        printStats(true);
+        printStats(true); /* totals */
     } else if (verbosity > 1) {
-        printStats(false);
+        printStats(false); /* per scrape module */
     }
     printf("\n");
 }
