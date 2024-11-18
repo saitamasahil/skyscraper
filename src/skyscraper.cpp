@@ -252,9 +252,13 @@ void Skyscraper::run() {
             }
         }
         cache->editResources(queue, editCommand, editType);
-        printf("Done editing resources!\n");
-        state = NO_INTR; // Ignore ctrl+c
-        cache->write();
+        if (state == CACHE_EDIT) {
+            printf("Done editing resources.\n");
+            state = NO_INTR; // Ignore ctrl+c
+            cache->write();
+        } else {
+            printf("Catched Ctrl-C: No changes persisted!\n");
+        }
         state = SINGLE;
         exit(0);
     }
