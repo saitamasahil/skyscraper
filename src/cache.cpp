@@ -58,15 +58,17 @@ const auto ATTR_TS = "timestamp";
 const auto ATTR_TYPE = "type";
 
 static inline QStringList txtTypes(bool useGenres = true) {
-    QStringList txtTypes = {"title",     "platform",  "description",
-                            "publisher", "developer", "players",
-                            "ages",      "rating",    "releasedate"};
+    // keep order for cache edit menu
+    QStringList txtTypes = {"title",     "platform", "releasedate", "developer",
+                            "publisher", "players",  "ages"};
     txtTypes.append(useGenres ? "genres" : "tags");
+    txtTypes += {"rating", "description"};
     return txtTypes;
 }
 
 static inline QStringList binTypes(bool withVideo = true,
                                    bool withManual = true) {
+    // keep order for cache edit menu
     QStringList binTypes = {"cover", "screenshot", "wheel", "marquee",
                             "texture"};
     if (withVideo) {
@@ -221,110 +223,52 @@ void Cache::printPriorities(QString cacheId) {
     game.cacheId = cacheId;
     fillBlanks(game);
     printf("\033[1;34mCurrent resource priorities for this rom:\033[0m\n");
-    printf("Title:          '\033[1;32m%s\033[0m' (%s)\n",
-           game.title.toStdString().c_str(),
-           (game.titleSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                    : game.titleSrc)
-               .toStdString()
-               .c_str());
-    printf("Platform:       '\033[1;32m%s\033[0m' (%s)\n",
-           game.platform.toStdString().c_str(),
-           (game.platformSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                       : game.platformSrc)
-               .toStdString()
-               .c_str());
-    printf("Release Date:   '\033[1;32m%s\033[0m' (%s)\n",
-           game.releaseDate.toStdString().c_str(),
-           (game.releaseDateSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                          : game.releaseDateSrc)
-               .toStdString()
-               .c_str());
-    printf("Developer:      '\033[1;32m%s\033[0m' (%s)\n",
-           game.developer.toStdString().c_str(),
-           (game.developerSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                        : game.developerSrc)
-               .toStdString()
-               .c_str());
-    printf("Publisher:      '\033[1;32m%s\033[0m' (%s)\n",
-           game.publisher.toStdString().c_str(),
-           (game.publisherSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                        : game.publisherSrc)
-               .toStdString()
-               .c_str());
-    printf("Players:        '\033[1;32m%s\033[0m' (%s)\n",
-           game.players.toStdString().c_str(),
-           (game.playersSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                      : game.playersSrc)
-               .toStdString()
-               .c_str());
-    printf("Ages:           '\033[1;32m%s\033[0m' (%s)\n",
-           game.ages.toStdString().c_str(),
-           (game.agesSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                   : game.agesSrc)
-               .toStdString()
-               .c_str());
-    printf("Tags:           '\033[1;32m%s\033[0m' (%s)\n",
-           game.tags.toStdString().c_str(),
-           (game.tagsSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                   : game.tagsSrc)
-               .toStdString()
-               .c_str());
-    printf("Rating:         '\033[1;32m%s\033[0m' (%s)\n",
-           game.rating.toStdString().c_str(),
-           (game.ratingSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                     : game.ratingSrc)
-               .toStdString()
-               .c_str());
-    printf("Cover:          '");
-    if (game.coverSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.coverSrc.toStdString().c_str());
+
+    const QList<QPair<QString /*key*/,
+                      QPair<QString /* resVal */, QString /* resSrc */>>>
+        prioTxtRes = {{"Title", {game.title, game.titleSrc}},
+                      {"Platform", {game.platform, game.platformSrc}},
+                      {"Release Date", {game.releaseDate, game.releaseDateSrc}},
+                      {"Developer", {game.developer, game.developerSrc}},
+                      {"Publisher", {game.publisher, game.publisherSrc}},
+                      {"Players", {game.players, game.playersSrc}},
+                      {"Ages", {game.ages, game.agesSrc}},
+                      {"Tags", {game.tags, game.tagsSrc}},
+                      {"Rating", {game.rating, game.ratingSrc}}};
+
+    const QString pad = "               ";
+    for (auto const &e : prioTxtRes) {
+        QString key = e.first;
+        QString keyPadded =
+            QString("%1:%2").arg(key, pad.left(pad.length() - key.length()));
+        QString resVal = e.second.first;
+        QString resSrc = e.second.second;
+        if (resSrc.isEmpty()) {
+            resSrc = QString("\033[1;31mmissing\033[0m");
+        }
+        printf("%s'\033[1;32m%s\033[0m' (%s)\n",
+               keyPadded.toStdString().c_str(), resVal.toStdString().c_str(),
+               resSrc.toStdString().c_str());
     }
-    printf("Screenshot:     '");
-    if (game.screenshotSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.screenshotSrc.toStdString().c_str());
+
+    const QList<QPair<QString, QString>> prioBinRes = {
+        {"Cover", game.coverSrc},     {"Screenshot", game.screenshotSrc},
+        {"Wheel", game.wheelSrc},     {"Marquee", game.marqueeSrc},
+        {"Texture", game.textureSrc}, {"Video", game.videoSrc},
+        {"Manual", game.manualSrc}};
+
+    for (auto const &e : prioBinRes) {
+        QString key = QString("%1:%2").arg(
+            e.first, pad.left(pad.length() - e.first.length()));
+        printf("%s'", key.toStdString().c_str());
+        if (e.second.isEmpty()) {
+            printf("\033[1;31mNO\033[0m' ()\n");
+        } else {
+            printf("\033[1;32mYES\033[0m' (%s)\n",
+                   e.second.toStdString().c_str());
+        }
     }
-    printf("Wheel:          '");
-    if (game.wheelSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.wheelSrc.toStdString().c_str());
-    }
-    printf("Marquee:        '");
-    if (game.marqueeSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.marqueeSrc.toStdString().c_str());
-    }
-    printf("Texture:          '");
-    if (game.textureSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.textureSrc.toStdString().c_str());
-    }
-    printf("Video:          '");
-    if (game.videoSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.videoSrc.toStdString().c_str());
-    }
-    printf("Manual:         '");
-    if (game.manualSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.manualSrc.toStdString().c_str());
-    }
-    printf("Description: (%s)\n'\033[1;32m%s\033[0m'",
+    printf("Description:    (%s)\n'\033[1;32m%s\033[0m'",
            (game.descriptionSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
                                           : game.descriptionSrc)
                .toStdString()
@@ -334,8 +278,8 @@ void Cache::printPriorities(QString cacheId) {
 }
 
 void Cache::printCacheEditMenu() {
-    printf("\033[1;34mWhat would you like to do?\033[0m\n "
-           "Press Enter to continue to next rom in queue\n");
+    printf("\033[1;34mWhat would you like to do?\033[0m\n"
+           " Press Enter to continue to next rom in queue\n");
     printf("\033[1;33m  s\033[0m) Show current resource priorities for this "
            "rom\n");
     printf("\033[1;33m  S\033[0m) Show all cached resources for this rom\n");
@@ -359,10 +303,13 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
     if (!command.isEmpty()) {
         if (command == "new") {
             if (!txtTypes().contains(type)) {
+                QStringList sortedTypes = txtTypes();
+                sortedTypes.sort();
                 printf("Unknown resource type '%s', please specify any of the "
                        "following: '%s'.\n",
                        type.toStdString().c_str(),
-                       txtTypes().join("', '").toStdString().c_str());
+                       sortedTypes.join("', '").toStdString().c_str());
+                return;
             }
         } else {
             printf("Unknown command '%s', please specify one of the following: "
@@ -438,7 +385,7 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                 if (type.isEmpty()) {
                     printf("\033[1;34mWhich resource type would you like to "
                            "create?\033[0m (Enter to cancel)\n");
-                    const QMap<QString, QString> newResMenuItems = {
+                    const QList<QPair<QString, QString>> newResMenuItems = {
                         {"TItle", game.titleSrc},
                         {"Platform", game.platformSrc},
                         {"Release Date", game.releaseDateSrc},
@@ -451,14 +398,12 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                         {"Description", game.descriptionSrc}};
 
                     int idx = 0;
-                    for (auto e = newResMenuItems.cbegin(),
-                              end = newResMenuItems.cend();
-                         e != end; ++e) {
+                    for (auto const &e : newResMenuItems) {
                         const QString value =
-                            (e.value().isEmpty() ? "(\033[1;31mmissing\033[0m)"
-                                                 : "");
-                        printf("\033[1;33m  %2d\033[0m) %s %s\n", idx++,
-                               e.key().toStdString().c_str(),
+                            (e.second.isEmpty() ? "(\033[1;31mmissing\033[0m)"
+                                                : "");
+                        printf("\033[1;33m %2d\033[0m) %s %s\n", idx++,
+                               e.first.toStdString().c_str(),
                                value.toStdString().c_str());
                     }
                     printf("> ");
