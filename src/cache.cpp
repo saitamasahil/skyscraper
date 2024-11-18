@@ -44,6 +44,19 @@
 #include <QXmlStreamReader>
 #include <iostream>
 
+// user defined resource cache entries
+const auto SRC_USER = "user";
+
+// quickids.xml and db.xml
+const auto Q_ELEM = "quickid";
+const auto R_ELEM = "resource";
+const auto ATTR_FILEPATH = "filepath";
+const auto ATTR_ID = "id";
+const auto ATTR_SHA1_LEGACY = "sha1";
+const auto ATTR_SRC = "source";
+const auto ATTR_TS = "timestamp";
+const auto ATTR_TYPE = "type";
+
 static inline QStringList txtTypes(bool useGenres = true) {
     QStringList txtTypes = {"title",     "platform",  "description",
                             "publisher", "developer", "players",
@@ -99,20 +112,20 @@ bool Cache::read() {
             if (xml.readNext() != QXmlStreamReader::StartElement) {
                 continue;
             }
-            if (xml.name() != "quickid") {
+            if (xml.name() != Q_ELEM) {
                 continue;
             }
             QXmlStreamAttributes attribs = xml.attributes();
-            if (!attribs.hasAttribute("filepath") ||
-                !attribs.hasAttribute("timestamp") ||
-                !attribs.hasAttribute("id")) {
+            if (!attribs.hasAttribute(ATTR_FILEPATH) ||
+                !attribs.hasAttribute(ATTR_TS) ||
+                !attribs.hasAttribute(ATTR_ID)) {
                 continue;
             }
 
             QPair<qint64, QString> pair;
-            pair.first = attribs.value("timestamp").toULongLong();
-            pair.second = attribs.value("id").toString();
-            quickIds[attribs.value("filepath").toString()] = pair;
+            pair.first = attribs.value(ATTR_TS).toULongLong();
+            pair.second = attribs.value(ATTR_ID).toString();
+            quickIds[attribs.value(ATTR_FILEPATH).toString()] = pair;
         }
         printf("\033[1;32mDone!\033[0m\n");
     }
@@ -143,30 +156,32 @@ bool Cache::read() {
             if (xml.readNext() != QXmlStreamReader::StartElement) {
                 continue;
             }
-            if (xml.name() != "resource") {
+            if (xml.name() != R_ELEM) {
                 continue;
             }
             QXmlStreamAttributes attribs = xml.attributes();
-            if (!attribs.hasAttribute("sha1") && !attribs.hasAttribute("id")) {
+            if (!attribs.hasAttribute(ATTR_SHA1_LEGACY) &&
+                !attribs.hasAttribute(ATTR_ID)) {
                 printf("Resource is missing unique id, skipping...\n");
                 continue;
             }
 
             Resource resource;
             if (attribs.hasAttribute(
-                    "sha1")) { // Obsolete, but needed for backwards compat
-                resource.cacheId = attribs.value("sha1").toString();
+                    ATTR_SHA1_LEGACY)) { // Obsolete, but needed for backwards
+                                         // compat
+                resource.cacheId = attribs.value(ATTR_SHA1_LEGACY).toString();
             } else {
-                resource.cacheId = attribs.value("id").toString();
+                resource.cacheId = attribs.value(ATTR_ID).toString();
             }
 
-            if (attribs.hasAttribute("source")) {
-                resource.source = attribs.value("source").toString();
+            if (attribs.hasAttribute(ATTR_SRC)) {
+                resource.source = attribs.value(ATTR_SRC).toString();
             } else {
                 resource.source = "generic";
             }
-            if (attribs.hasAttribute("type")) {
-                resource.type = attribs.value("type").toString();
+            if (attribs.hasAttribute(ATTR_TYPE)) {
+                resource.type = attribs.value(ATTR_TYPE).toString();
                 addToResCounts(resource.source, resource.type);
             } else {
                 printf("Resource with cache id '%s' is missing 'type' "
@@ -174,8 +189,8 @@ bool Cache::read() {
                        resource.cacheId.toStdString().c_str());
                 continue;
             }
-            if (attribs.hasAttribute("timestamp")) {
-                resource.timestamp = attribs.value("timestamp").toULongLong();
+            if (attribs.hasAttribute(ATTR_TS)) {
+                resource.timestamp = attribs.value(ATTR_TS).toULongLong();
             } else {
                 printf("Resource with cache id '%s' is missing 'timestamp' "
                        "attribute, skipping...\n",
@@ -519,7 +534,7 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                 } else {
                     Resource newRes;
                     newRes.cacheId = cacheId;
-                    newRes.source = "user";
+                    newRes.source = SRC_USER;
                     newRes.timestamp =
                         QDateTime::currentDateTime().toMSecsSinceEpoch();
                     std::string valueInput = "";
@@ -658,6 +673,7 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                 } else {
                     int chosen = atoi(typeInput.c_str());
                     if (chosen >= 1 && chosen <= resIds.length()) {
+                        // FIXME
                         resources.removeAt(resIds.at(
                             chosen - 1)); // -1 because lists start at 0
                         printf("<<< Removed resource id %d\n\n", chosen);
@@ -1292,16 +1308,16 @@ void Cache::readPriorities() {
     int errors = 0;
     for (int a = 0; a < orderNodes.length(); ++a) {
         QDomElement orderElem = orderNodes.at(a).toElement();
-        if (!orderElem.hasAttribute("type")) {
+        if (!orderElem.hasAttribute(ATTR_TYPE)) {
             printf("Priority 'order' node missing 'type' attribute, "
                    "skipping...\n");
             errors++;
             continue;
         }
-        QString type = orderElem.attribute("type");
+        QString type = orderElem.attribute(ATTR_TYPE);
         QList<QString> sources;
         // ALWAYS prioritize 'user' resources highest (added with edit mode)
-        sources.append("user");
+        sources.append(SRC_USER);
         QDomNodeList sourceNodes = orderNodes.at(a).childNodes();
         if (sourceNodes.isEmpty()) {
             printf("'source' node(s) missing for type '%s' in priorities.xml, "
@@ -1334,11 +1350,10 @@ bool Cache::write(const bool onlyQuickId) {
         xml.writeStartDocument();
         xml.writeStartElement("quickids");
         for (const auto &key : quickIds.keys()) {
-            xml.writeStartElement("quickid");
-            xml.writeAttribute("filepath", key);
-            xml.writeAttribute("timestamp",
-                               QString::number(quickIds[key].first));
-            xml.writeAttribute("id", quickIds[key].second);
+            xml.writeStartElement(Q_ELEM);
+            xml.writeAttribute(ATTR_FILEPATH, key);
+            xml.writeAttribute(ATTR_TS, QString::number(quickIds[key].first));
+            xml.writeAttribute(ATTR_ID, quickIds[key].second);
             xml.writeEndElement();
         }
         xml.writeEndElement();
@@ -1361,12 +1376,11 @@ bool Cache::write(const bool onlyQuickId) {
         xml.writeStartDocument();
         xml.writeStartElement("resources");
         for (const auto &resource : resources) {
-            xml.writeStartElement("resource");
-            xml.writeAttribute("id", resource.cacheId);
-            xml.writeAttribute("type", resource.type);
-            xml.writeAttribute("source", resource.source);
-            xml.writeAttribute("timestamp",
-                               QString::number(resource.timestamp));
+            xml.writeStartElement(R_ELEM);
+            xml.writeAttribute(ATTR_ID, resource.cacheId);
+            xml.writeAttribute(ATTR_TYPE, resource.type);
+            xml.writeAttribute(ATTR_SRC, resource.source);
+            xml.writeAttribute(ATTR_TS, QString::number(resource.timestamp));
             xml.writeCharacters(resource.value);
             xml.writeEndElement();
         }
