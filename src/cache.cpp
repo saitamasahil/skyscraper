@@ -653,7 +653,8 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                         printf(
                             "\033[1;33m%4d\033[0m) \033[1;33m%s\033[0m (%s): "
                             "'\033[1;32m%s\033[0m'\n",
-                            rIdxList.length() + 1, res.type.toStdString().c_str(),
+                            rIdxList.length() + 1,
+                            res.type.toStdString().c_str(),
                             res.source.toStdString().c_str(),
                             res.value.toStdString().c_str());
                         rIdxList.append(rIdx);
@@ -1047,11 +1048,10 @@ void Cache::assembleReport(const Settings &config, const QString filter) {
                 dots++;
                 bool found = false;
                 for (const auto &res : resources) {
-                    if (res.cacheId == cacheIdList.at(a)) {
-                        if (res.type == resType) {
-                            found = true;
-                            break;
-                        }
+                    if (res.cacheId == cacheIdList.at(a) &&
+                        res.type == resType) {
+                        found = true;
+                        break;
                     }
                 }
                 if (!found) {
@@ -1874,14 +1874,9 @@ QString Cache::getQuickId(const QFileInfo &info) {
 bool Cache::hasEntries(const QString &cacheId, const QString scraper) {
     QMutexLocker locker(&cacheMutex);
     for (const auto &res : resources) {
-        if (scraper.isEmpty()) {
-            if (res.cacheId == cacheId) {
-                return true;
-            }
-        } else {
-            if (res.cacheId == cacheId && res.source == scraper) {
-                return true;
-            }
+        if ((scraper.isEmpty() || res.source == scraper) &&
+            res.cacheId == cacheId) {
+            return true;
         }
     }
     return false;
