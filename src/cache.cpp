@@ -410,26 +410,9 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                     getline(std::cin, typeInput);
                     printf("\n");
                 } else {
-                    if (type == "title") {
-                        typeInput = "0";
-                    } else if (type == "platform") {
-                        typeInput = "1";
-                    } else if (type == "releasedate") {
-                        typeInput = "2";
-                    } else if (type == "developer") {
-                        typeInput = "3";
-                    } else if (type == "publisher") {
-                        typeInput = "4";
-                    } else if (type == "players") {
-                        typeInput = "5";
-                    } else if (type == "ages") {
-                        typeInput = "6";
-                    } else if (type == "genres") {
-                        typeInput = "7";
-                    } else if (type == "rating") {
-                        typeInput = "8";
-                    } else if (type == "description") {
-                        typeInput = "9";
+                    int idx = txtTypes().indexOf(type);
+                    if (idx > -1) {
+                        typeInput = QString::number(idx).toStdString().c_str();
                     }
                 }
                 if (typeInput == "") {
@@ -444,70 +427,67 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                     std::string valueInput = "";
                     // Default, matches everything except empty
                     QString expression = ".+";
-                    if (typeInput == "0") {
-                        newRes.type = "title";
+                    bool ok;
+                    QString tmpInput =
+                        QString::fromUtf8(typeInput.data(), typeInput.size());
+                    int tint = tmpInput.toInt(&ok);
+                    if (!ok ||
+                        (tint > txtTypes(false).length() - 1 || tint < 0)) {
+                        printf("Invalid input, resource creation "
+                               "cancelled...\n\n");
+                        continue;
+                    }
+                    newRes.type = txtTypes(false)[tint];
+                    if (tint == 0) {
                         printf("\033[1;34mPlease enter title:\033[0m (Enter to "
                                "cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "1") {
-                        newRes.type = "platform";
+                    } else if (tint == 1) {
                         printf("\033[1;34mPlease enter platform:\033[0m (Enter "
                                "to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "2") {
-                        newRes.type = "releasedate";
+                    } else if (tint == 2) {
                         printf("\033[1;34mPlease enter a release date in the "
                                "format 'yyyy-MM-dd':\033[0m (Enter to "
                                "cancel)\n> ");
                         getline(std::cin, valueInput);
                         expression = "^[1-2]{1}[0-9]{3}-[0-1]{1}[0-9]{1}-[0-3]{"
                                      "1}[0-9]{1}$";
-                    } else if (typeInput == "3") {
-                        newRes.type = "developer";
+                    } else if (tint == 3) {
                         printf("\033[1;34mPlease enter developer:\033[0m "
                                "(Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "4") {
-                        newRes.type = "publisher";
+                    } else if (tint == 4) {
                         printf("\033[1;34mPlease enter publisher:\033[0m "
                                "(Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "5") {
-                        newRes.type = "players";
+                    } else if (tint == 5) {
                         printf(
                             "\033[1;34mPlease enter highest number of players "
                             "such as '4':\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
                         expression = "^[0-9]{1,2}$";
-                    } else if (typeInput == "6") {
-                        newRes.type = "ages";
+                    } else if (tint == 6) {
                         printf("\033[1;34mPlease enter lowest age this should "
                                "be played at such as '10' which means "
                                "10+:\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
                         expression = "^[0-9]{1}[0-9]{0,1}$";
-                    } else if (typeInput == "7") {
-                        newRes.type = "tags";
+                    } else if (tint == 7) {
                         printf("\033[1;34mPlease enter comma-separated genres "
                                "in the format 'Platformer, "
                                "Sidescrolling':\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "8") {
-                        newRes.type = "rating";
+                    } else if (tint == 8) {
                         printf("\033[1;34mPlease enter game rating from 0.0 to "
                                "1.0:\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
                         expression = "^[0-1]{1}\\.{1}[0-9]{1}[0-9]{0,1}$";
-                    } else if (typeInput == "9") {
-                        newRes.type = "description";
+                    } else if (tint == 9) {
                         printf(
                             "\033[1;34mPlease enter game description. Type "
                             "'\\n' for newlines:\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else {
-                        printf("Invalid input, resource creation "
-                               "cancelled...\n\n");
-                        continue;
                     }
                     QString value = valueInput.c_str();
                     printf("\n");
