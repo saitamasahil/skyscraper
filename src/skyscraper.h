@@ -48,7 +48,7 @@ public:
     ~Skyscraper();
     QSharedPointer<Queue> queue;
     QSharedPointer<NetManager> manager;
-    enum OpMode { SINGLE, NO_INTR, CACHE_EDIT, THREADED };
+    enum OpMode { SINGLE, NO_INTR, CACHE_EDIT, CACHE_EDIT_DISMISS, THREADED };
     int state = SINGLE;
 
 public slots:

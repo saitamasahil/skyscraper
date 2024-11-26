@@ -129,6 +129,8 @@ private:
                         const QString &cacheAbsolutePath,
                         const Settings &config, QString &output);
     bool hasAlpha(const QImage &image);
+    void printStats(bool totals);
+    void printCacheEditMenu();
 
     inline const QString quickIdFilePath() {
         return cacheDir.path() + "/quickid.xml";

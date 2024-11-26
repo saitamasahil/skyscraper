@@ -44,16 +44,31 @@
 #include <QXmlStreamReader>
 #include <iostream>
 
+// user defined resource cache entries
+const auto SRC_USER = "user";
+
+// quickids.xml and db.xml
+const auto Q_ELEM = "quickid";
+const auto R_ELEM = "resource";
+const auto ATTR_FILEPATH = "filepath";
+const auto ATTR_ID = "id";
+const auto ATTR_SHA1_LEGACY = "sha1";
+const auto ATTR_SRC = "source";
+const auto ATTR_TS = "timestamp";
+const auto ATTR_TYPE = "type";
+
 static inline QStringList txtTypes(bool useGenres = true) {
-    QStringList txtTypes = {"title",     "platform",  "description",
-                            "publisher", "developer", "players",
-                            "ages",      "rating",    "releasedate"};
+    // keep order for cache edit menu
+    QStringList txtTypes = {"title",     "platform", "releasedate", "developer",
+                            "publisher", "players",  "ages"};
     txtTypes.append(useGenres ? "genres" : "tags");
+    txtTypes += {"rating", "description"};
     return txtTypes;
 }
 
 static inline QStringList binTypes(bool withVideo = true,
                                    bool withManual = true) {
+    // keep order for cache edit menu
     QStringList binTypes = {"cover", "screenshot", "wheel", "marquee",
                             "texture"};
     if (withVideo) {
@@ -99,20 +114,20 @@ bool Cache::read() {
             if (xml.readNext() != QXmlStreamReader::StartElement) {
                 continue;
             }
-            if (xml.name() != "quickid") {
+            if (xml.name() != Q_ELEM) {
                 continue;
             }
             QXmlStreamAttributes attribs = xml.attributes();
-            if (!attribs.hasAttribute("filepath") ||
-                !attribs.hasAttribute("timestamp") ||
-                !attribs.hasAttribute("id")) {
+            if (!attribs.hasAttribute(ATTR_FILEPATH) ||
+                !attribs.hasAttribute(ATTR_TS) ||
+                !attribs.hasAttribute(ATTR_ID)) {
                 continue;
             }
 
             QPair<qint64, QString> pair;
-            pair.first = attribs.value("timestamp").toULongLong();
-            pair.second = attribs.value("id").toString();
-            quickIds[attribs.value("filepath").toString()] = pair;
+            pair.first = attribs.value(ATTR_TS).toULongLong();
+            pair.second = attribs.value(ATTR_ID).toString();
+            quickIds[attribs.value(ATTR_FILEPATH).toString()] = pair;
         }
         printf("\033[1;32mDone!\033[0m\n");
     }
@@ -143,30 +158,32 @@ bool Cache::read() {
             if (xml.readNext() != QXmlStreamReader::StartElement) {
                 continue;
             }
-            if (xml.name() != "resource") {
+            if (xml.name() != R_ELEM) {
                 continue;
             }
             QXmlStreamAttributes attribs = xml.attributes();
-            if (!attribs.hasAttribute("sha1") && !attribs.hasAttribute("id")) {
+            if (!attribs.hasAttribute(ATTR_SHA1_LEGACY) &&
+                !attribs.hasAttribute(ATTR_ID)) {
                 printf("Resource is missing unique id, skipping...\n");
                 continue;
             }
 
             Resource resource;
             if (attribs.hasAttribute(
-                    "sha1")) { // Obsolete, but needed for backwards compat
-                resource.cacheId = attribs.value("sha1").toString();
+                    ATTR_SHA1_LEGACY)) { // Obsolete, but needed for backwards
+                                         // compat
+                resource.cacheId = attribs.value(ATTR_SHA1_LEGACY).toString();
             } else {
-                resource.cacheId = attribs.value("id").toString();
+                resource.cacheId = attribs.value(ATTR_ID).toString();
             }
 
-            if (attribs.hasAttribute("source")) {
-                resource.source = attribs.value("source").toString();
+            if (attribs.hasAttribute(ATTR_SRC)) {
+                resource.source = attribs.value(ATTR_SRC).toString();
             } else {
                 resource.source = "generic";
             }
-            if (attribs.hasAttribute("type")) {
-                resource.type = attribs.value("type").toString();
+            if (attribs.hasAttribute(ATTR_TYPE)) {
+                resource.type = attribs.value(ATTR_TYPE).toString();
                 addToResCounts(resource.source, resource.type);
             } else {
                 printf("Resource with cache id '%s' is missing 'type' "
@@ -174,8 +191,8 @@ bool Cache::read() {
                        resource.cacheId.toStdString().c_str());
                 continue;
             }
-            if (attribs.hasAttribute("timestamp")) {
-                resource.timestamp = attribs.value("timestamp").toULongLong();
+            if (attribs.hasAttribute(ATTR_TS)) {
+                resource.timestamp = attribs.value(ATTR_TS).toULongLong();
             } else {
                 printf("Resource with cache id '%s' is missing 'timestamp' "
                        "attribute, skipping...\n",
@@ -206,110 +223,52 @@ void Cache::printPriorities(QString cacheId) {
     game.cacheId = cacheId;
     fillBlanks(game);
     printf("\033[1;34mCurrent resource priorities for this rom:\033[0m\n");
-    printf("Title:          '\033[1;32m%s\033[0m' (%s)\n",
-           game.title.toStdString().c_str(),
-           (game.titleSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                    : game.titleSrc)
-               .toStdString()
-               .c_str());
-    printf("Platform:       '\033[1;32m%s\033[0m' (%s)\n",
-           game.platform.toStdString().c_str(),
-           (game.platformSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                       : game.platformSrc)
-               .toStdString()
-               .c_str());
-    printf("Release Date:   '\033[1;32m%s\033[0m' (%s)\n",
-           game.releaseDate.toStdString().c_str(),
-           (game.releaseDateSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                          : game.releaseDateSrc)
-               .toStdString()
-               .c_str());
-    printf("Developer:      '\033[1;32m%s\033[0m' (%s)\n",
-           game.developer.toStdString().c_str(),
-           (game.developerSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                        : game.developerSrc)
-               .toStdString()
-               .c_str());
-    printf("Publisher:      '\033[1;32m%s\033[0m' (%s)\n",
-           game.publisher.toStdString().c_str(),
-           (game.publisherSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                        : game.publisherSrc)
-               .toStdString()
-               .c_str());
-    printf("Players:        '\033[1;32m%s\033[0m' (%s)\n",
-           game.players.toStdString().c_str(),
-           (game.playersSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                      : game.playersSrc)
-               .toStdString()
-               .c_str());
-    printf("Ages:           '\033[1;32m%s\033[0m' (%s)\n",
-           game.ages.toStdString().c_str(),
-           (game.agesSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                   : game.agesSrc)
-               .toStdString()
-               .c_str());
-    printf("Tags:           '\033[1;32m%s\033[0m' (%s)\n",
-           game.tags.toStdString().c_str(),
-           (game.tagsSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                   : game.tagsSrc)
-               .toStdString()
-               .c_str());
-    printf("Rating:         '\033[1;32m%s\033[0m' (%s)\n",
-           game.rating.toStdString().c_str(),
-           (game.ratingSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
-                                     : game.ratingSrc)
-               .toStdString()
-               .c_str());
-    printf("Cover:          '");
-    if (game.coverSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.coverSrc.toStdString().c_str());
+
+    const QList<QPair<QString /*key*/,
+                      QPair<QString /* resVal */, QString /* resSrc */>>>
+        prioTxtRes = {{"Title", {game.title, game.titleSrc}},
+                      {"Platform", {game.platform, game.platformSrc}},
+                      {"Release Date", {game.releaseDate, game.releaseDateSrc}},
+                      {"Developer", {game.developer, game.developerSrc}},
+                      {"Publisher", {game.publisher, game.publisherSrc}},
+                      {"Players", {game.players, game.playersSrc}},
+                      {"Ages", {game.ages, game.agesSrc}},
+                      {"Tags", {game.tags, game.tagsSrc}},
+                      {"Rating", {game.rating, game.ratingSrc}}};
+
+    const QString pad = "               ";
+    for (auto const &e : prioTxtRes) {
+        QString key = e.first;
+        QString keyPadded =
+            QString("%1:%2").arg(key, pad.left(pad.length() - key.length()));
+        QString resVal = e.second.first;
+        QString resSrc = e.second.second;
+        if (resSrc.isEmpty()) {
+            resSrc = QString("\033[1;31mmissing\033[0m");
+        }
+        printf("%s'\033[1;32m%s\033[0m' (%s)\n",
+               keyPadded.toStdString().c_str(), resVal.toStdString().c_str(),
+               resSrc.toStdString().c_str());
     }
-    printf("Screenshot:     '");
-    if (game.screenshotSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.screenshotSrc.toStdString().c_str());
+
+    const QList<QPair<QString, QString>> prioBinRes = {
+        {"Cover", game.coverSrc},     {"Screenshot", game.screenshotSrc},
+        {"Wheel", game.wheelSrc},     {"Marquee", game.marqueeSrc},
+        {"Texture", game.textureSrc}, {"Video", game.videoSrc},
+        {"Manual", game.manualSrc}};
+
+    for (auto const &e : prioBinRes) {
+        QString key = QString("%1:%2").arg(
+            e.first, pad.left(pad.length() - e.first.length()));
+        printf("%s'", key.toStdString().c_str());
+        if (e.second.isEmpty()) {
+            printf("\033[1;31mNO\033[0m' ()\n");
+        } else {
+            printf("\033[1;32mYES\033[0m' (%s)\n",
+                   e.second.toStdString().c_str());
+        }
     }
-    printf("Wheel:          '");
-    if (game.wheelSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.wheelSrc.toStdString().c_str());
-    }
-    printf("Marquee:        '");
-    if (game.marqueeSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.marqueeSrc.toStdString().c_str());
-    }
-    printf("Texture:          '");
-    if (game.textureSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.textureSrc.toStdString().c_str());
-    }
-    printf("Video:          '");
-    if (game.videoSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.videoSrc.toStdString().c_str());
-    }
-    printf("Manual:         '");
-    if (game.manualSrc.isEmpty()) {
-        printf("\033[1;31mNO\033[0m' ()\n");
-    } else {
-        printf("\033[1;32mYES\033[0m' (%s)\n",
-               game.manualSrc.toStdString().c_str());
-    }
-    printf("Description: (%s)\n'\033[1;32m%s\033[0m'",
+    printf("Description:    (%s)\n'\033[1;32m%s\033[0m'",
            (game.descriptionSrc.isEmpty() ? QString("\033[1;31mmissing\033[0m")
                                           : game.descriptionSrc)
                .toStdString()
@@ -318,16 +277,39 @@ void Cache::printPriorities(QString cacheId) {
     printf("\n\n");
 }
 
+void Cache::printCacheEditMenu() {
+    printf("\033[1;34mWhat would you like to do?\033[0m\n"
+           " Press Enter to continue to next rom in queue\n");
+    printf("\033[1;33m  s\033[0m) Show current resource priorities for this "
+           "rom\n");
+    printf("\033[1;33m  S\033[0m) Show all cached resources for this rom\n");
+    printf(
+        "\033[1;33m  n\033[0m) Create new prioritized resource for this rom\n");
+    printf("\033[1;33m  d\033[0m) Remove specific resource connected to this "
+           "rom\n");
+    printf(
+        "\033[1;33m  D\033[0m) Remove ALL resources connected to this rom\n");
+    printf("\033[1;33m  m\033[0m) Remove ALL resources connected to this rom "
+           "from a specific module\n");
+    printf("\033[1;33m  t\033[0m) Remove ALL resources connected to this rom "
+           "of a specific type\n");
+    printf("\033[1;33m  c\033[0m) Cancel all cache changes and exit\n");
+    printf("\033[1;33m  q\033[0m) Save all cache changes and exit\n");
+}
+
 void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                           const QString &type) {
     // Check sanity of command and parameters, if any
     if (!command.isEmpty()) {
         if (command == "new") {
             if (!txtTypes().contains(type)) {
+                QStringList sortedTypes = txtTypes();
+                sortedTypes.sort();
                 printf("Unknown resource type '%s', please specify any of the "
                        "following: '%s'.\n",
                        type.toStdString().c_str(),
-                       txtTypes().join("', '").toStdString().c_str());
+                       sortedTypes.join("', '").toStdString().c_str());
+                return;
             }
         } else {
             printf("Unknown command '%s', please specify one of the following: "
@@ -362,31 +344,7 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                    info.fileName().toStdString().c_str());
             std::string userInput = "";
             if (command.isEmpty()) {
-                printf("\033[1;34mWhat would you like to do?\033[0m\n "
-                       "Press Enter to continue to next rom in queue\n");
-                printf("\033[1;33m  s\033[0m) Show current resource priorities "
-                       "for this rom\n");
-                printf(
-                    "\033[1;33m  S\033[0m) Show all cached resources for this "
-                    "rom\n");
-                printf("\033[1;33m  n\033[0m) Create new prioritized resource "
-                       "for this rom\n");
-                printf(
-                    "\033[1;33m  d\033[0m) Remove specific resource connected "
-                    "to this rom\n");
-                printf(
-                    "\033[1;33m  D\033[0m) Remove ALL resources connected to "
-                    "this rom\n");
-                printf(
-                    "\033[1;33m  m\033[0m) Remove ALL resources connected to "
-                    "this rom from a specific module\n");
-                printf(
-                    "\033[1;33m  t\033[0m) Remove ALL resources connected to "
-                    "this rom of a specific type\n");
-                printf("\033[1;33m  c\033[0m) Cancel all cache changes and "
-                       "exit\n");
-                printf(
-                    "\033[1;33m  q\033[0m) Save all cache changes and exit\n");
+                printCacheEditMenu();
                 printf("> ");
                 getline(std::cin, userInput);
                 printf("\n");
@@ -427,90 +385,34 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                 if (type.isEmpty()) {
                     printf("\033[1;34mWhich resource type would you like to "
                            "create?\033[0m (Enter to cancel)\n");
-                    printf("\033[1;33m   0\033[0m) Title %s\n",
-                           QString((game.titleSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   1\033[0m) Platform %s\n",
-                           QString((game.platformSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   2\033[0m) Release date %s\n",
-                           QString((game.releaseDateSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   3\033[0m) Developer %s\n",
-                           QString((game.developerSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   4\033[0m) Publisher %s\n",
-                           QString((game.publisherSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   5\033[0m) Number of players %s\n",
-                           QString((game.playersSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   6\033[0m) Age rating %s\n",
-                           QString((game.agesSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   7\033[0m) Genres %s\n",
-                           QString((game.tagsSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   8\033[0m) Game rating %s\n",
-                           QString((game.ratingSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
-                    printf("\033[1;33m   9\033[0m) Description %s\n",
-                           QString((game.descriptionSrc.isEmpty()
-                                        ? "(\033[1;31mmissing\033[0m)"
-                                        : ""))
-                               .toStdString()
-                               .c_str());
+                    const QList<QPair<QString, QString>> newResMenuItems = {
+                        {"TItle", game.titleSrc},
+                        {"Platform", game.platformSrc},
+                        {"Release Date", game.releaseDateSrc},
+                        {"Developer", game.developerSrc},
+                        {"Publisher", game.publisherSrc},
+                        {"Number of players", game.playersSrc},
+                        {"Age rating", game.agesSrc},
+                        {"Genres", game.tagsSrc},
+                        {"Game rating", game.ratingSrc},
+                        {"Description", game.descriptionSrc}};
+
+                    int idx = 0;
+                    for (auto const &e : newResMenuItems) {
+                        const QString value =
+                            (e.second.isEmpty() ? "(\033[1;31mmissing\033[0m)"
+                                                : "");
+                        printf("\033[1;33m %2d\033[0m) %s %s\n", idx++,
+                               e.first.toStdString().c_str(),
+                               value.toStdString().c_str());
+                    }
                     printf("> ");
                     getline(std::cin, typeInput);
                     printf("\n");
                 } else {
-                    if (type == "title") {
-                        typeInput = "0";
-                    } else if (type == "platform") {
-                        typeInput = "1";
-                    } else if (type == "releasedate") {
-                        typeInput = "2";
-                    } else if (type == "developer") {
-                        typeInput = "3";
-                    } else if (type == "publisher") {
-                        typeInput = "4";
-                    } else if (type == "players") {
-                        typeInput = "5";
-                    } else if (type == "ages") {
-                        typeInput = "6";
-                    } else if (type == "genres") {
-                        typeInput = "7";
-                    } else if (type == "rating") {
-                        typeInput = "8";
-                    } else if (type == "description") {
-                        typeInput = "9";
+                    int idx = txtTypes().indexOf(type);
+                    if (idx > -1) {
+                        typeInput = QString::number(idx).toStdString().c_str();
                     }
                 }
                 if (typeInput == "") {
@@ -519,76 +421,73 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                 } else {
                     Resource newRes;
                     newRes.cacheId = cacheId;
-                    newRes.source = "user";
+                    newRes.source = SRC_USER;
                     newRes.timestamp =
                         QDateTime::currentDateTime().toMSecsSinceEpoch();
                     std::string valueInput = "";
                     // Default, matches everything except empty
                     QString expression = ".+";
-                    if (typeInput == "0") {
-                        newRes.type = "title";
+                    bool ok;
+                    QString tmpInput =
+                        QString::fromUtf8(typeInput.data(), typeInput.size());
+                    int tint = tmpInput.toInt(&ok);
+                    if (!ok ||
+                        (tint > txtTypes(false).length() - 1 || tint < 0)) {
+                        printf("Invalid input, resource creation "
+                               "cancelled...\n\n");
+                        continue;
+                    }
+                    newRes.type = txtTypes(false)[tint];
+                    if (tint == 0) {
                         printf("\033[1;34mPlease enter title:\033[0m (Enter to "
                                "cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "1") {
-                        newRes.type = "platform";
+                    } else if (tint == 1) {
                         printf("\033[1;34mPlease enter platform:\033[0m (Enter "
                                "to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "2") {
-                        newRes.type = "releasedate";
+                    } else if (tint == 2) {
                         printf("\033[1;34mPlease enter a release date in the "
                                "format 'yyyy-MM-dd':\033[0m (Enter to "
                                "cancel)\n> ");
                         getline(std::cin, valueInput);
                         expression = "^[1-2]{1}[0-9]{3}-[0-1]{1}[0-9]{1}-[0-3]{"
                                      "1}[0-9]{1}$";
-                    } else if (typeInput == "3") {
-                        newRes.type = "developer";
+                    } else if (tint == 3) {
                         printf("\033[1;34mPlease enter developer:\033[0m "
                                "(Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "4") {
-                        newRes.type = "publisher";
+                    } else if (tint == 4) {
                         printf("\033[1;34mPlease enter publisher:\033[0m "
                                "(Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "5") {
-                        newRes.type = "players";
+                    } else if (tint == 5) {
                         printf(
                             "\033[1;34mPlease enter highest number of players "
                             "such as '4':\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
                         expression = "^[0-9]{1,2}$";
-                    } else if (typeInput == "6") {
-                        newRes.type = "ages";
+                    } else if (tint == 6) {
                         printf("\033[1;34mPlease enter lowest age this should "
                                "be played at such as '10' which means "
                                "10+:\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
                         expression = "^[0-9]{1}[0-9]{0,1}$";
-                    } else if (typeInput == "7") {
-                        newRes.type = "tags";
+                    } else if (tint == 7) {
                         printf("\033[1;34mPlease enter comma-separated genres "
                                "in the format 'Platformer, "
                                "Sidescrolling':\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else if (typeInput == "8") {
-                        newRes.type = "rating";
+                    } else if (tint == 8) {
                         printf("\033[1;34mPlease enter game rating from 0.0 to "
                                "1.0:\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
                         expression = "^[0-1]{1}\\.{1}[0-9]{1}[0-9]{0,1}$";
-                    } else if (typeInput == "9") {
-                        newRes.type = "description";
+                    } else if (tint == 9) {
                         printf(
                             "\033[1;34mPlease enter game description. Type "
                             "'\\n' for newlines:\033[0m (Enter to cancel)\n> ");
                         getline(std::cin, valueInput);
-                    } else {
-                        printf("Invalid input, resource creation "
-                               "cancelled...\n\n");
-                        continue;
                     }
                     QString value = valueInput.c_str();
                     printf("\n");
@@ -628,23 +527,25 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                     }
                 }
             } else if (userInput == "d") {
-                int b = 0;
-                QList<int> resIds;
+                int rIdx = 0;
+                QList<int> rIdxList;
                 printf("\033[1;34mWhich resource id would you like to "
                        "remove?\033[0m (Enter to cancel)\n");
-                for (auto res : resources) {
+                for (const auto &res : resources) {
                     if (res.cacheId == cacheId &&
                         !binTypes().contains(res.type)) {
                         printf(
                             "\033[1;33m%4d\033[0m) \033[1;33m%s\033[0m (%s): "
                             "'\033[1;32m%s\033[0m'\n",
-                            ++b, res.type.toStdString().c_str(),
+                            rIdxList.length() + 1,
+                            res.type.toStdString().c_str(),
                             res.source.toStdString().c_str(),
                             res.value.toStdString().c_str());
-                        resIds.append(b - 1);
+                        rIdxList.append(rIdx);
                     }
+                    rIdx++;
                 }
-                if (resIds.isEmpty()) {
+                if (rIdxList.isEmpty()) {
                     printf("No resources found, cancelling...\n\n");
                     continue;
                 }
@@ -657,12 +558,17 @@ void Cache::editResources(QSharedPointer<Queue> queue, const QString &command,
                     continue;
                 } else {
                     int chosen = atoi(typeInput.c_str());
-                    if (chosen >= 1 && chosen <= resIds.length()) {
-                        resources.removeAt(resIds.at(
-                            chosen - 1)); // -1 because lists start at 0
-                        printf("<<< Removed resource id %d\n\n", chosen);
+                    if (chosen >= 1 && chosen <= rIdxList.length()) {
+                        int index = rIdxList.at(chosen - 1);
+                        QString delType = resources[index].type;
+                        QString delSource = resources[index].source;
+                        resources.removeAt(index);
+                        printf("<<< Removed resource: %s (%s)\n\n",
+                               delType.toStdString().c_str(),
+                               delSource.toStdString().c_str());
+
                     } else {
-                        printf("Incorrect resource id, cancelling...\n\n");
+                        printf("Invalid input, cancelling...\n\n");
                     }
                 }
             } else if (userInput == "D") {
@@ -1026,11 +932,10 @@ void Cache::assembleReport(const Settings &config, const QString filter) {
                 dots++;
                 bool found = false;
                 for (const auto &res : resources) {
-                    if (res.cacheId == cacheIdList.at(a)) {
-                        if (res.type == resType) {
-                            found = true;
-                            break;
-                        }
+                    if (res.cacheId == cacheIdList.at(a) &&
+                        res.type == resType) {
+                        found = true;
+                        break;
                     }
                 }
                 if (!found) {
@@ -1153,84 +1058,56 @@ bool Cache::vacuumResources(const QString inputFolder, const QString filter,
 void Cache::showStats(int verbosity) {
     printf("Resource cache stats for selected platform:\n");
     if (verbosity == 1) {
-        int titles = 0;
-        int platforms = 0;
-        int descriptions = 0;
-        int publishers = 0;
-        int developers = 0;
-        int players = 0;
-        int ages = 0;
-        int tags = 0;
-        int ratings = 0;
-        int releaseDates = 0;
-        int covers = 0;
-        int screenshots = 0;
-        int wheels = 0;
-        int marquees = 0;
-        int textures = 0;
-        int videos = 0;
-        int manuals = 0;
-        for (QMap<QString, ResCounts>::iterator it = resCountsMap.begin();
-             it != resCountsMap.end(); ++it) {
-            titles += it.value().titles;
-            platforms += it.value().platforms;
-            descriptions += it.value().descriptions;
-            publishers += it.value().publishers;
-            developers += it.value().developers;
-            players += it.value().players;
-            ages += it.value().ages;
-            tags += it.value().tags;
-            ratings += it.value().ratings;
-            releaseDates += it.value().releaseDates;
-            covers += it.value().covers;
-            screenshots += it.value().screenshots;
-            wheels += it.value().wheels;
-            marquees += it.value().marquees;
-            textures += it.value().textures;
-            videos += it.value().videos;
-            manuals += it.value().manuals;
-        }
-        printf("  Titles       : %d\n", titles);
-        printf("  Platforms    : %d\n", platforms);
-        printf("  Descriptions : %d\n", descriptions);
-        printf("  Publishers   : %d\n", publishers);
-        printf("  Developers   : %d\n", developers);
-        printf("  Players      : %d\n", players);
-        printf("  Ages         : %d\n", ages);
-        printf("  Tags         : %d\n", tags);
-        printf("  Ratings      : %d\n", ratings);
-        printf("  ReleaseDates : %d\n", releaseDates);
-        printf("  Covers       : %d\n", covers);
-        printf("  Screenshots  : %d\n", screenshots);
-        printf("  Wheels       : %d\n", wheels);
-        printf("  Marquees     : %d\n", marquees);
-        printf("  textures     : %d\n", textures);
-        printf("  Videos       : %d\n", videos);
-        printf("  Manuals      : %d\n", manuals);
+        printStats(true); /* totals */
     } else if (verbosity > 1) {
-        for (QMap<QString, ResCounts>::iterator it = resCountsMap.begin();
-             it != resCountsMap.end(); ++it) {
-            printf("'\033[1;32m%s\033[0m' module\n",
-                   it.key().toStdString().c_str());
-            printf("  Titles       : %d\n", it.value().titles);
-            printf("  Platforms    : %d\n", it.value().platforms);
-            printf("  Descriptions : %d\n", it.value().descriptions);
-            printf("  Publishers   : %d\n", it.value().publishers);
-            printf("  Developers   : %d\n", it.value().developers);
-            printf("  Ages         : %d\n", it.value().ages);
-            printf("  Tags         : %d\n", it.value().tags);
-            printf("  Ratings      : %d\n", it.value().ratings);
-            printf("  ReleaseDates : %d\n", it.value().releaseDates);
-            printf("  Covers       : %d\n", it.value().covers);
-            printf("  Screenshots  : %d\n", it.value().screenshots);
-            printf("  Wheels       : %d\n", it.value().wheels);
-            printf("  Marquees     : %d\n", it.value().marquees);
-            printf("  textures     : %d\n", it.value().textures);
-            printf("  Videos       : %d\n", it.value().videos);
-            printf("  Manuals      : %d\n", it.value().manuals);
-        }
+        printStats(false); /* per scrape module */
     }
     printf("\n");
+}
+
+void Cache::printStats(bool totals) {
+    QMap<QString, int> resTotals = {
+        {"Titles", 0},       {"Platforms", 0},  {"Descriptions", 0},
+        {"Publishers", 0},   {"Developers", 0}, {"Players", 0},
+        {"Ages", 0},         {"Tags", 0},       {"Ratings", 0},
+        {"ReleaseDates", 0}, {"Covers", 0},     {"Screenshots", 0},
+        {"Wheels", 0},       {"Marquees", 0},   {"Textures", 0},
+        {"Videos", 0},       {"Manuals", 0}};
+    for (auto it = resCountsMap.begin(); it != resCountsMap.end(); ++it) {
+        if (!totals) {
+            printf("'\033[1;32m%s\033[0m' module\n",
+                   it.key().toStdString().c_str());
+        }
+        resTotals["Titles"] += it.value().titles;
+        resTotals["Platforms"] += it.value().platforms;
+        resTotals["Descriptions"] += it.value().descriptions;
+        resTotals["Publishers"] += it.value().publishers;
+        resTotals["Developers"] += it.value().developers;
+        resTotals["Players"] += it.value().players;
+        resTotals["Ages"] += it.value().ages;
+        resTotals["Tags"] += it.value().tags;
+        resTotals["Ratings"] += it.value().ratings;
+        resTotals["ReleaseDates"] += it.value().releaseDates;
+        resTotals["Covers"] += it.value().covers;
+        resTotals["Screenshots"] += it.value().screenshots;
+        resTotals["Wheels"] += it.value().wheels;
+        resTotals["Marquees"] += it.value().marquees;
+        resTotals["Textures"] += it.value().textures;
+        resTotals["Videos"] += it.value().videos;
+        resTotals["Manuals"] += it.value().manuals;
+        if (!totals) {
+            for (auto it = resTotals.begin(); it != resTotals.end(); ++it) {
+                printf("  %12s : %d\n", it.key().toStdString().c_str(),
+                       it.value());
+                it.value() = 0;
+            }
+        }
+    }
+    if (totals) {
+        for (auto it = resTotals.cbegin(); it != resTotals.cend(); ++it) {
+            printf("  %12s : %d\n", it.key().toStdString().c_str(), it.value());
+        }
+    }
 }
 
 void Cache::addToResCounts(const QString source, const QString type) {
@@ -1292,16 +1169,16 @@ void Cache::readPriorities() {
     int errors = 0;
     for (int a = 0; a < orderNodes.length(); ++a) {
         QDomElement orderElem = orderNodes.at(a).toElement();
-        if (!orderElem.hasAttribute("type")) {
+        if (!orderElem.hasAttribute(ATTR_TYPE)) {
             printf("Priority 'order' node missing 'type' attribute, "
                    "skipping...\n");
             errors++;
             continue;
         }
-        QString type = orderElem.attribute("type");
+        QString type = orderElem.attribute(ATTR_TYPE);
         QList<QString> sources;
         // ALWAYS prioritize 'user' resources highest (added with edit mode)
-        sources.append("user");
+        sources.append(SRC_USER);
         QDomNodeList sourceNodes = orderNodes.at(a).childNodes();
         if (sourceNodes.isEmpty()) {
             printf("'source' node(s) missing for type '%s' in priorities.xml, "
@@ -1334,11 +1211,10 @@ bool Cache::write(const bool onlyQuickId) {
         xml.writeStartDocument();
         xml.writeStartElement("quickids");
         for (const auto &key : quickIds.keys()) {
-            xml.writeStartElement("quickid");
-            xml.writeAttribute("filepath", key);
-            xml.writeAttribute("timestamp",
-                               QString::number(quickIds[key].first));
-            xml.writeAttribute("id", quickIds[key].second);
+            xml.writeStartElement(Q_ELEM);
+            xml.writeAttribute(ATTR_FILEPATH, key);
+            xml.writeAttribute(ATTR_TS, QString::number(quickIds[key].first));
+            xml.writeAttribute(ATTR_ID, quickIds[key].second);
             xml.writeEndElement();
         }
         xml.writeEndElement();
@@ -1361,12 +1237,11 @@ bool Cache::write(const bool onlyQuickId) {
         xml.writeStartDocument();
         xml.writeStartElement("resources");
         for (const auto &resource : resources) {
-            xml.writeStartElement("resource");
-            xml.writeAttribute("id", resource.cacheId);
-            xml.writeAttribute("type", resource.type);
-            xml.writeAttribute("source", resource.source);
-            xml.writeAttribute("timestamp",
-                               QString::number(resource.timestamp));
+            xml.writeStartElement(R_ELEM);
+            xml.writeAttribute(ATTR_ID, resource.cacheId);
+            xml.writeAttribute(ATTR_TYPE, resource.type);
+            xml.writeAttribute(ATTR_SRC, resource.source);
+            xml.writeAttribute(ATTR_TS, QString::number(resource.timestamp));
             xml.writeCharacters(resource.value);
             xml.writeEndElement();
         }
@@ -1384,7 +1259,6 @@ bool Cache::write(const bool onlyQuickId) {
 void Cache::validate() {
     // TODO: Add format checks for each resource type, and remove if deemed
     // corrupt
-
     printf("Starting resource cache validation run, please wait...\n");
 
     if (!QFileInfo::exists(dbFilePath())) {
@@ -1506,89 +1380,58 @@ QList<Resource> Cache::getResources() { return resources; }
 
 void Cache::addResources(GameEntry &entry, const Settings &config,
                          QString &output) {
-
     if (entry.source.isEmpty()) {
         printf("Something is wrong, resource with cache id '%s' has no source, "
                "exiting...\n",
                entry.cacheId.toStdString().c_str());
         exit(1);
     }
+    if (entry.cacheId.isEmpty()) {
+        return;
+    }
+    const QString cacheAbsolutePath = cacheDir.path();
+    Resource resource;
+    resource.cacheId = entry.cacheId;
+    resource.source = entry.source;
+    resource.timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    const QMap<QString, QString> txtResources = {
+        {"title", entry.title},
+        {"platform", entry.platform},
+        {"description", entry.description},
+        {"publisher", entry.publisher},
+        {"developer", entry.developer},
+        {"players", entry.players},
+        {"ages", entry.ages},
+        {"tags", entry.tags},
+        {"rating", entry.rating},
+        {"releasedate", entry.releaseDate}};
 
-    if (entry.cacheId != "") {
-        const QString cacheAbsolutePath = cacheDir.path();
-        Resource resource;
-        resource.cacheId = entry.cacheId;
-        resource.source = entry.source;
-        resource.timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        if (entry.title != "") {
-            resource.type = "title";
-            resource.value = entry.title;
+    for (auto e = txtResources.cbegin(), end = txtResources.cend(); e != end;
+         ++e) {
+        if (!e.value().isEmpty()) {
+            resource.type = e.key();
+            resource.value = e.value();
             addResource(resource, entry, cacheAbsolutePath, config, output);
         }
-        if (entry.platform != "") {
-            resource.type = "platform";
-            resource.value = entry.platform;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.description != "") {
-            resource.type = "description";
-            resource.value = entry.description;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.publisher != "") {
-            resource.type = "publisher";
-            resource.value = entry.publisher;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.developer != "") {
-            resource.type = "developer";
-            resource.value = entry.developer;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.players != "") {
-            resource.type = "players";
-            resource.value = entry.players;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.ages != "") {
-            resource.type = "ages";
-            resource.value = entry.ages;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.tags != "") {
-            resource.type = "tags";
-            resource.value = entry.tags;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.rating != "") {
-            resource.type = "rating";
-            resource.value = entry.rating;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
-        if (entry.releaseDate != "") {
-            resource.type = "releasedate";
-            resource.value = entry.releaseDate;
-            addResource(resource, entry, cacheAbsolutePath, config, output);
-        }
+    }
 
-        QMap<QString, bool> cacheTypes = {
-            {"cover", !entry.coverData.isEmpty()},
-            {"screenshot", !entry.screenshotData.isEmpty()},
-            {"wheel", !entry.wheelData.isEmpty()},
-            {"marquee", !entry.marqueeData.isEmpty()},
-            {"texture", !entry.textureData.isEmpty()},
-            {"manual", !entry.manualData.isEmpty()},
-            {"video", !entry.videoData.isEmpty() && entry.videoFormat != ""}};
+    const QMap<QString, bool> binResources = {
+        {"cover", !entry.coverData.isEmpty()},
+        {"screenshot", !entry.screenshotData.isEmpty()},
+        {"wheel", !entry.wheelData.isEmpty()},
+        {"marquee", !entry.marqueeData.isEmpty()},
+        {"texture", !entry.textureData.isEmpty()},
+        {"manual", !entry.manualData.isEmpty()},
+        {"video", !entry.videoData.isEmpty() && entry.videoFormat != ""}};
 
-        for (auto const &t : binTypes()) {
-            if (cacheTypes.value(t)) {
-                resource.type = t;
-                resource.value = t % "s/" % entry.source % "/" % entry.cacheId;
-                if (t == "video") {
-                    resource.value += "." % entry.videoFormat;
-                }
-                addResource(resource, entry, cacheAbsolutePath, config, output);
+    for (auto const &t : binTypes()) {
+        if (binResources.value(t)) {
+            resource.type = t;
+            resource.value = t % "s/" % entry.source % "/" % entry.cacheId;
+            if (t == "video") {
+                resource.value += "." % entry.videoFormat;
             }
+            addResource(resource, entry, cacheAbsolutePath, config, output);
         }
     }
 }
@@ -1855,14 +1698,9 @@ QString Cache::getQuickId(const QFileInfo &info) {
 bool Cache::hasEntries(const QString &cacheId, const QString scraper) {
     QMutexLocker locker(&cacheMutex);
     for (const auto &res : resources) {
-        if (scraper.isEmpty()) {
-            if (res.cacheId == cacheId) {
-                return true;
-            }
-        } else {
-            if (res.cacheId == cacheId && res.source == scraper) {
-                return true;
-            }
+        if ((scraper.isEmpty() || res.source == scraper) &&
+            res.cacheId == cacheId) {
+            return true;
         }
     }
     return false;
@@ -1873,15 +1711,9 @@ void Cache::fillBlanks(GameEntry &entry, const QString scraper) {
     QList<Resource> matchingResources;
     // Find all resources related to this particular rom
     for (const auto &resource : resources) {
-        if (scraper.isEmpty()) {
-            if (entry.cacheId == resource.cacheId) {
-                matchingResources.append(resource);
-            }
-        } else {
-            if (entry.cacheId == resource.cacheId &&
-                resource.source == scraper) {
-                matchingResources.append(resource);
-            }
+        if ((scraper.isEmpty() || resource.source == scraper) &&
+            entry.cacheId == resource.cacheId) {
+            matchingResources.append(resource);
         }
     }
 

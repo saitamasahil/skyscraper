@@ -101,6 +101,7 @@ BOOL WINAPI ConsoleHandler(DWORD dwType) {
                     // Cache being edited, clear the queue to quit
                     // nicely
                     x->queue->clearAll();
+                    x->state = Skyscraper::OpMode::CACHE_EDIT_DISMISS;
                 } else if (x->state == Skyscraper::OpMode::THREADED) {
                     // Threads are running, clear queue for a nice exit
                     printf(
