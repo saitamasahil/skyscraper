@@ -37,6 +37,7 @@ namespace Config {
     void setupUserConfig();
     void checkLegacyFiles();
     QString getSupportedPlatforms();
+    QString getRetropieVersion();
 
 } // namespace Config
 

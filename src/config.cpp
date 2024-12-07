@@ -29,6 +29,7 @@
 #include <QProcessEnvironment>
 #include <QStringBuilder>
 #include <QStringList>
+#include <QTextStream>
 
 Config::SkyFolders skyFolders;
 
@@ -257,4 +258,19 @@ QString Config::getSupportedPlatforms() {
     }
     platforms.chop(2);
     return platforms;
+}
+
+QString Config::getRetropieVersion() {
+    // return RetroPie version if any
+    QString ver = "";
+    QFile rpVer("/opt/retropie/VERSION");
+    if (rpVer.open(QIODevice::ReadOnly)) {
+        QTextStream in(&rpVer);
+        while (!in.atEnd()) {
+            ver = in.readLine();
+            break;
+        }
+        rpVer.close();
+    }
+    return ver;
 }

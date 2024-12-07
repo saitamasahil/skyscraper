@@ -25,6 +25,8 @@
 
 #include "platform.h"
 
+#include "config.h"
+
 #include <QByteArray>
 #include <QDebug>
 #include <QFile>
@@ -35,7 +37,12 @@
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QVersionNumber>
 #include <iostream>
+
+static const QString fnPeas = "peas.json";
+static const QString fnPeasLocal = "peas_local.json";
+static const QString fnPlatformsIdMap = "platforms_idmap.csv";
 
 Platform &Platform::get() {
     static Platform platform;
@@ -51,11 +58,27 @@ QString Platform::getDefaultScraper() const { return "cache"; }
 bool Platform::loadConfig() {
     clearConfigData();
 
-    QString fn = "peas.json";
-    QFile configFile(fn);
+    QFile configFile(fnPeas);
     if (!configFile.open(QIODevice::ReadOnly)) {
-        printf("\033[1;31mFile not found '%s'. Now quitting...\033[0m\n",
-               fn.toUtf8().constData());
+        QString extraInfo = "";
+        if (QString rpVer = Config::getRetropieVersion(); !rpVer.isEmpty()) {
+            QVersionNumber foundVer = QVersionNumber::fromString(rpVer);
+            QVersionNumber reqVer = QVersionNumber::fromString("4.8.6");
+            if (QVersionNumber::compare(foundVer, reqVer) == -1) {
+                extraInfo =
+                    QString(
+                        "\n\nIt seems you are using Skyscraper in a RetroPie "
+                        "setup. The identified RetroPie\nversion is %1, "
+                        "the missing file was introduced with version %2: "
+                        "Update\nyour RetroPie-Setup script and re-install "
+                        "Skyscraper via retropie_setup.sh to\nremediate this "
+                        "error.")
+                        .arg(foundVer.toString())
+                        .arg(reqVer.toString());
+            }
+        }
+        printf("\033[1;31mFile not found '%s'.%s Now quitting...\033[0m\n",
+               fnPeas.toUtf8().constData(), extraInfo.toUtf8().constData());
         return false;
     }
 
@@ -65,7 +88,7 @@ bool Platform::loadConfig() {
     if (json.isNull() || json.isEmpty()) {
         printf("\033[1;31mFile '%s' empty or no JSON format. Now "
                "quitting...\033[0m\n",
-               fn.toUtf8().constData());
+               fnPeas.toUtf8().constData());
         return false;
     }
 
@@ -99,15 +122,14 @@ bool Platform::loadConfig() {
 
 QJsonObject Platform::loadLocalConfig() {
     QJsonObject peasLocal;
-    QString fn = "peas_local.json";
-    QFile configFile(fn);
+    QFile configFile(fnPeasLocal);
 
     if (configFile.open(QIODevice::ReadOnly)) {
         QByteArray jsonData = configFile.readAll();
         QJsonDocument json(QJsonDocument::fromJson(jsonData));
 
         if (!json.isNull() && !json.isEmpty()) {
-            qDebug() << "successfully loaded" << fn;
+            qDebug() << "successfully loaded" << fnPeasLocal;
             peasLocal = json.object();
         }
     }
@@ -166,11 +188,10 @@ QStringList Platform::getAliases(QString platform) const {
 }
 
 bool Platform::loadPlatformsIdMap() {
-    QString fn = "platforms_idmap.csv";
-    QFile configFile(fn);
+    QFile configFile(fnPlatformsIdMap);
+    const char *fn = fnPlatformsIdMap.toUtf8().constData();
     if (!configFile.open(QIODevice::ReadOnly)) {
-        printf("\033[1;31mFile not found '%s'. Now quitting...\033[0m\n",
-               fn.toUtf8().constData());
+        printf("\033[1;31mFile not found '%s'. Now quitting...\033[0m\n", fn);
         return false;
     }
     while (!configFile.atEnd()) {
@@ -183,8 +204,7 @@ bool Platform::loadPlatformsIdMap() {
         if (parts.length() != 4) {
             printf("\033[1;31mFile '%s', line '%s' has not four columns, but "
                    "%d. Please fix. Now quitting...\033[0m\n",
-                   fn.toUtf8().constData(),
-                   parts.join(',').toUtf8().constData(), parts.length());
+                   fn, parts.join(',').toUtf8().constData(), parts.length());
             configFile.close();
             return false;
         }
@@ -193,7 +213,7 @@ bool Platform::loadPlatformsIdMap() {
             printf(
                 "\033[1;31mFile '%s', line '%s' has empty folder/platform. "
                 "Ignoring this line. Please fix to mute this warning.\033[0m\n",
-                fn.toUtf8().constData(), parts.join(',').toUtf8().constData());
+                fn, parts.join(',').toUtf8().constData());
             configFile.close();
             return false;
         }
@@ -213,7 +233,7 @@ bool Platform::loadPlatformsIdMap() {
                         "\033[1;33mFile '%s', line '%s,%s' has unparsable int "
                         "value (use -1 for unknown platform id). Assumming -1 "
                         "for now, please fix to mute this warning.\033[0m\n",
-                        fn.toUtf8().constData(), pkey.toUtf8().constData(),
+                        fn, pkey.toUtf8().constData(),
                         parts.join(',').toUtf8().constData());
                 }
             }
@@ -224,7 +244,7 @@ bool Platform::loadPlatformsIdMap() {
                    "'%s'. Skyscraper will continue and uses values of that "
                    "platform (%s). Remove duplicate to rectify the "
                    "issue.\033[0m\n",
-                   pkey.toUtf8().constData(), fn.toUtf8().constData(),
+                   pkey.toUtf8().constData(), fn,
                    parts.join(',').toUtf8().constData());
         }
         platformIdsMap.insert(pkey, ids);

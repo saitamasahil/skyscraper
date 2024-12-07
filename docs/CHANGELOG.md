@@ -19,8 +19,12 @@ humans](https://keepachangelog.com).
   your `peas.json` and `platformid_map.csv` to make use of it.
 - Added: Option `--hint`, it shows a random Tip of the Day.
 - Updated: Skyscraper's hardcoded `/home/<USER>` replaced with the actual user's
-  home directory screen messages. Thanks for highlighting it on the Mac,
+  home directory in messages. Thanks for highlighting it on the Mac,
   @cdaters 
+- Updated: Check on RetroPie if an existing Skyscraper installation is updated
+  at least with RetroPie-Setup 4.8.6 onwards to have the configurable platform
+  information deployed (`peas.json`) and provide a remediation to the user, if
+  this is violated
 - Updated: A downloaded `whdload.xml` file for platform Amiga will be not
   downloaded again until the server indicates. However, manually removing
   `/home/<USER>/.skyscraper/whdload_cached_etag.txt` will force a new download.
