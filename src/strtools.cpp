@@ -150,8 +150,9 @@ QString StrTools::conformPlayers(const QString playerString) {
     if (ok)
         return str;
 
-    issueParseWarning("Player count not replaced to number for scraper input",
-                      str);
+    if (!str.isEmpty())
+        issueParseWarning(
+            "Player count not replaced to number for scraper input", str);
     return str;
 }
 
@@ -206,8 +207,9 @@ QString StrTools::conformAges(QString str) {
     if (ok)
         return str;
 
-    issueParseWarning("Age rating not replaced to number for scraper input",
-                      str);
+    if (!str.isEmpty())
+        issueParseWarning("Age rating not replaced to number for scraper input",
+                          str);
     return str;
 }
 
@@ -239,8 +241,10 @@ QString StrTools::conformReleaseDate(QString str) {
             return QLocale::c().toDate(str, i.value()).toString("yyyyMMdd");
     }
 
-    issueParseWarning(
-        "Release date string is not parsable as date for scraper input", str);
+    if (!str.isEmpty())
+        issueParseWarning(
+            "Release date string is not parsable as date for scraper input",
+            str);
     return str;
 }
 
