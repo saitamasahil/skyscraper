@@ -1032,7 +1032,7 @@ However, folder data is not cached by Skyscraper, which means if you delete your
 
 !!! bug "EmulationStation 2.11.2rp and earlier"
 
-    EmulationStation 2.11.2 (RetroPie) and earlier have a bug that adds a `<folder/>` element everytime you edit and save metadata for the _same_ folder within EmulationStation. The last edit will be the latest folder element in the gamelist file. Skyscraper in contrast expects in maximum one `<folder/>` element per each path. If you regenerate a gamelist with Skyscraper, you will lose the latest edit of the folder metadata. This bug is [described here](https://retropie.org.uk/forum/post/295367) and fixed in the next release of EmulationStation respective is fixed already in the EmulationStation-dev version.
+    EmulationStation 2.11.2 (RetroPie) and earlier have a bug that adds a `<folder/>` element everytime you edit and save metadata for the _same_ folder within EmulationStation. The last edit will be the latest folder element in the gamelist file, i.e. it adds a `<folder/>` element at the end. Skyscraper in contrast expects in maximum only one `<folder/>` element per each path. If you regenerate a gamelist with Skyscraper, you will lose the latest edit of the folder metadata. This bug is [described here](https://retropie.org.uk/forum/post/295367) and is fixed in the next release of EmulationStation respective is fixed already in the EmulationStation-dev version.
 
 Default value: false  
 Allowed in sections: Only for frontends `[emulationstation]`, `[esde]` or `[retrobat]`
@@ -1050,7 +1050,12 @@ Allowed in sections: `[main]`, `[<PLATFORM>]`
 
 #### gameListVariants
 
-This is a comma separated list of options for the different gamelist variants used by the various EmulationStation forks. Currently only `enable-manuals` is evaluated as variant: It generates `<manual/>` entries in the gamelist for the game manuals scraped or found in the cache, if also the manuals configuration option is enabled. This option is not needed for the ES-DE frontend to output game manuals.
+This is a comma separated list of options for the different gamelist variants
+used by the various EmulationStation forks. Currently only `enable-manuals` is
+evaluated as variant: It generates `<manual/>` entries in the gamelist for the
+game manuals scraped or found in the cache, if also the `manuals` configuration
+option is enabled. However, the `gameListVariants` option is not not needed for
+the ES-DE frontend to output game manuals.
 
 **Example(s)**
 
