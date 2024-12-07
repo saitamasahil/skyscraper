@@ -85,6 +85,7 @@ This is an alphabetical index of all configuration options including the section
 | [gameListFolder](CONFIGINI.md#gamelistfolder)               |    Y     |       Y        |       Y        |               |
 | [gameListVariants](CONFIGINI.md#gamelistvariants)           |          |                |       Y        |               |
 | [hints](CONFIGINI.md#hints)                                 |    Y     |                |                |               |
+| [ignoreYearInFilename](CONFIGINI.md#ignoreyearinfilename)   |    Y     |       Y        |                |               |
 | [importFolder](CONFIGINI.md#importfolder)                   |    Y     |       Y        |                |               |
 | [includeFrom](CONFIGINI.md#includefrom)                     |    Y     |       Y        |                |               |
 | [includePattern](CONFIGINI.md#includepattern)               |    Y     |       Y        |       Y        |               |
@@ -1066,3 +1067,25 @@ gameListVariants="enable-manuals"
 
 Default value: unset  
 Allowed in sections: Only for frontend `[emulationstation]`
+
+---
+
+#### ignoreYearInFilename
+
+During scraping, if and only if a year information is identified in parentheses
+in the ROM filename, this information is compared against the release year in
+the scraper database. If the years are different the game information from the
+scraper database is discarded. If no year information is in the ROM filename any
+match for the game from the scraper is accepted. To allow a less strict
+comparision without having to remove or adjust the year information from the
+filename, you can set this option to true.
+
+**Example(s)**
+
+Filename: `Statix (1995)(Black Legend)[h TRSi - HLM].zip`  
+Release year from scrape source: 1994  
+`ignoreYearInFilename=true`: Scraper match is accepted  
+`ignoreYearInFilename=false`: Scraper match is discarded, may end up in result _Game 'Statix (1995)(Black Legend)[h TRSi - HLM]' not found :(_
+
+Default value: `false`  
+Allowed in sections: `[main]`, `[<PLATFORM>]`

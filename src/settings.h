@@ -97,6 +97,7 @@ struct Settings {
     int maxFails = 42;
     bool skipped = false;
     bool tidyDesc = true;
+    bool ignoreYearInFilename = false;
     QString artworkConfig = "";
     QByteArray artworkXml = "";
     QString excludePattern = "";
@@ -210,14 +211,15 @@ private:
         {"gameListFolder",          QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM | CfgType::FRONTEND                    )},
         {"gameListVariants",        QPair<QString, int>("str",                                      CfgType::FRONTEND                    )},
         {"hints",                   QPair<QString, int>("bool", CfgType::MAIN                                                            )},
+        {"ignoreYearInFilename",    QPair<QString, int>("bool", CfgType::MAIN | CfgType::PLATFORM                                        )},
         {"importFolder",            QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},
         {"includeFrom",             QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},
         {"includePattern",          QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM | CfgType::FRONTEND                    )},
-        {"inputFolder",             QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},
         {"innerBracketsReplace",    QPair<QString, int>("str",  CfgType::MAIN                                                            )},
         {"innerParenthesesReplace", QPair<QString, int>("str",  CfgType::MAIN                                                            )},
+        {"inputFolder",             QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},
         {"interactive",             QPair<QString, int>("bool", CfgType::MAIN | CfgType::PLATFORM |                     CfgType::SCRAPER )},
-        {"jpgQuality",              QPair<QString, int>("int",  CfgType::MAIN | CfgType::PLATFORM |                     CfgType::SCRAPER )},
+        {"jpgQuality",              QPair<QString, int>("int",  CfgType::MAIN | CfgType::PLATFORM |                     CfgType::SCRAPER )},        
         {"keepDiscInfo",            QPair<QString, int>("bool", CfgType::MAIN | CfgType::PLATFORM                                        )},
         {"lang",                    QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},
         {"langPrios",               QPair<QString, int>("str",  CfgType::MAIN | CfgType::PLATFORM                                        )},

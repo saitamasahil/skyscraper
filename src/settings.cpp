@@ -374,6 +374,10 @@ void RuntimeCfg::applyConfigIni(CfgType type, QSettings *settings,
                 config->interactive = v;
                 continue;
             }
+            if (k == "ignoreYearInFilename") {
+                config->ignoreYearInFilename = v;
+                continue;
+            }
             if (k == "keepDiscInfo") {
                 config->keepDiscInfo = v;
                 continue;

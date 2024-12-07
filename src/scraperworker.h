@@ -67,7 +67,7 @@ private:
 
     GameEntry getBestEntry(const QList<GameEntry> &gameEntries,
                            QString compareTitle, int compareYear,
-                           int &lowestDistance);
+                           int &lowestDistance, QString &debug);
     GameEntry getEntryFromUser(const QList<GameEntry> &gameEntries,
                                const GameEntry &suggestedGame,
                                const QString &compareTitle,

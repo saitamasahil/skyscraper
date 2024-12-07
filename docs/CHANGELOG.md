@@ -14,6 +14,9 @@ humans](https://keepachangelog.com).
 - Added: Option to retain disc numbering from game filename, when no other
   bracket information is requested. See
   [`keepDiscInfo`](CONFIGINI.md#keepdiscinfo) for details. Thanks, @maxexcloo!
+- Added: Option to override year comparison during scraping, if year is present
+  in game filename. See
+  [`ignoreYearInFilename`](CONFIGINI.md#ignoreyearinfilename).
 - Added: [Platform 'Fujitsu
   FM-Towns'](https://github.com/Gemba/skyscraper/pull/95/files). Manually update
   your `peas.json` and `platformid_map.csv` to make use of it.

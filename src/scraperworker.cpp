@@ -207,17 +207,19 @@ void ScraperWorker::run() {
             game.found = false;
         } else {
             int compareYear = UNDEF_YEAR;
-            QString baseParNotes =
-                NameTools::getParNotes(info.completeBaseName());
-            // If baseParNotes matches (NNNN), compareYear = NNNN
-            QRegularExpressionMatch match =
-                QRegularExpression("\\((\\d{4})\\)").match(baseParNotes);
-            if (match.hasMatch()) {
-                QString yyyy = match.captured(1);
-                compareYear = yyyy.toInt();
+            if (!config.ignoreYearInFilename) {
+                QString baseParNotes =
+                    NameTools::getParNotes(info.completeBaseName());
+                // If baseParNotes matches (NNNN), compareYear = NNNN
+                QRegularExpressionMatch match =
+                    QRegularExpression("\\((\\d{4})\\)").match(baseParNotes);
+                if (match.hasMatch()) {
+                    QString yyyy = match.captured(1);
+                    compareYear = yyyy.toInt();
+                }
             }
             game = getBestEntry(gameEntries, compareTitle, compareYear,
-                                lowestDistance);
+                                lowestDistance, debug);
             if (config.interactive && !fromCache) {
                 game = getEntryFromUser(gameEntries, game, compareTitle,
                                         lowestDistance);
@@ -576,12 +578,16 @@ unsigned int ScraperWorker::editDistance(const std::string &s1,
 
 GameEntry ScraperWorker::getBestEntry(const QList<GameEntry> &gameEntries,
                                       QString compareTitle, int compareYear,
-                                      int &lowestDistance) {
+                                      int &lowestDistance, QString &debug) {
     GameEntry game;
 
     // If scraper provides only one match, always return that match unless we're
     // comparing years.
     int releaseYear = UNDEF_YEAR;
+    QString debugMsg = "Match was discarded as ROM file name contains (%1) "
+                       "and scrape data contains %2 as release year. No "
+                       "match. See config option ignoreYearInFilename, or "
+                       "remove/adjust year from ROM filename to rectify.\n";
     if (scraper->getType() == scraper->MatchType::MATCH_ONE) {
         GameEntry entry = gameEntries.first();
         releaseYear = getReleaseYear(entry.releaseDate);
@@ -589,6 +595,8 @@ GameEntry ScraperWorker::getBestEntry(const QList<GameEntry> &gameEntries,
         if (compareYear != UNDEF_YEAR && releaseYear != UNDEF_YEAR &&
             compareYear != releaseYear) {
             // If year was specified, and doesn't match, return empty game.
+            debug.append(debugMsg.arg(compareYear).arg(releaseYear));
+            game.found = false;
             return game;
         }
         lowestDistance = 0;
@@ -626,6 +634,7 @@ GameEntry ScraperWorker::getBestEntry(const QList<GameEntry> &gameEntries,
         // If year was specified, and doesn't match, skip.
         if (compareYear != UNDEF_YEAR && releaseYear != UNDEF_YEAR &&
             compareYear != releaseYear) {
+            debug.append(debugMsg.arg(compareYear).arg(releaseYear));
             continue;
         }
         if (config.scraper != "openretro") {
