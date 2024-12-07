@@ -21,6 +21,8 @@ humans](https://keepachangelog.com).
 - Updated: Skyscraper's hardcoded `/home/<USER>` replaced with the actual user's
   home directory in messages. Thanks for highlighting it on the Mac,
   @cdaters 
+- Changed: When an invalid scrape module is provided with `-s` Skyscraper now
+  exits. Before this change Skyscraper failed back to cache scraping silently.
 - Updated: Check on RetroPie if an existing Skyscraper installation is updated
   at least with RetroPie-Setup 4.8.6 onwards to have the configurable platform
   information deployed (`peas.json`) and provide a remediation to the user, if

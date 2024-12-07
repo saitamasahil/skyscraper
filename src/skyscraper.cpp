@@ -842,8 +842,17 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
                             "igdb",           "import",        "mobygames",
                             "openretro",      "screenscraper", "thegamesdb",
                             "worldofspectrum"};
-    if (parser.isSet("s") && scrapers.contains(parser.value("s"))) {
-        config.scraper = parser.value("s");
+    if (parser.isSet("s")) {
+        if (scrapers.contains(parser.value("s"))) {
+            config.scraper = parser.value("s");
+        } else {
+            printf("\033[1;31mBummer! Unknown scrapingmodule '%s'. Known "
+                   "scrapers are: %s.\nHint: Try TAB-completion to avoid "
+                   "typos.\033[0m\n",
+                   parser.value("s").toStdString().c_str(),
+                   scrapers.join(", ").toStdString().c_str());
+            exit(1);
+        }
     }
 
     // 3. Frontend specific configs, overrides platform, main and
