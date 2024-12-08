@@ -3,7 +3,7 @@
 This page summarizes the changes of each Skyscraper release, a [changlog for
 humans](https://keepachangelog.com).
 
-### Version 3.14.0 (TBA)
+### Version 3.14.0 (2024-12-08)
 
 - Added: Support for [XDG Base Directories](XDG.md), thanks for the suggestion
   @ASHGOLDOFFICIAL. 
