@@ -28,6 +28,8 @@
 
 #include "abstractfrontend.h"
 
+#include <QMap>
+
 class Pegasus : public AbstractFrontend {
     Q_OBJECT
 
@@ -55,7 +57,7 @@ private:
     QString fromPreservedHeader(const QString &key, const QString &suggested);
     void removePreservedHeader(const QString &key);
     QString toPegasusFormat(const QString &key, const QString &value);
-    QList<QPair<QString, QString>> headerPairs;
+    QMap<QString, QString> headerPairs;
     QString tab = "  ";
 };
 
