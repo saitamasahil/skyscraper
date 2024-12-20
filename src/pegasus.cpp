@@ -369,7 +369,8 @@ QString Pegasus::addMediaFile(const QString &asset, bool useRelativePath,
 bool Pegasus::canSkip() { return true; }
 
 QString Pegasus::getGameListFileName() {
-    return QString("metadata.pegasus.txt");
+    return config->gameListFilename.isEmpty() ? QString("metadata.pegasus.txt")
+                                              : config->gameListFilename;
 }
 
 QString Pegasus::getInputFolder() {
