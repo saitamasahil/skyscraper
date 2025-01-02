@@ -80,8 +80,7 @@ private:
                               const QList<QString> &types);
     QString getPropertyValue(const QJsonArray &jsonArr,
                              const QList<QString> &locPrios,
-                             const QString &locationKey,
-                             const QString &type = "");
+                             const QString &locationKey, const QString &type);
     int getPlatformId(const QString platform) override;
 
     QString region;

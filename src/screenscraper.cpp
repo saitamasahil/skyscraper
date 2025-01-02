@@ -34,6 +34,7 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QProcess>
+#include <QRegularExpression>
 
 constexpr int RETRIESMAX = 4;
 constexpr int MINARTSIZE = 256;
@@ -336,7 +337,7 @@ void ScreenScraper::getTags(GameEntry &game) {
         QString tag =
             getJsonText(jsonTags.at(a).toObject()["noms"].toArray(), LANGUE);
         if (!tag.isEmpty()) {
-            game.tags.append(tag + ", ");
+            game.tags.append(tag % ", ");
         }
     }
 
@@ -422,7 +423,7 @@ void ScreenScraper::getScreenshot(GameEntry &game) {
 
 void ScreenScraper::getWheel(GameEntry &game) {
     QString url = getJsonText(jsonObj["medias"].toArray(), REGION,
-                              QList<QString>({"wheel", "wheel-hd"}));
+                              QList<QString>({"wheel(-hd)?"}));
     game.wheelData = downloadMedia(url);
 }
 
@@ -433,9 +434,9 @@ void ScreenScraper::getMarquee(GameEntry &game) {
 }
 
 void ScreenScraper::getTexture(GameEntry &game) {
-    QString url = getJsonText(
-        jsonObj["medias"].toArray(), REGION,
-        QList<QString>({"support-2D", "support-2d", "support-texture"}));
+    QString url =
+        getJsonText(jsonObj["medias"].toArray(), REGION,
+                    QList<QString>({"support-2[Dd]", "support-texture"}));
     game.textureData = downloadMedia(url);
 }
 
@@ -615,7 +616,9 @@ QString ScreenScraper::getPropertyValue(const QJsonArray &jsonArr,
     for (const auto &location : locPrios) {
         for (const auto &jsonVal : jsonArr) {
             QJsonObject jsonObj = jsonVal.toObject();
-            if (type.isEmpty() || jsonObj["type"].toString() == type) {
+            if (type.isEmpty() || QRegularExpression("^" % type % "$")
+                                      .match(jsonObj["type"].toString())
+                                      .hasMatch()) {
                 if (QString ret = getUrlOrTextPropertyValue(
                         jsonObj, locationKey, location);
                     !ret.isEmpty()) {
@@ -634,7 +637,7 @@ QString ScreenScraper::getLocalizedValue(const QJsonArray &jsonArr,
     qDebug() << "Types:" << types;
     QString ret;
     if (types.isEmpty()) {
-        ret = getPropertyValue(jsonArr, locPrios, locationKey);
+        ret = getPropertyValue(jsonArr, locPrios, locationKey, QString());
     } else {
         for (const auto &type : types) {
             ret = getPropertyValue(jsonArr, locPrios, locationKey, type);
