@@ -1262,21 +1262,26 @@ void Cache::readPriorities() {
     for (int a = 0; a < orderNodes.length(); ++a) {
         QDomElement orderElem = orderNodes.at(a).toElement();
         if (!orderElem.hasAttribute(ATTR_TYPE)) {
-            printf("Priority 'order' node missing 'type' attribute, "
-                   "skipping...\n");
-            errors++;
+            printf("%02d. Priority 'order' node missing 'type' attribute, "
+                   "skipping...\n",
+                   ++errors);
             continue;
         }
         QString type = orderElem.attribute(ATTR_TYPE);
+        if (prioMap.contains(type)) {
+            printf("%02d. another entry for type '%s' found, remove surplus "
+                   "entry to fix. Skipping this one...\n",
+                   ++errors, type.toStdString().c_str());
+            continue;
+        }
         QList<QString> sources;
         // ALWAYS prioritize 'user' resources highest (added with edit mode)
         sources.append(SRC_USER);
         QDomNodeList sourceNodes = orderNodes.at(a).childNodes();
         if (sourceNodes.isEmpty()) {
-            printf("'source' node(s) missing for type '%s' in priorities.xml, "
-                   "skipping...\n",
-                   type.toStdString().c_str());
-            errors++;
+            printf("%02d. 'source' node(s) missing for type '%s' in "
+                   "priorities.xml, skipping...\n",
+                   ++errors, type.toStdString().c_str());
             continue;
         }
         for (int b = 0; b < sourceNodes.length(); ++b) {
@@ -1286,7 +1291,8 @@ void Cache::readPriorities() {
     }
     printf("Priorities loaded successfully");
     if (errors != 0) {
-        printf(", but %d error(s) encountered, please correct this", errors);
+        printf(", but %d error(s) encountered in %s, please correct this",
+               errors, prioFilePath().toStdString().c_str());
     }
     printf("!\n\n");
 }
@@ -1890,6 +1896,7 @@ void Cache::fillBlanks(GameEntry &entry, const QString scraper) {
                 QFileInfo info(f);
                 entry.manualFile = info.absoluteFilePath();
             }
+            // PENDING: if thumbnail is ever used add it here like video/manual
         }
     }
 }
