@@ -76,21 +76,21 @@ bool AttractMode::loadOldGameList(const QString &gameListFileString) {
     return false;
 }
 
-bool AttractMode::skipExisting(QList<GameEntry> &gameEntries,
+void AttractMode::skipExisting(QList<GameEntry> &gameEntries,
                                QSharedPointer<Queue> queue) {
     gameEntries = oldEntries;
 
     printf("Resolving missing entries...");
     int dots = 0;
-    for (int a = 0; a < gameEntries.length(); ++a) {
+    for (auto const &ge : gameEntries) {
         dots++;
         if (dots % 100 == 0) {
             printf(".");
             fflush(stdout);
         }
-        for (int b = 0; b < queue->length(); ++b) {
-            if (gameEntries.at(a).baseName == queue->at(b).completeBaseName()) {
-                queue->removeAt(b);
+        for (auto qi = queue->begin(), end = queue->end(); qi != end; ++qi) {
+            if (ge.baseName == (*qi).completeBaseName()) {
+                queue->erase(qi);
                 // We assume baseName is unique, so break after getting first
                 // hit
                 break;
@@ -98,7 +98,6 @@ bool AttractMode::skipExisting(QList<GameEntry> &gameEntries,
         }
     }
     printf(" \033[1;32mDone!\033[0m\n");
-    return true;
 }
 
 void AttractMode::preserveFromOld(GameEntry &entry) {

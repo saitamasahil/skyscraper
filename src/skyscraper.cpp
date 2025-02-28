@@ -360,20 +360,17 @@ void Skyscraper::run() {
         fflush(stdout);
         if (frontend->loadOldGameList(gameListFileString)) {
             printf("\033[1;32mSuccess!\033[0m\n");
-            if (!config.unattend && cliFiles.isEmpty()) {
+            if (!config.unattend && cliFiles.isEmpty() && frontend->canSkip()) {
                 std::string userInput = "";
-                if (gameListFile.exists() && frontend->canSkip()) {
-                    if (config.unattendSkip) {
-                        userInput = "y";
-                    } else {
-                        printf("\033[1;34mDo you want to skip already existing "
-                               "game list entries\033[0m (y/N)? ");
-                        getline(std::cin, userInput);
-                    }
-                    if ((userInput == "y" || userInput == "Y") &&
-                        frontend->canSkip()) {
-                        frontend->skipExisting(gameEntries, queue);
-                    }
+                if (config.unattendSkip) {
+                    userInput = "y";
+                } else {
+                    printf("\033[1;34mDo you want to skip already existing "
+                           "game list entries\033[0m (y/N)? ");
+                    getline(std::cin, userInput);
+                }
+                if ((userInput == "y" || userInput == "Y")) {
+                    frontend->skipExisting(gameEntries, queue);
                 }
             }
         } else {
@@ -383,15 +380,29 @@ void Skyscraper::run() {
 
     totalFiles = queue->length();
     if (totalFiles == 0) {
-        QString extraInfo = doCacheScraping ? "in cache "
-                                            : "matching these extensions " +
-                                                  getPlatformFileExtensions();
+        QString extraInfo =
+            doCacheScraping
+                ? "in cache"
+                : "matching these extensions '" +
+                      getPlatformFileExtensions().split(' ').join(", ") + "'";
+        QString unattendSkipStr = "";
+        if (!config.unattend && cliFiles.isEmpty()) {
+            unattendSkipStr =
+                "\nMaybe you have opted to skip existing gamelist "
+                "entries (see config: unattendSkip) from this "
+                "\nSkyscraper run and there is none remaining to ";
+            unattendSkipStr =
+                unattendSkipStr % ((doCacheScraping)
+                                       ? "generate a gamelist entry for."
+                                       : "scrape.");
+        }
         printf("\nNo files to process %s for platform "
                "'%s'.\nCheck configured and existing file extensions and cache "
-               "content.\n\n\033[1;33mSkyscraper came to an untimely "
+               "content.%s\n\n\033[1;33mSkyscraper came to an untimely "
                "end.\033[0m\n\n",
                extraInfo.toStdString().c_str(),
-               config.platform.toStdString().c_str());
+               config.platform.toStdString().c_str(),
+               unattendSkipStr.toStdString().c_str());
         exit(0);
     }
 
@@ -557,9 +568,23 @@ void Skyscraper::prepareFileQueue() {
                 continue;
             }
             inputDir.setPath(subdir);
-            queue->append(inputDir.entryInfoList());
-            if (config.verbosity > 0) {
-                printf("Adding files from subdir: '%s'\n",
+            QList<QFileInfo> subFiles = inputDir.entryInfoList();
+            if (config.platform == "scummvm" &&
+                config.frontend == "emulationstation") {
+                // special case: avoid having files like
+                // .../scummvm/blarf.svm/blarf.svm added as game (as the folder
+                // blarf.svm/ acts as ROM file already)
+                for (auto i = subFiles.begin(), end = subFiles.end(); i != end;
+                     ++i) {
+                    if (subdir.contains("/" % (*i).fileName())) {
+                        subFiles.erase(i);
+                        break;
+                    }
+                }
+            }
+            queue->append(subFiles);
+            if (config.verbosity > 0 && subFiles.size() > 0) {
+                printf("Adding matching files from subdir: '%s'\n",
                        subdir.toStdString().c_str());
             }
         }
@@ -860,13 +885,19 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
                             "openretro",      "screenscraper", "thegamesdb",
                             "worldofspectrum"};
     if (parser.isSet("s")) {
-        if (scrapers.contains(parser.value("s"))) {
-            config.scraper = parser.value("s");
+        QString _scraper = parser.value("s");
+        if (_scraper == "tgdb") {
+            _scraper = "thegamesdb";
+        } else if (_scraper == "wos") {
+            _scraper = "worldofspectrum";
+        }
+        if (scrapers.contains(_scraper)) {
+            config.scraper = _scraper;
         } else {
             printf("\033[1;31mBummer! Unknown scrapingmodule '%s'. Known "
                    "scrapers are: %s.\nHint: Try TAB-completion to avoid "
                    "typos.\033[0m\n",
-                   parser.value("s").toStdString().c_str(),
+                   _scraper.toStdString().c_str(),
                    scrapers.join(", ").toStdString().c_str());
             exit(1);
         }
@@ -1052,6 +1083,21 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
                "check file and permissions. Now exiting...\n",
                config.artworkConfig.toStdString().c_str());
         exit(1);
+    }
+
+    if (!config.scummIni.isEmpty()) {
+        if (QFileInfo(config.scummIni).isRelative()) {
+            printf("Parameter scummIni must be absolute path, got: %s.\nPlease "
+                   "fix!\n",
+                   config.scummIni.toStdString().c_str());
+            exit(1);
+        }
+        if (!QFileInfo(config.scummIni).exists()) {
+            printf("Parameter scummIni refers to a non existent file: "
+                   "%s.\nPlease fix!\n",
+                   config.scummIni.toStdString().c_str());
+            exit(1);
+        }
     }
 
     QDir resDir(Config::getSkyFolder(Config::SkyFolderType::RESOURCE));

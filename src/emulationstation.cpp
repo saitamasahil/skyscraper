@@ -54,23 +54,27 @@ QStringList EmulationStation::extraGamelistTags(bool isFolder) {
     return g.extraTagNames(GameEntry::Format::RETROPIE);
 }
 
-bool EmulationStation::skipExisting(QList<GameEntry> &gameEntries,
+void EmulationStation::skipExisting(QList<GameEntry> &gameEntries,
                                     QSharedPointer<Queue> queue) {
     gameEntries = oldEntries;
 
     printf("Resolving missing entries...");
     int dots = 0;
-    for (int a = 0; a < gameEntries.length(); ++a) {
+    for (auto const &ge : gameEntries) {
         dots++;
         if (dots % 100 == 0) {
             printf(".");
             fflush(stdout);
         }
-        QFileInfo current(gameEntries.at(a).path);
-        for (int b = 0; b < queue->length(); ++b) {
+        if (ge.isFolder) {
+            continue;
+        }
+        QFileInfo current(ge.path);
+        for (auto qi = queue->begin(), end = queue->end(); qi != end; ++qi) {
             if (current.isFile()) {
-                if (current.fileName() == queue->at(b).fileName()) {
-                    queue->removeAt(b);
+                if (current.fileName() == (*qi).fileName()) {
+                    queue->erase(qi);
+                    qDebug() << "skipping game (file)" << current.fileName();
                     // We assume filename is unique, so break after getting
                     // first hit
                     break;
@@ -78,9 +82,10 @@ bool EmulationStation::skipExisting(QList<GameEntry> &gameEntries,
             } else if (current.isDir()) {
                 // Use current.canonicalFilePath here since it is already a
                 // path. Otherwise it will use the parent folder
-                if (current.canonicalFilePath() ==
-                    queue->at(b).canonicalPath()) {
-                    queue->removeAt(b);
+                if (current.canonicalFilePath() == (*qi).canonicalFilePath()) {
+                    qDebug() << "skipping game (directory)"
+                             << current.canonicalFilePath();
+                    queue->erase(qi);
                     // We assume filename is unique, so break after getting
                     // first hit
                     break;
@@ -88,7 +93,6 @@ bool EmulationStation::skipExisting(QList<GameEntry> &gameEntries,
             }
         }
     }
-    return true;
 }
 
 void EmulationStation::preserveFromOld(GameEntry &entry) {
