@@ -62,10 +62,6 @@
     <source>openretro</source>
     <source>screenscraper</source>
   </order>
-  <order type="players">
-    <source>import</source>
-    <source>mobygames</source>
-  </order>
   <order type="description">
     <source>import</source>
     <source>esgamelist</source>
