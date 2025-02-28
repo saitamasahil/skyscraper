@@ -8,7 +8,7 @@ win32 {
   }
   DEST=$${OUT_PWD}/$${BUILD_CFG}
 
-  !build_pass:message("Config files will be put into '$$(USERPROFILE)\.skyscraper'.")
+  !build_pass:message("Config files will be put into '$$(USERPROFILE)\\.skyscraper'.")
   !build_pass:message("Existing user's config files will not be overwritten, you may have to diff/merge them manually!")
 
   WINDEPLOYQT_BIN="$$[QT_INSTALL_PREFIX]/bin/windeployqt.exe"
