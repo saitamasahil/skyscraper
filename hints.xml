@@ -34,6 +34,6 @@
   <hint>You can add new platforms (i.e., systems to scrape) with configuration file edits. See PLATFORMS.md.</hint>
   <hint>You can scrape data from GameBase DB files with Skyscraper. GameBase DBs are a well of information especially for indie or homebrew games for retro systems.</hint>
   <hint>Skyscraper supports ten scraping modules: 7 for online sources and 3 for local sources.</hint>
-  <hint>Pizza and beer go whell together.</hint>
+  <hint>Pizza and beer go well together.</hint>
   <hint>Skyscraper debuted at June, 11th 2017.</hint>
 </hints>
