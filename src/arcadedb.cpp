@@ -27,7 +27,16 @@
 
 #include "strtools.h"
 
+#include <QDebug>
 #include <QJsonArray>
+#include <QRegularExpression>
+
+// match "Arcade Video game published NN years ago:"
+static const QRegularExpression MATCH_YEARSAGO = QRegularExpression(
+    "^.+\\s\\d+\\syears ago.*$", QRegularExpression::MultilineOption);
+// match "Game (c) YYYY Corp."
+static const QRegularExpression MATCH_COPYRIGHT = QRegularExpression(
+    "^.+\\s\\([cC]\\).*\\d{2,4}.*$", QRegularExpression::MultilineOption);
 
 ArcadeDB::ArcadeDB(Settings *config, QSharedPointer<NetManager> manager)
     : AbstractScraper(config, manager, MatchType::MATCH_ONE) {
@@ -51,7 +60,9 @@ ArcadeDB::ArcadeDB(Settings *config, QSharedPointer<NetManager> manager)
 
 void ArcadeDB::getSearchResults(QList<GameEntry> &gameEntries,
                                 QString searchName, QString platform) {
-    netComm->request(searchUrlPre + searchName);
+    QString url = searchUrlPre + searchName;
+    qDebug() << url;
+    netComm->request(url);
     q.exec();
     data = netComm->getData();
 
@@ -95,37 +106,42 @@ void ArcadeDB::getPublisher(GameEntry &game) {
 }
 
 void ArcadeDB::getDescription(GameEntry &game) {
-    game.description = jsonObj.value("history").toString();
-    if (game.description.contains("- TECHNICAL")) {
-        game.description =
-            game.description.left(game.description.indexOf("- TECHNICAL"))
-                .trimmed();
+    QString desc = jsonObj.value("history").toString();
+    // these are usually the last paragraphs in a description
+    QStringList ignoreList = {"- TECHNICAL", "- CONTRIBUTE"};
+    for (auto const &kw : ignoreList) {
+        if (desc.contains(kw)) {
+            desc = desc.left(desc.indexOf(kw)).trimmed();
+        }
     }
+    desc = desc.replace(MATCH_YEARSAGO, "").trimmed();
+    desc = desc.replace(MATCH_COPYRIGHT, "").trimmed();
+    game.description = desc;
+    qDebug() << desc;
 }
 
 void ArcadeDB::getCover(GameEntry &game) {
-    for (const auto &key : jsonObj.keys()) {
-        if (key == "url_image_flyer" || key == "url_image_title") {
-            if (jsonObj.value(key).toString().isEmpty()) {
-                continue;
-            }
-            netComm->request(jsonObj.value(key).toString());
-            q.exec();
-            {
-                QImage image;
-                if (netComm->getError() == QNetworkReply::NoError &&
-                    image.loadFromData(netComm->getData())) {
-                    game.coverData = netComm->getData();
-                    return;
-                }
-            }
+    // try flyer first, title (screen) as failsafe
+    for (auto const &key :
+         QStringList({"url_image_flyer", "url_image_title"})) {
+        QString url = jsonObj.value(key).toString();
+        if (url.isEmpty()) {
+            continue;
+        }
+
+        netComm->request(url);
+        q.exec();
+        QImage image;
+        if (netComm->getError() == QNetworkReply::NoError &&
+            image.loadFromData(netComm->getData())) {
+            game.coverData = netComm->getData();
+            return;
         }
     }
 }
 
 void ArcadeDB::getScreenshot(GameEntry &game) {
-    if (!jsonObj.contains("url_image_ingame") ||
-        jsonObj.value("url_image_ingame").toString().isEmpty()) {
+    if (jsonObj.value("url_image_ingame").toString().isEmpty()) {
         return;
     }
     netComm->request(jsonObj.value("url_image_ingame").toString());
@@ -149,8 +165,7 @@ void ArcadeDB::getWheel(GameEntry &game) {
 }
 
 void ArcadeDB::getMarquee(GameEntry &game) {
-    if (!jsonObj.contains("url_image_marquee") ||
-        jsonObj.value("url_image_marquee").toString().isEmpty()) {
+    if (jsonObj.value("url_image_marquee").toString().isEmpty()) {
         return;
     }
     netComm->request(jsonObj.value("url_image_marquee").toString());
@@ -163,18 +178,23 @@ void ArcadeDB::getMarquee(GameEntry &game) {
 }
 
 void ArcadeDB::getVideo(GameEntry &game) {
-    if (!jsonObj.contains("url_video_shortplay") ||
-        jsonObj.value("url_video_shortplay").toString().isEmpty()) {
-        return;
-    }
-    netComm->request(jsonObj.value("url_video_shortplay").toString());
-    q.exec();
-    game.videoData = netComm->getData();
-    if (netComm->getError() == QNetworkReply::NoError &&
-        game.videoData.length() > 4096) {
-        game.videoFormat = "mp4";
-    } else {
-        game.videoData = QByteArray();
+    game.videoData = QByteArray();
+    for (auto const &key :
+         QStringList({"url_video_shortplay_hd", "url_video_shortplay"})) {
+        QString url = jsonObj.value(key).toString();
+        if (url.isEmpty()) {
+            continue;
+        }
+        netComm->request(url);
+        q.exec();
+        if (game.videoData = netComm->getData();
+            netComm->getError() == QNetworkReply::NoError &&
+            game.videoData.length() > 4096) {
+            game.videoFormat = "mp4";
+            break;
+        } else {
+            game.videoData = QByteArray();
+        }
     }
 }
 
@@ -183,7 +203,8 @@ QList<QString> ArcadeDB::getSearchNames(const QFileInfo &info, QString &debug) {
     QList<QString> searchNames;
     debug.append("Base name: '" + baseName + "'\n");
     // don't use lookupSearchNames() to resolve ROM basename as provided MAME
-    // Game ID is sufficient for this module
+    // Game ID is sufficient for this module, only do aliasMap lookup if user
+    // decided to use it
     searchNames.append(lookupAliasMap(baseName, debug));
     return searchNames;
 }
