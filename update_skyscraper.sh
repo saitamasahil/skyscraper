@@ -57,7 +57,7 @@
         QT_SELECT=5 qmake || handle_error "clean old"
 
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            printf '\n%s\n' "--- MacOS : Pre-building adjustment ---"
+            printf '\n%s\n' "--- macOS : Pre-building adjustment ---"
             sed -i '' "s|CC *= .*|CC             = /usr/bin/gcc|" Makefile
             sed -i '' "s|CXX *= .*|CXX           = /usr/bin/g++|" Makefile
         fi
@@ -70,7 +70,7 @@
         sudo make install || handle_error "install"
 
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            printf '\n%s\n' "--- MacOS : extract binary ---"
+            printf '\n%s\n' "--- macOS : extract binary ---"
             mv Skyscraper.app/Contents/MacOS/Skyscraper Skyscraper
             rm -rf Skyscraper.app
         fi

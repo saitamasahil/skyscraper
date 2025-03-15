@@ -3,6 +3,10 @@
 This page summarizes the changes of each Skyscraper release, a [changlog for
 humans](https://keepachangelog.com).
 
+### Version 3.17.0 (2025-TBA)
+
+- Updated: `mamemap.csv` for MAME 0.275
+
 ### Version 3.16.0 (2025-03-10)
 
 - Added: Support for local GameBase DB scraping. See
@@ -51,7 +55,7 @@ humans](https://keepachangelog.com).
 ### Version 3.14.0 (2024-12-08)
 
 - Added: Support for [XDG Base Directories](XDG.md), thanks for the suggestion
-  @ASHGOLDOFFICIAL. 
+  @ASHGOLDOFFICIAL.
 - Added: Option to allow any delimiter between consecutive brackets and
   parentheses in gamelist title. See
   [`innerBracketsReplace`](CONFIGINI.md#innerbracketsreplace) for examples.
@@ -68,7 +72,7 @@ humans](https://keepachangelog.com).
 - Added: Option `--hint`, it shows a random Tip of the Day.
 - Updated: Skyscraper's hardcoded `/home/<USER>` replaced with the actual user's
   home directory in messages. Thanks for highlighting it on the Mac,
-  @cdaters 
+  @cdaters
 - Changed: When an invalid scrape module is provided with `-s` Skyscraper now
   exits. Before this change Skyscraper failed back to cache scraping silently.
 - Updated: Check on RetroPie if an existing Skyscraper installation is updated
@@ -124,7 +128,7 @@ humans](https://keepachangelog.com).
   [`5e0ab1f`](https://github.com/RetroPie/RetroPie-Setup/blob/5e0ab1f85994cbb51eb5539d2a7592a3578c15b8/platforms.cfg))
 - Fixed: The [update
   script](https://github.com/Gemba/skyscraper/blob/master/update_skyscraper.sh)
-  for recent MacOS versions. Thanks, @calumbrodie 
+  for recent macOS versions. Thanks, @calumbrodie
 
 ### Version 3.11.0 (2024-04-15)
 
@@ -162,7 +166,7 @@ humans](https://keepachangelog.com).
   equivalent to `$HOME/.local/share`). Open a new bash -- et voila!
 - Feature: Customizable installation folder when running `make install`. See
   `PREFIX` in `skyscraper.pro`.
-- Feature: Improved MacOS support. Unified update script
+- Feature: Improved macOS support. Unified update script
   `update_skyscraper.sh` (thanks, @jeantichoc) and Docker support via Dev
   Container (kudos, @retrobit).
 - Fix: Various minor fixes reported from the community on different setups,
