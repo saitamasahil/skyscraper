@@ -344,22 +344,18 @@ void ScreenScraper::getTags(GameEntry &game) {
     game.tags.chop(2);
 }
 
-QByteArray ScreenScraper::downloadMedia(const QString &url) {
+QByteArray ScreenScraper::downloadImageWithRetry(const QString &url) {
+    QByteArray d;
     if (!url.isEmpty()) {
         for (int retries = 0; retries < RETRIESMAX; ++retries) {
             limiter.exec();
-            netComm->request(url);
-            q.exec();
-            QImage image;
-            if (netComm->getError(config->verbosity) ==
-                    QNetworkReply::NoError &&
-                netComm->getData().size() >= MINARTSIZE &&
-                image.loadFromData(netComm->getData())) {
-                return netComm->getData();
+            d = downloadMedia(url);
+            if (d.size() >= MINARTSIZE) {
+                break;
             }
         }
     }
-    return QByteArray();
+    return d;
 }
 
 void ScreenScraper::downloadBinary(const QString &url, const QString &type,
@@ -379,6 +375,7 @@ void ScreenScraper::downloadBinary(const QString &url, const QString &type,
                     game.videoFormat = contentType.mid(
                         contentType.indexOf("/") + 1,
                         contentType.length() - contentType.indexOf("/") + 1);
+                    game.videoData = netComm->getData();
                     break;
                 }
             } else {
@@ -403,32 +400,32 @@ void ScreenScraper::getCover(GameEntry &game) {
         url = getJsonText(jsonObj["medias"].toArray(), REGION,
                           QList<QString>({"box-2D"}));
     }
-    game.coverData = downloadMedia(url);
+    game.coverData = downloadImageWithRetry(url);
 }
 
 void ScreenScraper::getScreenshot(GameEntry &game) {
     QString url = getJsonText(jsonObj["medias"].toArray(), REGION,
                               QList<QString>({"ss", "sstitle"}));
-    game.screenshotData = downloadMedia(url);
+    game.screenshotData = downloadImageWithRetry(url);
 }
 
 void ScreenScraper::getWheel(GameEntry &game) {
     QString url = getJsonText(jsonObj["medias"].toArray(), REGION,
                               QList<QString>({"wheel(-hd)?"}));
-    game.wheelData = downloadMedia(url);
+    game.wheelData = downloadImageWithRetry(url);
 }
 
 void ScreenScraper::getMarquee(GameEntry &game) {
     QString url = getJsonText(jsonObj["medias"].toArray(), REGION,
                               QList<QString>({"screenmarquee"}));
-    game.marqueeData = downloadMedia(url);
+    game.marqueeData = downloadImageWithRetry(url);
 }
 
 void ScreenScraper::getTexture(GameEntry &game) {
     QString url =
         getJsonText(jsonObj["medias"].toArray(), REGION,
                     QList<QString>({"support-2[Dd]", "support-texture"}));
-    game.textureData = downloadMedia(url);
+    game.textureData = downloadImageWithRetry(url);
 }
 
 void ScreenScraper::getVideo(GameEntry &game) {
