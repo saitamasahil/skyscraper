@@ -83,7 +83,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &,
 // clang-format off
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 void sigHandler(int signal) {
-    if (signal == 2) {
+    if (signal == SIGINT) {
 #elif defined(Q_OS_WIN)
 BOOL WINAPI ConsoleHandler(DWORD dwType) {
     if (dwType == CTRL_C_EVENT) {
