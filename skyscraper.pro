@@ -27,9 +27,10 @@ unix:target.files=Skyscraper Skyscraper.app/Contents/MacOS/Skyscraper
 
 unix:supplementary.path=$${PREFIX}/bin
 unix:supplementary.files=\
-  supplementary/scraperdata/check_screenscraper_json_to_idmap.py \
-  supplementary/scraperdata/convert_platforms_json.py \
-  supplementary/scraperdata/peas_and_idmap_verify.py
+  supplementary/scraperdata/deepdiff_peas_jsonfiles.py \
+  supplementary/scraperdata/mdb2sqlite.sh \
+  supplementary/scraperdata/peas_and_idmap_verify.py \
+  supplementary/scraperdata/README-Skyscraper-Scripts.md
 
 unix:config.path=$${PREFIX}/etc/skyscraper
 unix:config.files=aliasMap.csv hints.xml mameMap.csv \
