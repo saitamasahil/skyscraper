@@ -3,7 +3,7 @@
 This page summarizes the changes of each Skyscraper release, a [changlog for
 humans](https://keepachangelog.com).
 
-### Version 3.17.0 (2025-TBA)
+### Version 3.17.0 (2025-05-04)
 
 - Changed: Handling of relative path in configuration options adapted to enable
   that gamelist, ROM folder and media folder can be moved easier around or can
