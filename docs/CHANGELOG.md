@@ -25,7 +25,8 @@ humans](https://keepachangelog.com).
 - Fixed: (#122) Updated ZX-Spectrum scraper module. It uses now the site
   `zxinfo.dk` and a web API. The API provides at least the same information as
   the defunct search on `worldofspectrum.org`. Check out the added `--query=`
-  options for the [ZXInfo scraper](CLIHELP.md#-query-string).
+  options for the [ZXInfo scraper](CLIHELP.md#-query-string). Thanks for the
+  hint to @pobulous and to @thomasheckmann for the API access.
 - Fixed: (#136) TGDB scraper now tries harder to get wheel/logo mediafiles.
   Thanks for reporting, @joyrider3774.
 
