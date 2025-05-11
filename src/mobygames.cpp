@@ -252,6 +252,9 @@ void MobyGames::getDescription(GameEntry &game) {
 
     // Remove all html tags within description
     game.description = StrTools::stripHtmlTags(game.description);
+    // API Terms of Service
+    game.description = game.description.trimmed();
+    game.description.append("\n\nData by MobyGames.com");
 }
 
 void MobyGames::getRating(GameEntry &game) {
