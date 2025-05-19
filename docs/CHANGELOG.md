@@ -3,6 +3,11 @@
 This page summarizes the changes of each Skyscraper release, a [changlog for
 humans](https://keepachangelog.com).
 
+### Version 3.18.0 (2025-TBA)
+
+- Updated: macOS installation instructions to use Qt6
+- Updated: Docker uses Ubuntu 24.04 and Qt6
+
 ### Version 3.17.0 (2025-05-04)
 
 - Changed: Handling of relative path in configuration options adapted to enable
