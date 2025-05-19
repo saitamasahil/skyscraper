@@ -7,7 +7,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Installing Qt and toolchain
 RUN apt update
 RUN apt install -y --no-install-recommends \
-  build-essential \ 
+  build-essential \
   qt6-base-dev \
   qmake6 \
   qt6-base-dev-tools \
