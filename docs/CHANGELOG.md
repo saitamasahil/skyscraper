@@ -152,7 +152,7 @@ humans](https://keepachangelog.com).
   option to the already existing flag with the same name. Plus: If you use a
   scraper with a scraping limit for games to be scraped at once (e.g. MobyGames)
   you may stay below that limit. Documentation [here](CONFIGINI.md#onlymissing).
-  Thanks for the suggestion, @sleve_mcdichael
+  Thanks for the suggestion, @s1eve-mcdichae1
 - Update: Valid extensions (= `formats` in Skyscraper's `peas.json` file) with
   info from RetroPie's `platform.cfg` (commit
   [`5e0ab1f`](https://github.com/RetroPie/RetroPie-Setup/blob/5e0ab1f85994cbb51eb5539d2a7592a3578c15b8/platforms.cfg))
