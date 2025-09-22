@@ -1,22 +1,44 @@
 name: build-aarch64-3.17.5
 on: workflow_dispatch
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm64
+
     steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - run: git fetch --tags && git checkout 3.17.5
-      - run: sudo apt-get update && sudo apt-get install -y \
-          build-essential pkg-config git wget curl \
-          zlib1g-dev libpng-dev libsdl2-dev \
-          libgles2-mesa-dev libgl1-mesa-dev \
-          qtbase5-dev qttools5-dev qtbase5-dev-tools \
-          qtmultimedia5-dev libqt5svg5-dev \
-          libcurl4-openssl-dev libssl-dev p7zip-full
-      - run: (qmake6 || QT_SELECT=5 qmake)
-      - run: make -j$(nproc)
-      - run: mkdir -p out && cp Skyscraper out/Skyscraper.aarch64
-      - run: ldd Skyscraper | awk '/=>/ {print $3}' | xargs -I{} cp {} out/ || true
-      - uses: actions/upload-artifact@v4
-        with: { name: skyscraper-3.17.5-aarch64, path: out }
+      - name: Checkout tag 3.17.5
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: '3.17.5'
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential pkg-config git wget curl p7zip-full \
+            zlib1g-dev libpng-dev libsdl2-dev \
+            libgles2-mesa-dev libgl1-mesa-dev \
+            qtbase5-dev qttools5-dev qtbase5-dev-tools \
+            qtmultimedia5-dev libqt5svg5-dev \
+            libcurl4-openssl-dev libssl-dev
+
+      - name: Configure (qmake)
+        run: |
+          if command -v qmake6 >/dev/null; then qmake6; else QT_SELECT=5 qmake; fi
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Package binary and libs
+        run: |
+          mkdir -p out
+          cp Skyscraper out/Skyscraper.aarch64
+          ldd Skyscraper | awk '/=>/ {print $3}' | xargs -I{} cp -n {} out/ || true
+          file out/Skyscraper.aarch64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skyscraper-3.17.5-aarch64
+          path: out
