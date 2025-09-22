@@ -5,13 +5,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout tag 3.17.5
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: '3.17.5'
+      - uses: actions/checkout@v4
 
-      - name: Build (aarch64 via QEMU)
+      - name: Build on aarch64 via QEMU
         uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
@@ -27,12 +23,16 @@ jobs:
               qtmultimedia5-dev libqt5svg5-dev \
               libcurl4-openssl-dev libssl-dev
           run: |
+            set -e
+            wget -nv https://github.com/Gemba/skyscraper/archive/refs/tags/3.17.5.tar.gz -O sk.tar.gz
+            tar xzf sk.tar.gz
+            cd skyscraper-3.17.5
             (qmake6 || QT_SELECT=5 qmake)
             make -j"$(nproc)"
-            mkdir -p out
-            cp Skyscraper out/Skyscraper.aarch64
-            ldd Skyscraper | awk '/=>/ {print $3}' | xargs -r -I{} cp -n {} out/
-            file out/Skyscraper.aarch64
+            mkdir -p ../out
+            cp Skyscraper ../out/Skyscraper.aarch64
+            ldd Skyscraper | awk '/=>/ {print $3}' | xargs -r -I{} cp -n {} ../out/
+            file ../out/Skyscraper.aarch64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
