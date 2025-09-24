@@ -1,0 +1,59 @@
+name: Build Skyscraper ARM64
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+
+jobs:
+  build-arm64:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build on aarch64 (Ubuntu 22.04)
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: aarch64
+          distro: ubuntu22.04
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          install: |
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+              build-essential git clang \
+              qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
+              libssl-dev zlib1g-dev libcurl4-openssl-dev \
+              libprotobuf-dev protobuf-compiler \
+              libarchive-dev libzip-dev \
+              libpng-dev libjpeg-dev libfreetype6-dev
+          run: |
+            set -euo pipefail
+
+            # Fetch Skyscraper source (tag 3.17.5 as in your logs)
+            git clone --depth 1 --branch 3.17.5 https://github.com/Gemba/skyscraper.git
+            cd skyscraper
+
+            # Use clang if you prefer (avoid inline VAR=val cmd to prevent shell parse issues)
+            export QMAKE_CC=clang
+            export QMAKE_CXX=clang++
+
+            qmake -v
+            qmake
+            make -j"$(nproc)"
+
+            file Skyscraper || true
+            strip Skyscraper || true
+
+            # Package artifact
+            tar czf ../Skyscraper.aarch64.tar.gz Skyscraper
+            cd ..
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Skyscraper.aarch64
+          path: Skyscraper.aarch64.tar.gz
