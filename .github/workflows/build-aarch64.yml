@@ -11,7 +11,7 @@ jobs:
         uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
-          distro: ubuntu24.04
+          distro: ubuntu22.04
           shell: /bin/bash
           install: |
             export DEBIAN_FRONTEND=noninteractive
@@ -30,10 +30,8 @@ jobs:
             cd skyscraper-3.17.5
             export CC=clang
             export CXX=clang++
-            # Prefer qmake6 if present; else Qt5 qmake
             (qmake6 || QT_SELECT=5 qmake) QMAKE_CC=clang QMAKE_CXX=clang++
-            # Lower jobs to avoid ICE under QEMU
-            make -j2
+            make -j1
             mkdir -p ../out
             cp Skyscraper ../out/Skyscraper.aarch64
             ldd Skyscraper | awk '/=>/ {print $3}' | xargs -r -I{} cp -n {} ../out/
