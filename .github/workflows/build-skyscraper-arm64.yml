@@ -41,8 +41,8 @@ jobs:
           run: |
             set -euo pipefail
 
-            # Optional: ensure git uses OpenSSL backend
-            git config --global http.sslBackend openssl || true
+            # Ensure we don't force an unsupported SSL backend
+            git config --global --unset http.sslBackend || true
 
             echo "Using Skyscraper tag: ${{ inputs.sk_tag || '3.17.5' }}"
             SK_TAG="${{ inputs.sk_tag || '3.17.5' }}"
