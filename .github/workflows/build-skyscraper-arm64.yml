@@ -2,6 +2,11 @@ name: Build Skyscraper ARM64
 
 on:
   workflow_dispatch:
+    inputs:
+      sk_tag:
+        description: 'Skyscraper version tag'
+        required: true
+        default: '3.17.5'
   push:
     tags:
       - 'v*'
@@ -25,20 +30,28 @@ jobs:
           install: |
             apt-get update
             DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-              build-essential git clang \
+              build-essential git clang pkg-config \
+              ca-certificates \
               qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
               libssl-dev zlib1g-dev libcurl4-openssl-dev \
               libprotobuf-dev protobuf-compiler \
               libarchive-dev libzip-dev \
               libpng-dev libjpeg-dev libfreetype6-dev
+            update-ca-certificates
           run: |
             set -euo pipefail
 
-            # Fetch Skyscraper source (tag 3.17.5 as in your logs)
-            git clone --depth 1 --branch 3.17.5 https://github.com/Gemba/skyscraper.git
+            # Optional: ensure git uses OpenSSL backend
+            git config --global http.sslBackend openssl || true
+
+            echo "Using Skyscraper tag: ${{ inputs.sk_tag || '3.17.5' }}"
+            SK_TAG="${{ inputs.sk_tag || '3.17.5' }}"
+
+            # Fetch Skyscraper source
+            git clone --depth 1 --branch "${SK_TAG}" https://github.com/Gemba/skyscraper.git
             cd skyscraper
 
-            # Use clang if you prefer (avoid inline VAR=val cmd to prevent shell parse issues)
+            # Use clang explicitly
             export QMAKE_CC=clang
             export QMAKE_CXX=clang++
 
@@ -50,10 +63,11 @@ jobs:
             strip Skyscraper || true
 
             # Package artifact
-            tar czf ../Skyscraper.aarch64.tar.gz Skyscraper
+            tar czf ../Skyscraper.aarch64.${SK_TAG}.tar.gz Skyscraper
             cd ..
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Skyscraper.aarch64
-          path: Skyscraper.aarch64.tar.gz
+          path: Skyscraper.aarch64.*.tar.gz
