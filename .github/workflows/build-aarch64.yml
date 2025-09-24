@@ -7,13 +7,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build on aarch64 via QEMU
+      - name: Build on aarch64 via QEMU (clang, low -j)
         uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
-          distro: ubuntu22.04
+          distro: ubuntu24.04
           shell: /bin/bash
           install: |
+            export DEBIAN_FRONTEND=noninteractive
             apt-get update
             apt-get install -y \
               build-essential pkg-config git wget curl p7zip-full file \
@@ -21,21 +22,24 @@ jobs:
               libgles2-mesa-dev libgl1-mesa-dev \
               qtbase5-dev qttools5-dev qtbase5-dev-tools \
               qtmultimedia5-dev libqt5svg5-dev \
-              libcurl4-openssl-dev libssl-dev
+              libcurl4-openssl-dev libssl-dev clang
           run: |
             set -e
             wget -nv https://github.com/Gemba/skyscraper/archive/refs/tags/3.17.5.tar.gz -O sk.tar.gz
             tar xzf sk.tar.gz
             cd skyscraper-3.17.5
-            (qmake6 || QT_SELECT=5 qmake)
-            make -j"$(nproc)"
+            export CC=clang
+            export CXX=clang++
+            # Prefer qmake6 if present; else Qt5 qmake
+            (qmake6 || QT_SELECT=5 qmake) QMAKE_CC=clang QMAKE_CXX=clang++
+            # Lower jobs to avoid ICE under QEMU
+            make -j2
             mkdir -p ../out
             cp Skyscraper ../out/Skyscraper.aarch64
             ldd Skyscraper | awk '/=>/ {print $3}' | xargs -r -I{} cp -n {} ../out/
             file ../out/Skyscraper.aarch64
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: skyscraper-3.17.5-aarch64
           path: out
