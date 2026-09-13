@@ -102,8 +102,8 @@ void ScreenScraper::getSearchResults(QList<GameEntry> &gameEntries,
         StrTools::unMagic(
             "204;198;236;130;203;181;203;126;191;167;200;198;192;228;169;156") +
         "&softname=skyscraper" VERSION +
-        (config->user.isEmpty() ? "" : "&ssid=" + config->user) +
-        (config->password.isEmpty() ? "" : "&sspassword=" + config->password) +
+        (config->user.isEmpty() ? "" : "&ssid=" + QString::fromUtf8(QUrl::toPercentEncoding(config->user))) +
+        (config->password.isEmpty() ? "" : "&sspassword=" + QString::fromUtf8(QUrl::toPercentEncoding(config->password))) +
         (platformId == -1 ? "" : "&systemeid=" + QString::number(platformId)) +
         "&output=json&" + searchName;
 

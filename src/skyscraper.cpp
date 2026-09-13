@@ -1257,13 +1257,13 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
     }
 
     if (!config.userCreds.isEmpty()) {
-        QStringList userCreds = config.userCreds.split(":");
-        if (userCreds.length() == 2) {
-            config.user = userCreds.at(0);
-            config.password = userCreds.at(1);
-        } else if (userCreds.length() == 1) {
+        int colonIdx = config.userCreds.indexOf(':');
+        if (colonIdx != -1) {
+            config.user = config.userCreds.left(colonIdx);
+            config.password = config.userCreds.mid(colonIdx + 1);
+        } else {
             // API key
-            config.password = userCreds.at(0);
+            config.password = config.userCreds;
         }
     }
 
@@ -1552,8 +1552,8 @@ void Skyscraper::prepareScreenscraper(NetComm &netComm, QEventLoop &q) {
             "ssuserInfos.php?devid=muldjord&devpassword=" +
             StrTools::unMagic("204;198;236;130;203;181;203;126;191;167;200;"
                               "198;192;228;169;156") +
-            "&softname=skyscraper" VERSION "&output=json&ssid=" + config.user +
-            "&sspassword=" + config.password);
+            "&softname=skyscraper" VERSION "&output=json&ssid=" + QString::fromUtf8(QUrl::toPercentEncoding(config.user)) +
+            "&sspassword=" + QString::fromUtf8(QUrl::toPercentEncoding(config.password)));
         q.exec();
         QJsonObject jsonObj =
             QJsonDocument::fromJson(netComm.getData()).object();
